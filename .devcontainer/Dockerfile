@@ -5,5 +5,5 @@ FROM mcr.microsoft.com/vscode/devcontainers/rust:1-${VARIANT}
 # [Optional] Uncomment this section to install additional packages.
 # RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 #     && apt-get -y install --no-install-recommends <your-package-list-here>
-RUN apt update && sudo apt upgrade -y
+RUN apt update && apt upgrade -y
 RUN apt install -y protobuf-compiler libprotobuf-dev
