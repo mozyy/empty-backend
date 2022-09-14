@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package model.conf.v1;
+
+import "google/protobuf/timestamp.proto";
+import "gorm/options/gorm.proto";
+import "gorm/types/types.proto";
+
+option (gorm.table_prefix) = "conf_";
+
+message Conf {
+  option (gorm.ormable) = true;
+  uint32 ID = 1 [(gorm.tag) = "primaryKey"];
+  google.protobuf.Timestamp created_at = 2;
+  google.protobuf.Timestamp updated_at = 3;
+  types.DeletedAt deleted_at = 4 [(gorm.tag) = "index"];
+  string type = 5;
+  string value = 6;
+  string content = 7;
+  string desc = 8;
+}
+
+message ConfApi {
+  option (gorm.ormable) = true;
+  uint32 ID = 1 [(gorm.tag) = "primaryKey"];
+  google.protobuf.Timestamp created_at = 2;
+  google.protobuf.Timestamp updated_at = 3;
+  types.DeletedAt deleted_at = 4 [(gorm.tag) = "index"];
+  string api = 5;
+  string scope = 6;
+  string desc = 7;
+}

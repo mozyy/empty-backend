@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package gorm;
+
+option go_package = "github.com/mozyy/protoc-gen-gorm/options;options";
+
+import "google/protobuf/descriptor.proto";
+
+// Currently no file options
+extend google.protobuf.FileOptions {
+  string table_prefix  = 1018;
+}
+
+// Validation rules applied at the message level
+extend google.protobuf.MessageOptions {
+  bool ormable = 1018;
+  repeated ExtraField include = 1019;
+  string table = 1020;
+  // bool multi_account = 1021;
+}
+
+message ExtraField {
+  string type = 1;
+  string name = 2;
+  string tag = 3;
+  string package = 4;
+}
+
+// Field level specifications
+extend google.protobuf.FieldOptions {
+    // 字段标签 https://gorm.io/zh_CN/docs/models.html#%E5%AD%97%E6%AE%B5%E6%A0%87%E7%AD%BE
+    string tag = 1018;
+    bool drop = 1019;
+}
+
+
+// To be used in (leiu of) the interceptor
+extend google.protobuf.ServiceOptions {
+  bool autogen = 1018;
+}
+
+// extend google.protobuf.MethodOptions {
+// }
+

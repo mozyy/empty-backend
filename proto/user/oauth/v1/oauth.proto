@@ -1,0 +1,140 @@
+syntax = "proto3";
+
+package user.oauth.v1;
+
+import "google/protobuf/timestamp.proto";
+import "gorm/options/gorm.proto";
+import "gorm/types/types.proto";
+
+option (gorm.table_prefix) = "oauth_";
+
+service OAuthService {
+  // rpc Authorize(AuthorizeRequest) returns (AuthorizeResponse) {}
+
+  //
+  rpc Token(TokenRequest) returns (TokenResponse) {}
+  rpc Valid(ValidRequest) returns (ValidResponse) {}
+}
+
+message AuthorizeRequest {
+  string redirectURI = 1;
+  // 'code'|'token'
+  ResponseType response_type = 2;
+  string clientID = 3;
+  string scope = 4;
+  string state = 5;
+  string code_challenge = 6;
+  // 'plain'|'S256'
+  CodeChallengeMethod code_challenge_method = 7;
+  // token过期时间
+  // int64 access_token_exp =8;
+}
+message AuthorizeResponse {}
+message TokenRequest {
+  GrantType grant_type = 1;
+  TokenGenerateRequest token_generate_request = 2;
+  string username = 3;
+  string password = 4;
+}
+message TokenResponse {
+  TokenInfo token_info = 1;
+}
+message ValidRequest {
+  string access = 1;
+}
+message ValidResponse {
+  string audience = 1;
+  string subject = 2;
+  int64 expiresAt = 3;
+  string scope = 4;
+}
+
+// TokenInfo implement oauth2.TokenInfo
+message TokenInfo {
+  option (gorm.ormable) = true;
+  uint32 ID = 1 [(gorm.tag) = "primaryKey"];
+  google.protobuf.Timestamp created_at = 2;
+  google.protobuf.Timestamp updated_at = 3;
+  types.DeletedAt deleted_at = 4 [(gorm.tag) = "index"];
+  // 客户端id
+  string clientID = 5;
+  // 用户id
+  string userID = 6;
+  // 回调地址
+  string redirectURI = 7;
+  // 请求权限
+  string scope = 8;
+
+  // code
+  string code = 9;
+  // code 创建时间
+  google.protobuf.Timestamp code_create_at = 10;
+  int64 code_expires_in = 11;
+  string code_challenge = 12;
+  CodeChallengeMethod code_challenge_method = 13;
+
+  // access
+  string access = 14;
+  google.protobuf.Timestamp access_create_at = 15;
+  int64 access_expires_in = 16;
+
+  // 刷新
+  string refresh = 17;
+  google.protobuf.Timestamp refresh_create_at = 18;
+  int64 refresh_expires_in = 19;
+
+  string token_type = 20;
+}
+
+// ClientStore implement oauth2.ClientStore
+message ClientStore {
+  option (gorm.ormable) = true;
+  uint32 ID = 1 [(gorm.tag) = "primaryKey"];
+  google.protobuf.Timestamp created_at = 2;
+  google.protobuf.Timestamp updated_at = 3;
+  types.DeletedAt deleted_at = 4 [(gorm.tag) = "index"];
+  string secret = 5;
+  string domain = 6;
+  string userID = 7;
+}
+
+message TokenGenerateRequest {
+  string clientID = 1;
+  string client_secret = 2;
+  string userID = 3;
+  string redirectURI = 4;
+  string scope = 5;
+  string code = 6;
+  string code_challenge = 7;
+  CodeChallengeMethod code_challenge_method = 8;
+  string refresh = 9;
+  string code_verifier = 10;
+  int64 access_token_exp = 11;
+}
+
+// buf:lint:ignore ENUM_VALUE_PREFIX
+// buf:lint:ignore ENUM_VALUE_UPPER_SNAKE_CASE
+// buf:lint:ignore ENUM_ZERO_VALUE_SUFFIX
+enum ResponseType {
+  code = 0;
+  token = 1;
+}
+// buf:lint:ignore ENUM_VALUE_PREFIX
+// buf:lint:ignore ENUM_VALUE_UPPER_SNAKE_CASE
+// buf:lint:ignore ENUM_ZERO_VALUE_SUFFIX
+enum CodeChallengeMethod {
+  plain = 0;
+  S256 = 1;
+}
+
+// buf:lint:ignore ENUM_VALUE_PREFIX
+// buf:lint:ignore ENUM_VALUE_UPPER_SNAKE_CASE
+// buf:lint:ignore ENUM_ZERO_VALUE_SUFFIX
+// define authorization model
+enum GrantType {
+  authorization_code = 0;
+  password = 1;
+  client_credentials = 2;
+  refresh_token = 3;
+  __implicit = 4;
+}

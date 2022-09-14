@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package news.news.v1;
+
+import "google/protobuf/timestamp.proto";
+import "gorm/options/gorm.proto";
+import "gorm/types/types.proto";
+
+option (gorm.table_prefix) = "news_";
+
+service NewsService {
+  rpc List(ListRequest) returns (ListResponse) {}
+  rpc Detail(DetailRequest) returns (DetailResponse) {}
+}
+
+message News {
+  option (gorm.ormable) = true;
+  uint32 ID = 1 [(gorm.tag) = "primaryKey"];
+  google.protobuf.Timestamp created_at = 2;
+  google.protobuf.Timestamp updated_at = 3;
+  types.DeletedAt deleted_at = 4 [(gorm.tag) = "index"];
+  string link = 5;
+  string image = 6; //
+  string title = 7;
+  string time = 8;
+  int32 view = 9;
+  int32 comment = 10;
+  // 1: 业界, 2: 科学, 3: 影视, 4: 游戏
+  Type type = 11;
+}
+
+message ListRequest {}
+
+message ListResponse {
+  repeated News list = 1;
+}
+
+message DetailRequest {
+  string URL = 1;
+}
+
+message DetailResponse {
+  message DetailContent {
+    option (gorm.ormable) = true;
+    uint32 ID = 1 [(gorm.tag) = "primaryKey"];
+    google.protobuf.Timestamp created_at = 2;
+    google.protobuf.Timestamp updated_at = 3;
+    types.DeletedAt deleted_at = 4 [(gorm.tag) = "index"];
+    int32 type = 5;
+    string content = 6;
+    uint32 news_detailID = 7;
+  }
+  option (gorm.ormable) = true;
+  option (gorm.table) = "news_details";
+  uint32 ID = 1 [(gorm.tag) = "primaryKey"];
+  google.protobuf.Timestamp created_at = 2;
+  google.protobuf.Timestamp updated_at = 3;
+  types.DeletedAt deleted_at = 4 [(gorm.tag) = "index"];
+  string title = 5;
+  string from = 6;
+  string time = 7;
+  string summary = 8;
+  repeated DetailContent content = 9;
+  string no = 10;
+}
+
+enum Type {
+  TYPE_INDUSTRY_UNSPECIFIED = 0;
+  TYPE_SCIENCE = 1;
+  TYPE_FILM = 2;
+  TYPE_GAME = 3;
+}

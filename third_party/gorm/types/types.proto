@@ -1,0 +1,11 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+
+package types;
+
+// option go_package = "gorm.io/gorm;gorm";
+option go_package = "github.com/mozyy/protoc-gen-gorm/types;gorm";
+
+message DeletedAt {
+  google.protobuf.Timestamp time = 2; // created_at
+}

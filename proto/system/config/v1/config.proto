@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+package system.config.v1;
+
+import "google/protobuf/timestamp.proto";
+import "gorm/options/gorm.proto";
+import "gorm/types/types.proto";
+import "user/oauth/v1/oauth.proto";
+
+option (gorm.table_prefix) = "config_";
+
+service ConfigService {
+  option (gorm.autogen) = true;
+  // Create|Read|Update|Delete
+  rpc Create(CreateRequest) returns (CreateResponse) {}
+  rpc Update(UpdateRequest) returns (UpdateResponse) {}
+  rpc Read(ReadRequest) returns (ReadResponse) {}
+  rpc List(ListRequest) returns (ListResponse) {}
+  rpc Delete(DeleteRequest) returns (DeleteResponse) {}
+}
+
+message Config {
+  option (gorm.ormable) = true;
+  uint32 ID = 1 [(gorm.tag) = "primaryKey"];
+  google.protobuf.Timestamp created_at = 2;
+  google.protobuf.Timestamp updated_at = 3;
+  types.DeletedAt deleted_at = 4 [(gorm.tag) = "index"];
+  Type type = 5;
+  string value = 6;
+  string content = 7;
+  string desc = 8;
+  user.oauth.v1.TokenInfo token_info = 9;
+}
+
+message DeleteType {
+  option (gorm.ormable) = true;
+  uint32 ID = 1 [(gorm.tag) = "primaryKey"];
+  google.protobuf.Timestamp created_at = 2;
+  google.protobuf.Timestamp updated_at = 3;
+  types.DeletedAt deleted_at = 4 [(gorm.tag) = "index"];
+}
+
+message CreateRequest {
+  Config config = 1;
+}
+message CreateResponse {
+  Config config = 1;
+}
+message UpdateRequest {
+  Config config = 1;
+}
+message UpdateResponse {
+  Config config = 1;
+}
+
+message ReadRequest {
+  Config config = 1;
+}
+message ReadResponse {
+  Config config = 1;
+}
+
+message ListRequest {
+  Config config = 1;
+}
+message ListResponse {
+  repeated Config configs = 1;
+}
+
+message DeleteRequest {
+  Config config = 1;
+}
+message DeleteResponse {
+  // uint32 id = 1;
+}
+
+enum Type {
+  TYPE_NORMAL_UNSPECIFIED = 0;
+  TYPE_APISCOPE = 1;
+}

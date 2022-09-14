@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package system.resource.v1;
+
+import "google/protobuf/timestamp.proto";
+import "gorm/options/gorm.proto";
+import "gorm/types/types.proto";
+
+option (gorm.table_prefix) = "resource_";
+
+service ResourceService {
+  option (gorm.autogen) = true;
+  rpc Create(CreateRequest) returns (CreateResponse) {}
+  rpc Update(UpdateRequest) returns (UpdateResponse) {}
+  rpc List(ListRequest) returns (ListResponse) {}
+  rpc Delete(DeleteRequest) returns (DeleteResponse) {}
+}
+
+// 系统资源
+message Resource {
+  option (gorm.ormable) = true;
+  uint32 ID = 1 [(gorm.tag) = "primaryKey"];
+  google.protobuf.Timestamp created_at = 2;
+  google.protobuf.Timestamp updated_at = 3;
+  types.DeletedAt deleted_at = 4 [(gorm.tag) = "index"];
+  uint32 resource_itemID = 5;
+  repeated Resource children = 6 [(gorm.tag) = "foreignKey:ResourceItemID"];
+  string key = 7 [(gorm.tag) = "unique"];
+
+  Type type = 8;
+
+  // 路由
+  // 是否首页
+  bool index = 9;
+  // 路由地址/接口地址(正则)
+  string path = 10;
+  // 资源名
+  string name = 11;
+  // 是否菜单
+  bool menu = 12;
+  // 菜单图标
+  string icon = 13;
+  // 描述
+  string desc = 14;
+  // 排序
+  uint32 sort = 15;
+
+  // 资源类型
+  enum Type {
+    // 路由
+    TYPE_ROUTE_UNSPECIFIED = 0;
+    // 功能
+    TYPE_FUNCTION = 1;
+    // 接口
+    TYPE_API = 2;
+  }
+}
+
+message CreateRequest {
+  Resource resource = 1;
+}
+message CreateResponse {
+  Resource resource = 1;
+}
+message UpdateRequest {
+  Resource resource = 1;
+}
+message UpdateResponse {
+  Resource resource = 1;
+}
+
+message ListRequest {
+  Resource resource = 1;
+}
+message ListResponse {
+  repeated Resource resources = 1;
+}
+
+message DeleteRequest {
+  Resource resource = 1;
+}
+message DeleteResponse {
+  // Resource resource = 1;
+}

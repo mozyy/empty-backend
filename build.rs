@@ -47,6 +47,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         })
         .map(|e| e.path())
         .collect();
-    tonic_build::configure().compile(&protos, &["proto", "third_party"])?;
+    println!("protos:{:#?}", protos);
+    tonic_build::configure()
+        // .out_dir("src/protos")
+        .compile(&protos, &["proto", "third_party"])?;
     Ok(())
 }

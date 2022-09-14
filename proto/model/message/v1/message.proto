@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package model.message.v1;
+
+// service MessageService {
+//   rpc Message() returns () {}
+// }
+
+message Message {
+  Status state = 1;
+  string message = 2;
+}
+
+enum Status {
+  STATUS_SUCCESS_UNSPECIFIED = 0;
+  STATUS_INFO = 1;
+  STATUS_WARNING = 2;
+  STATUS_ERROR = 3;
+}
