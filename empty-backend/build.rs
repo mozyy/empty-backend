@@ -40,7 +40,7 @@ impl Iterator for DirIter {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let protos: Vec<_> = DirIter::new("proto")
+    let protos: Vec<_> = DirIter::new("../protos/proto")
         .filter(|e| match e.path().extension() {
             Some(ext) => ext == "proto",
             None => false,
@@ -50,6 +50,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("protos:{:#?}", protos);
     tonic_build::configure()
         // .out_dir("src/protos")
-        .compile(&protos, &["proto", "third_party"])?;
+        .type_attribute("*", "#[derive(Queryable)]")
+        .compile(&protos, &["../protos/proto", "../protos/third_party"])?;
     Ok(())
 }
