@@ -6,20 +6,13 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-clap = "3.2"
-async-trait = "0.1"
-futures = "0.3"
-swagger = { version = "6.2", features = ["serdejson", "server", "client", "tls", "tcp"] }
-log = "0.4"
-hyper = {version = "0.14", features = ["full"]}
-openapi_client={path = "../empty-backend-openapi"}
-tokio = { version = "1.21", features = ["full"] }
-env_logger = "0.9"
-
-hyper-openssl = { version = "0.9" }
-openssl = {version = "0.10" }
-tokio-openssl = "0.6"
-
-[dev-dependencies]
-tokio = { version = "1.21", features = ["full"] }
+actix-web = "4"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+env_logger = "0"
+log = "0"
+futures = "0"
+utoipa = {version = "2", features = ["actix_extras"] }
+utoipa-swagger-ui ={version =  "2", features = ["actix-web"] }
+diesel = { version = "2", features = ["postgres", "r2d2"] }
 
