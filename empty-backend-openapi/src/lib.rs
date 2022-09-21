@@ -10,203 +10,64 @@ use serde::{Serialize, Deserialize};
 
 type ServiceError = Box<dyn Error + Send + Sync + 'static>;
 
-pub const BASE_PATH: &str = "/v2";
-pub const API_VERSION: &str = "1.0.0";
+pub const BASE_PATH: &str = "/v1";
+pub const API_VERSION: &str = "1.0";
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub enum AddPetResponse {
-    /// Invalid input
-    InvalidInput
+pub enum QuestionsIdAnswersAnswerIdPutResponse {
+    /// ok
+    Ok
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub enum DeletePetResponse {
-    /// Invalid pet value
-    InvalidPetValue
+pub enum QuestionsIdAnswersGetResponse {
+    /// ok
+    Ok
+    (Vec<models::Answer>)
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
-#[must_use]
-pub enum FindPetsByStatusResponse {
-    /// successful operation
-    SuccessfulOperation
-    (Vec<models::Pet>)
-    ,
-    /// Invalid status value
-    InvalidStatusValue
+pub enum QuestionsIdAnswersPatchResponse {
+    /// ok
+    Ok
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
-#[must_use]
-pub enum FindPetsByTagsResponse {
-    /// successful operation
-    SuccessfulOperation
-    (Vec<models::Pet>)
-    ,
-    /// Invalid tag value
-    InvalidTagValue
+pub enum QuestionsIdAnswersPostResponse {
+    /// ok
+    Ok
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
-#[must_use]
-pub enum GetPetByIdResponse {
-    /// successful operation
-    SuccessfulOperation
-    (models::Pet)
-    ,
-    /// Invalid ID supplied
-    InvalidIDSupplied
-    ,
-    /// Pet not found
-    PetNotFound
+pub enum QuestionsIdDeleteResponse {
+    /// ok
+    Ok
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
-#[must_use]
-pub enum UpdatePetResponse {
-    /// Invalid ID supplied
-    InvalidIDSupplied
-    ,
-    /// Pet not found
-    PetNotFound
-    ,
-    /// Validation exception
-    ValidationException
+pub enum QuestionsIdGetResponse {
+    /// ok
+    Ok
+    (models::Question)
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub enum UpdatePetWithFormResponse {
-    /// Invalid input
-    InvalidInput
+pub enum QuestionsIdPutResponse {
+    /// ok
+    Ok
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub enum UploadFileResponse {
-    /// successful operation
-    SuccessfulOperation
-    (models::ApiResponse)
+pub enum QuestionsGetResponse {
+    /// ok
+    Ok
+    (Vec<models::Question>)
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
-#[must_use]
-pub enum DeleteOrderResponse {
-    /// Invalid ID supplied
-    InvalidIDSupplied
-    ,
-    /// Order not found
-    OrderNotFound
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub enum GetInventoryResponse {
-    /// successful operation
-    SuccessfulOperation
-    (std::collections::HashMap<String, i32>)
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-#[must_use]
-pub enum GetOrderByIdResponse {
-    /// successful operation
-    SuccessfulOperation
-    (models::Order)
-    ,
-    /// Invalid ID supplied
-    InvalidIDSupplied
-    ,
-    /// Order not found
-    OrderNotFound
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-#[must_use]
-pub enum PlaceOrderResponse {
-    /// successful operation
-    SuccessfulOperation
-    (models::Order)
-    ,
-    /// Invalid Order
-    InvalidOrder
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub enum CreateUserResponse {
-    /// successful operation
-    SuccessfulOperation
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub enum CreateUsersWithArrayInputResponse {
-    /// successful operation
-    SuccessfulOperation
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub enum CreateUsersWithListInputResponse {
-    /// successful operation
-    SuccessfulOperation
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-#[must_use]
-pub enum DeleteUserResponse {
-    /// Invalid username supplied
-    InvalidUsernameSupplied
-    ,
-    /// User not found
-    UserNotFound
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-#[must_use]
-pub enum GetUserByNameResponse {
-    /// successful operation
-    SuccessfulOperation
-    (models::User)
-    ,
-    /// Invalid username supplied
-    InvalidUsernameSupplied
-    ,
-    /// User not found
-    UserNotFound
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-#[must_use]
-pub enum LoginUserResponse {
-    /// successful operation
-    SuccessfulOperation
-    {
-        body: String,
-        x_rate_limit:
-        Option<
-        i32
-        >
-        ,
-        x_expires_after:
-        Option<
-        chrono::DateTime::<chrono::Utc>
-        >
-    }
-    ,
-    /// Invalid username/password supplied
-    InvalidUsername
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub enum LogoutUserResponse {
-    /// successful operation
-    SuccessfulOperation
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-#[must_use]
-pub enum UpdateUserResponse {
-    /// Invalid user supplied
-    InvalidUserSupplied
-    ,
-    /// User not found
-    UserNotFound
+pub enum QuestionsPostResponse {
+    /// ok
+    Ok
 }
 
 /// API
@@ -216,130 +77,54 @@ pub trait Api<C: Send + Sync> {
         Poll::Ready(Ok(()))
     }
 
-    /// Add a new pet to the store
-    async fn add_pet(
+    async fn questions_id_answers_answer_id_put(
         &self,
-        body: models::Pet,
-        context: &C) -> Result<AddPetResponse, ApiError>;
+        id: i32,
+        answer_id: i32,
+        answer: Option<models::Answer>,
+        context: &C) -> Result<QuestionsIdAnswersAnswerIdPutResponse, ApiError>;
 
-    /// Deletes a pet
-    async fn delete_pet(
+    async fn questions_id_answers_get(
         &self,
-        pet_id: i64,
-        api_key: Option<String>,
-        context: &C) -> Result<DeletePetResponse, ApiError>;
+        id: i32,
+        context: &C) -> Result<QuestionsIdAnswersGetResponse, ApiError>;
 
-    /// Finds Pets by status
-    async fn find_pets_by_status(
+    async fn questions_id_answers_patch(
         &self,
-        status: &Vec<String>,
-        context: &C) -> Result<FindPetsByStatusResponse, ApiError>;
+        id: i32,
+        answer: Option<&Vec<models::Answer>>,
+        context: &C) -> Result<QuestionsIdAnswersPatchResponse, ApiError>;
 
-    /// Finds Pets by tags
-    async fn find_pets_by_tags(
+    async fn questions_id_answers_post(
         &self,
-        tags: &Vec<String>,
-        context: &C) -> Result<FindPetsByTagsResponse, ApiError>;
+        id: i32,
+        answer: Option<&Vec<models::Answer>>,
+        context: &C) -> Result<QuestionsIdAnswersPostResponse, ApiError>;
 
-    /// Find pet by ID
-    async fn get_pet_by_id(
+    async fn questions_id_delete(
         &self,
-        pet_id: i64,
-        context: &C) -> Result<GetPetByIdResponse, ApiError>;
+        id: i32,
+        context: &C) -> Result<QuestionsIdDeleteResponse, ApiError>;
 
-    /// Update an existing pet
-    async fn update_pet(
+    async fn questions_id_get(
         &self,
-        body: models::Pet,
-        context: &C) -> Result<UpdatePetResponse, ApiError>;
+        id: i32,
+        context: &C) -> Result<QuestionsIdGetResponse, ApiError>;
 
-    /// Updates a pet in the store with form data
-    async fn update_pet_with_form(
+    async fn questions_id_put(
         &self,
-        pet_id: i64,
-        name: Option<String>,
-        status: Option<String>,
-        context: &C) -> Result<UpdatePetWithFormResponse, ApiError>;
+        id: i32,
+        question: Option<models::Question>,
+        context: &C) -> Result<QuestionsIdPutResponse, ApiError>;
 
-    /// uploads an image
-    async fn upload_file(
+    async fn questions_get(
         &self,
-        pet_id: i64,
-        additional_metadata: Option<String>,
-        file: Option<swagger::ByteArray>,
-        context: &C) -> Result<UploadFileResponse, ApiError>;
+        context: &C) -> Result<QuestionsGetResponse, ApiError>;
 
-    /// Delete purchase order by ID
-    async fn delete_order(
+    async fn questions_post(
         &self,
-        order_id: String,
-        context: &C) -> Result<DeleteOrderResponse, ApiError>;
-
-    /// Returns pet inventories by status
-    async fn get_inventory(
-        &self,
-        context: &C) -> Result<GetInventoryResponse, ApiError>;
-
-    /// Find purchase order by ID
-    async fn get_order_by_id(
-        &self,
-        order_id: i64,
-        context: &C) -> Result<GetOrderByIdResponse, ApiError>;
-
-    /// Place an order for a pet
-    async fn place_order(
-        &self,
-        body: models::Order,
-        context: &C) -> Result<PlaceOrderResponse, ApiError>;
-
-    /// Create user
-    async fn create_user(
-        &self,
-        body: models::User,
-        context: &C) -> Result<CreateUserResponse, ApiError>;
-
-    /// Creates list of users with given input array
-    async fn create_users_with_array_input(
-        &self,
-        body: &Vec<models::User>,
-        context: &C) -> Result<CreateUsersWithArrayInputResponse, ApiError>;
-
-    /// Creates list of users with given input array
-    async fn create_users_with_list_input(
-        &self,
-        body: &Vec<models::User>,
-        context: &C) -> Result<CreateUsersWithListInputResponse, ApiError>;
-
-    /// Delete user
-    async fn delete_user(
-        &self,
-        username: String,
-        context: &C) -> Result<DeleteUserResponse, ApiError>;
-
-    /// Get user by user name
-    async fn get_user_by_name(
-        &self,
-        username: String,
-        context: &C) -> Result<GetUserByNameResponse, ApiError>;
-
-    /// Logs user into the system
-    async fn login_user(
-        &self,
-        username: String,
-        password: String,
-        context: &C) -> Result<LoginUserResponse, ApiError>;
-
-    /// Logs out current logged in user session
-    async fn logout_user(
-        &self,
-        context: &C) -> Result<LogoutUserResponse, ApiError>;
-
-    /// Updated user
-    async fn update_user(
-        &self,
-        username: String,
-        body: models::User,
-        context: &C) -> Result<UpdateUserResponse, ApiError>;
+        question: Option<models::Question>,
+        context: &C) -> Result<QuestionsPostResponse, ApiError>;
 
 }
 
@@ -351,130 +136,54 @@ pub trait ApiNoContext<C: Send + Sync> {
 
     fn context(&self) -> &C;
 
-    /// Add a new pet to the store
-    async fn add_pet(
+    async fn questions_id_answers_answer_id_put(
         &self,
-        body: models::Pet,
-        ) -> Result<AddPetResponse, ApiError>;
+        id: i32,
+        answer_id: i32,
+        answer: Option<models::Answer>,
+        ) -> Result<QuestionsIdAnswersAnswerIdPutResponse, ApiError>;
 
-    /// Deletes a pet
-    async fn delete_pet(
+    async fn questions_id_answers_get(
         &self,
-        pet_id: i64,
-        api_key: Option<String>,
-        ) -> Result<DeletePetResponse, ApiError>;
+        id: i32,
+        ) -> Result<QuestionsIdAnswersGetResponse, ApiError>;
 
-    /// Finds Pets by status
-    async fn find_pets_by_status(
+    async fn questions_id_answers_patch(
         &self,
-        status: &Vec<String>,
-        ) -> Result<FindPetsByStatusResponse, ApiError>;
+        id: i32,
+        answer: Option<&Vec<models::Answer>>,
+        ) -> Result<QuestionsIdAnswersPatchResponse, ApiError>;
 
-    /// Finds Pets by tags
-    async fn find_pets_by_tags(
+    async fn questions_id_answers_post(
         &self,
-        tags: &Vec<String>,
-        ) -> Result<FindPetsByTagsResponse, ApiError>;
+        id: i32,
+        answer: Option<&Vec<models::Answer>>,
+        ) -> Result<QuestionsIdAnswersPostResponse, ApiError>;
 
-    /// Find pet by ID
-    async fn get_pet_by_id(
+    async fn questions_id_delete(
         &self,
-        pet_id: i64,
-        ) -> Result<GetPetByIdResponse, ApiError>;
+        id: i32,
+        ) -> Result<QuestionsIdDeleteResponse, ApiError>;
 
-    /// Update an existing pet
-    async fn update_pet(
+    async fn questions_id_get(
         &self,
-        body: models::Pet,
-        ) -> Result<UpdatePetResponse, ApiError>;
+        id: i32,
+        ) -> Result<QuestionsIdGetResponse, ApiError>;
 
-    /// Updates a pet in the store with form data
-    async fn update_pet_with_form(
+    async fn questions_id_put(
         &self,
-        pet_id: i64,
-        name: Option<String>,
-        status: Option<String>,
-        ) -> Result<UpdatePetWithFormResponse, ApiError>;
+        id: i32,
+        question: Option<models::Question>,
+        ) -> Result<QuestionsIdPutResponse, ApiError>;
 
-    /// uploads an image
-    async fn upload_file(
+    async fn questions_get(
         &self,
-        pet_id: i64,
-        additional_metadata: Option<String>,
-        file: Option<swagger::ByteArray>,
-        ) -> Result<UploadFileResponse, ApiError>;
+        ) -> Result<QuestionsGetResponse, ApiError>;
 
-    /// Delete purchase order by ID
-    async fn delete_order(
+    async fn questions_post(
         &self,
-        order_id: String,
-        ) -> Result<DeleteOrderResponse, ApiError>;
-
-    /// Returns pet inventories by status
-    async fn get_inventory(
-        &self,
-        ) -> Result<GetInventoryResponse, ApiError>;
-
-    /// Find purchase order by ID
-    async fn get_order_by_id(
-        &self,
-        order_id: i64,
-        ) -> Result<GetOrderByIdResponse, ApiError>;
-
-    /// Place an order for a pet
-    async fn place_order(
-        &self,
-        body: models::Order,
-        ) -> Result<PlaceOrderResponse, ApiError>;
-
-    /// Create user
-    async fn create_user(
-        &self,
-        body: models::User,
-        ) -> Result<CreateUserResponse, ApiError>;
-
-    /// Creates list of users with given input array
-    async fn create_users_with_array_input(
-        &self,
-        body: &Vec<models::User>,
-        ) -> Result<CreateUsersWithArrayInputResponse, ApiError>;
-
-    /// Creates list of users with given input array
-    async fn create_users_with_list_input(
-        &self,
-        body: &Vec<models::User>,
-        ) -> Result<CreateUsersWithListInputResponse, ApiError>;
-
-    /// Delete user
-    async fn delete_user(
-        &self,
-        username: String,
-        ) -> Result<DeleteUserResponse, ApiError>;
-
-    /// Get user by user name
-    async fn get_user_by_name(
-        &self,
-        username: String,
-        ) -> Result<GetUserByNameResponse, ApiError>;
-
-    /// Logs user into the system
-    async fn login_user(
-        &self,
-        username: String,
-        password: String,
-        ) -> Result<LoginUserResponse, ApiError>;
-
-    /// Logs out current logged in user session
-    async fn logout_user(
-        &self,
-        ) -> Result<LogoutUserResponse, ApiError>;
-
-    /// Updated user
-    async fn update_user(
-        &self,
-        username: String,
-        body: models::User,
-        ) -> Result<UpdateUserResponse, ApiError>;
+        question: Option<models::Question>,
+        ) -> Result<QuestionsPostResponse, ApiError>;
 
 }
 
@@ -501,209 +210,89 @@ impl<T: Api<C> + Send + Sync, C: Clone + Send + Sync> ApiNoContext<C> for Contex
         ContextWrapper::context(self)
     }
 
-    /// Add a new pet to the store
-    async fn add_pet(
+    async fn questions_id_answers_answer_id_put(
         &self,
-        body: models::Pet,
-        ) -> Result<AddPetResponse, ApiError>
+        id: i32,
+        answer_id: i32,
+        answer: Option<models::Answer>,
+        ) -> Result<QuestionsIdAnswersAnswerIdPutResponse, ApiError>
     {
         let context = self.context().clone();
-        self.api().add_pet(body, &context).await
+        self.api().questions_id_answers_answer_id_put(id, answer_id, answer, &context).await
     }
 
-    /// Deletes a pet
-    async fn delete_pet(
+    async fn questions_id_answers_get(
         &self,
-        pet_id: i64,
-        api_key: Option<String>,
-        ) -> Result<DeletePetResponse, ApiError>
+        id: i32,
+        ) -> Result<QuestionsIdAnswersGetResponse, ApiError>
     {
         let context = self.context().clone();
-        self.api().delete_pet(pet_id, api_key, &context).await
+        self.api().questions_id_answers_get(id, &context).await
     }
 
-    /// Finds Pets by status
-    async fn find_pets_by_status(
+    async fn questions_id_answers_patch(
         &self,
-        status: &Vec<String>,
-        ) -> Result<FindPetsByStatusResponse, ApiError>
+        id: i32,
+        answer: Option<&Vec<models::Answer>>,
+        ) -> Result<QuestionsIdAnswersPatchResponse, ApiError>
     {
         let context = self.context().clone();
-        self.api().find_pets_by_status(status, &context).await
+        self.api().questions_id_answers_patch(id, answer, &context).await
     }
 
-    /// Finds Pets by tags
-    async fn find_pets_by_tags(
+    async fn questions_id_answers_post(
         &self,
-        tags: &Vec<String>,
-        ) -> Result<FindPetsByTagsResponse, ApiError>
+        id: i32,
+        answer: Option<&Vec<models::Answer>>,
+        ) -> Result<QuestionsIdAnswersPostResponse, ApiError>
     {
         let context = self.context().clone();
-        self.api().find_pets_by_tags(tags, &context).await
+        self.api().questions_id_answers_post(id, answer, &context).await
     }
 
-    /// Find pet by ID
-    async fn get_pet_by_id(
+    async fn questions_id_delete(
         &self,
-        pet_id: i64,
-        ) -> Result<GetPetByIdResponse, ApiError>
+        id: i32,
+        ) -> Result<QuestionsIdDeleteResponse, ApiError>
     {
         let context = self.context().clone();
-        self.api().get_pet_by_id(pet_id, &context).await
+        self.api().questions_id_delete(id, &context).await
     }
 
-    /// Update an existing pet
-    async fn update_pet(
+    async fn questions_id_get(
         &self,
-        body: models::Pet,
-        ) -> Result<UpdatePetResponse, ApiError>
+        id: i32,
+        ) -> Result<QuestionsIdGetResponse, ApiError>
     {
         let context = self.context().clone();
-        self.api().update_pet(body, &context).await
+        self.api().questions_id_get(id, &context).await
     }
 
-    /// Updates a pet in the store with form data
-    async fn update_pet_with_form(
+    async fn questions_id_put(
         &self,
-        pet_id: i64,
-        name: Option<String>,
-        status: Option<String>,
-        ) -> Result<UpdatePetWithFormResponse, ApiError>
+        id: i32,
+        question: Option<models::Question>,
+        ) -> Result<QuestionsIdPutResponse, ApiError>
     {
         let context = self.context().clone();
-        self.api().update_pet_with_form(pet_id, name, status, &context).await
+        self.api().questions_id_put(id, question, &context).await
     }
 
-    /// uploads an image
-    async fn upload_file(
+    async fn questions_get(
         &self,
-        pet_id: i64,
-        additional_metadata: Option<String>,
-        file: Option<swagger::ByteArray>,
-        ) -> Result<UploadFileResponse, ApiError>
+        ) -> Result<QuestionsGetResponse, ApiError>
     {
         let context = self.context().clone();
-        self.api().upload_file(pet_id, additional_metadata, file, &context).await
+        self.api().questions_get(&context).await
     }
 
-    /// Delete purchase order by ID
-    async fn delete_order(
+    async fn questions_post(
         &self,
-        order_id: String,
-        ) -> Result<DeleteOrderResponse, ApiError>
+        question: Option<models::Question>,
+        ) -> Result<QuestionsPostResponse, ApiError>
     {
         let context = self.context().clone();
-        self.api().delete_order(order_id, &context).await
-    }
-
-    /// Returns pet inventories by status
-    async fn get_inventory(
-        &self,
-        ) -> Result<GetInventoryResponse, ApiError>
-    {
-        let context = self.context().clone();
-        self.api().get_inventory(&context).await
-    }
-
-    /// Find purchase order by ID
-    async fn get_order_by_id(
-        &self,
-        order_id: i64,
-        ) -> Result<GetOrderByIdResponse, ApiError>
-    {
-        let context = self.context().clone();
-        self.api().get_order_by_id(order_id, &context).await
-    }
-
-    /// Place an order for a pet
-    async fn place_order(
-        &self,
-        body: models::Order,
-        ) -> Result<PlaceOrderResponse, ApiError>
-    {
-        let context = self.context().clone();
-        self.api().place_order(body, &context).await
-    }
-
-    /// Create user
-    async fn create_user(
-        &self,
-        body: models::User,
-        ) -> Result<CreateUserResponse, ApiError>
-    {
-        let context = self.context().clone();
-        self.api().create_user(body, &context).await
-    }
-
-    /// Creates list of users with given input array
-    async fn create_users_with_array_input(
-        &self,
-        body: &Vec<models::User>,
-        ) -> Result<CreateUsersWithArrayInputResponse, ApiError>
-    {
-        let context = self.context().clone();
-        self.api().create_users_with_array_input(body, &context).await
-    }
-
-    /// Creates list of users with given input array
-    async fn create_users_with_list_input(
-        &self,
-        body: &Vec<models::User>,
-        ) -> Result<CreateUsersWithListInputResponse, ApiError>
-    {
-        let context = self.context().clone();
-        self.api().create_users_with_list_input(body, &context).await
-    }
-
-    /// Delete user
-    async fn delete_user(
-        &self,
-        username: String,
-        ) -> Result<DeleteUserResponse, ApiError>
-    {
-        let context = self.context().clone();
-        self.api().delete_user(username, &context).await
-    }
-
-    /// Get user by user name
-    async fn get_user_by_name(
-        &self,
-        username: String,
-        ) -> Result<GetUserByNameResponse, ApiError>
-    {
-        let context = self.context().clone();
-        self.api().get_user_by_name(username, &context).await
-    }
-
-    /// Logs user into the system
-    async fn login_user(
-        &self,
-        username: String,
-        password: String,
-        ) -> Result<LoginUserResponse, ApiError>
-    {
-        let context = self.context().clone();
-        self.api().login_user(username, password, &context).await
-    }
-
-    /// Logs out current logged in user session
-    async fn logout_user(
-        &self,
-        ) -> Result<LogoutUserResponse, ApiError>
-    {
-        let context = self.context().clone();
-        self.api().logout_user(&context).await
-    }
-
-    /// Updated user
-    async fn update_user(
-        &self,
-        username: String,
-        body: models::User,
-        ) -> Result<UpdateUserResponse, ApiError>
-    {
-        let context = self.context().clone();
-        self.api().update_user(username, body, &context).await
+        self.api().questions_post(question, &context).await
     }
 
 }
