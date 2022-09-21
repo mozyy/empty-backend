@@ -1,8 +1,14 @@
 use actix_web::{get, post, put, web, HttpResponse, Responder, Scope};
 use diesel::Queryable;
 use serde::Serialize;
+use utoipa::OpenApi;
 use utoipa::ToSchema;
 
+#[derive(Default, OpenApi)]
+#[openapi(
+    paths(get, post, id_get, id_post, id_put,),
+    components(schemas(Question, Answer))
+)]
 pub struct Server {}
 
 impl Server {
@@ -27,24 +33,28 @@ pub struct Question {
     answers: Vec<Answer>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, ToSchema, Default)]
 pub struct Answer {
     id: i32,
     content: String,
 }
 
-#[utoipa::path(context_path = "/questions")]
+#[utoipa::path(context_path = "/questions"
+,responses(
+    (status=200,description="ok",body=[Question])
+))]
 #[get("")]
-async fn get() -> String {
-    // let questios = vec![Question::default()];
-    "questios".to_string()
+async fn get() -> HttpResponse {
+    let questions = vec![Question::default()];
+    HttpResponse::Ok().json(questions)
 }
 
-#[utoipa::path(context_path = "/questions")]
+#[utoipa::path(context_path = "/questions",responses(
+    (status=200,description="ok",body=[Question])
+))]
 #[post("")]
 async fn post() -> HttpResponse {
-    let questios = vec![Question::default()];
-    HttpResponse::Ok().json(questios)
+    todo!()
 }
 
 #[utoipa::path(
@@ -57,8 +67,7 @@ async fn post() -> HttpResponse {
     ))]
 #[get("/{id}")]
 async fn id_get() -> HttpResponse {
-    let questios = vec![Question::default()];
-    HttpResponse::Ok().json(questios)
+    todo!()
 }
 
 #[utoipa::path(context_path = "/questions")]
