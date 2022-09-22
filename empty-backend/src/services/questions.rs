@@ -54,9 +54,16 @@ pub struct Answer {
     (status=200,description="ok",body=[Question])
 ))]
 #[get("")]
-async fn get() -> HttpResponse {
-    let values = vec![Question::default()];
-    HttpResponse::Ok().json(values)
+async fn get(pool: web::Data<DbPool>) -> Result<HttpResponse, ActixError> {
+    // use web::block to offload blocking Diesel code without blocking server thread
+    let res = web::block(move || {
+        let mut conn = pool.get()?;
+        get_questions(&mut conn)
+    })
+    .await?
+    .map_err(actix_web::error::ErrorInternalServerError)?;
+
+    Ok(HttpResponse::Ok().json(res))
 }
 
 #[utoipa::path(context_path = "/questions",request_body = Question, responses(
@@ -107,8 +114,19 @@ async fn id_put() -> HttpResponse {
     HttpResponse::Ok().json(questios)
 }
 
+fn get_questions(
+    conn: &mut PgConnection,
+) -> Result<Vec<Question>, Box<dyn std::error::Error + Send + Sync>> {
+    let value = conn.transaction::<_, diesel::result::Error, _>(|conn| {
+        let qs = questions::table.load::<(i32,String,Option<i32>,Option<String>)>(conn)?;  
+        Ok(qs)
+    })?; 
+
+    Ok(value)
+}
+
 /// Run query using Diesel to insert a new database row and return the result.
-pub fn insert_new_question(
+fn insert_new_question(
     conn: &mut PgConnection,
     question: &Question, // prevent collision with `name` column imported inside the function
 ) -> Result<i32, Box<dyn std::error::Error + Send + Sync>> {
@@ -116,28 +134,26 @@ pub fn insert_new_question(
     // modules inside a function's scope (rather than the normal module's scope)
     // to prevent import collisions and namespace pollution.
     use crate::schema::questions::dsl::*;
-    Ok(
-        conn.transaction::<_, diesel::result::Error, _>(move |conn| {
-            let new_question_id = diesel::insert_into(questions)
-                .values((content.eq(&question.content), desc.eq(&question.desc)))
-                .returning(id)
-                .get_result::<i32>(conn)?;
-            diesel::insert_into(answers)
-                .values(
-                    &question
-                        .answers
-                        .clone()
-                        .into_iter()
-                        .map(|answer| {
-                            (
-                                crate::schema::answers::columns::question_id.eq(new_question_id),
-                                crate::schema::answers::columns::content.eq(answer.content),
-                            )
-                        })
-                        .collect::<Vec<_>>(),
-                )
-                .execute(conn)?;
-            Ok(new_question_id)
-        })?,
-    )
+    Ok(conn.transaction::<_, diesel::result::Error, _>(|conn| {
+        let new_question_id = diesel::insert_into(questions)
+            .values((content.eq(&question.content), desc.eq(&question.desc)))
+            .returning(id)
+            .get_result::<i32>(conn)?;
+        diesel::insert_into(answers)
+            .values(
+                &question
+                    .answers
+                    .clone()
+                    .into_iter()
+                    .map(|answer| {
+                        (
+                            crate::schema::answers::columns::question_id.eq(new_question_id),
+                            crate::schema::answers::columns::content.eq(answer.content),
+                        )
+                    })
+                    .collect::<Vec<_>>(),
+            )
+            .execute(conn)?;
+        Ok(new_question_id)
+    })?)
 }
