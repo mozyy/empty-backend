@@ -12,6 +12,7 @@ diesel::table! {
     questions (id) {
         id -> Int4,
         content -> Text,
+        answer_id -> Nullable<Int4>,
         desc -> Nullable<Text>,
     }
 }

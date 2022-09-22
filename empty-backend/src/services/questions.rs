@@ -33,18 +33,19 @@ impl super::Server for Server {
     }
 }
 
-#[derive(Default, Queryable, Insertable, Serialize, Deserialize, ToSchema)]
+#[derive(Default, Serialize, Deserialize, ToSchema)]
 pub struct Question {
     pub id: Option<i32>,
     pub content: String,
     pub desc: String,
+    pub answers: Vec<Answer>,
 }
 
-#[derive(Serialize, ToSchema, Default, Queryable, Insertable, Associations)]
+#[derive(Serialize, Deserialize, ToSchema, Default, Queryable, Insertable, Associations, Clone)]
 #[diesel(belongs_to(Question))]
 pub struct Answer {
-    pub id: i32,
-    pub question_id: i32,
+    pub id: Option<i32>,
+    pub question_id: Option<i32>,
     pub content: String,
 }
 
@@ -58,8 +59,8 @@ async fn get() -> HttpResponse {
     HttpResponse::Ok().json(values)
 }
 
-#[utoipa::path(context_path = "/questions",responses(
-    (status=200,description="ok",body=[Question])
+#[utoipa::path(context_path = "/questions",request_body = Question, responses(
+    (status=200,description="ok",body=i32)
 ))]
 #[post("")]
 async fn post(
@@ -69,14 +70,14 @@ async fn post(
     let question = question.into_inner();
 
     // use web::block to offload blocking Diesel code without blocking server thread
-    let question = web::block(move || {
+    let new_question_id = web::block(move || {
         let mut conn = pool.get()?;
-        insert_new_question(&mut conn, &question.content)
+        insert_new_question(&mut conn, &question)
     })
     .await?
     .map_err(actix_web::error::ErrorInternalServerError)?;
 
-    Ok(HttpResponse::Ok().json(question))
+    Ok(HttpResponse::Ok().json(new_question_id))
 }
 
 #[utoipa::path(
@@ -109,22 +110,34 @@ async fn id_put() -> HttpResponse {
 /// Run query using Diesel to insert a new database row and return the result.
 pub fn insert_new_question(
     conn: &mut PgConnection,
-    question: &str, // prevent collision with `name` column imported inside the function
-) -> Result<Question, Box<dyn std::error::Error + Send + Sync>> {
+    question: &Question, // prevent collision with `name` column imported inside the function
+) -> Result<i32, Box<dyn std::error::Error + Send + Sync>> {
     // It is common when using Diesel with Actix Web to import schema-related
     // modules inside a function's scope (rather than the normal module's scope)
     // to prevent import collisions and namespace pollution.
     use crate::schema::questions::dsl::*;
-
-    let new_user = Question {
-        id: None,
-        content: question.to_owned(),
-        desc: "".to_owned(),
-    };
-
-    diesel::insert_into(questions)
-        .values(&new_user)
-        .execute(conn)?;
-
-    Ok(new_user)
+    Ok(
+        conn.transaction::<_, diesel::result::Error, _>(move |conn| {
+            let new_question_id = diesel::insert_into(questions)
+                .values((content.eq(&question.content), desc.eq(&question.desc)))
+                .returning(id)
+                .get_result::<i32>(conn)?;
+            diesel::insert_into(answers)
+                .values(
+                    &question
+                        .answers
+                        .clone()
+                        .into_iter()
+                        .map(|answer| {
+                            (
+                                crate::schema::answers::columns::question_id.eq(new_question_id),
+                                crate::schema::answers::columns::content.eq(answer.content),
+                            )
+                        })
+                        .collect::<Vec<_>>(),
+                )
+                .execute(conn)?;
+            Ok(new_question_id)
+        })?,
+    )
 }
