@@ -9,7 +9,10 @@ use log::info;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::{SwaggerUi, Url};
 
+mod schema;
 mod services;
+
+pub type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
 #[actix_web::main]
 async fn main() -> Result<(), impl Error> {
