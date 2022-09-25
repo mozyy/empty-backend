@@ -1,8 +1,4 @@
-use actix_web::{
-    http::Method,
-    http::{header::ContentType, StatusCode},
-    web, Either, HttpResponse, Responder, Result, Scope,
-};
+use actix_web::{http::Method, web, HttpResponse, Responder, Scope};
 
 mod docs;
 mod questions;

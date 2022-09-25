@@ -1,18 +1,12 @@
-use std::{env, error::Error, net::Ipv4Addr};
+use std::{error::Error, net::Ipv4Addr};
 
-use actix_web::middleware::{Compress, NormalizePath};
+use actix_web::middleware::Compress;
 use actix_web::{middleware::Logger, web, App, HttpServer};
-use diesel::pg::PgConnection;
-use diesel::r2d2::{self, ConnectionManager};
-use diesel::Connection;
 use log::info;
-use utoipa::OpenApi;
-use utoipa_swagger_ui::{SwaggerUi, Url};
 
+mod database;
 mod schema;
 mod services;
-
-pub type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
 #[actix_web::main]
 async fn main() -> Result<(), impl Error> {
@@ -20,11 +14,7 @@ async fn main() -> Result<(), impl Error> {
 
     info!("starting HTTP server at http://localhost:8080");
     // set up database connection pool
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    let manager = ConnectionManager::<PgConnection>::new(database_url);
-    let pool = r2d2::Pool::builder()
-        .build(manager)
-        .expect("Failed to create pool.");
+    let pool = database::get_db_pool();
 
     HttpServer::new(move || {
         App::new()

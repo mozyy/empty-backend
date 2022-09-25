@@ -1,5 +1,5 @@
 [workspace]
 members = [
     "empty-backend",
-    "empty-backend-openapi"
+    "empty-backend-openapi",
 ]

@@ -1,6 +1,3 @@
-use actix_web::{get, post, put, web, HttpResponse, Responder, Scope};
-use diesel::Queryable;
-use serde::Serialize;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::{SwaggerUi, Url};
 
