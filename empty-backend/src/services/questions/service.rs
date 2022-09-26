@@ -64,7 +64,7 @@ pub fn insert_questions(
             let a = question
                 .into_iter()
                 .zip(new_question_ids.clone())
-                .map(|((q, n), a)| {
+                .map(|((_, n), a)| {
                     answers::table
                         .filter(answers::dsl::question_id.eq(a))
                         .select(answers::dsl::id)
@@ -100,9 +100,9 @@ pub fn select_questions(
             .into_iter()
             .zip(answer)
             .zip(question_answer)
-            .map(|((q, a), n)| match n.first().clone() {
-                Some(&qn) => Ok((q, a, qn.clone())),
-                None => Err("answer error".to_string()),
+            .map(|((q, a), n)| match n.first() {
+                Some(qn) => Ok((q, a, qn.to_owned())),
+                None => Err("answer error"),
             })
             .collect::<Result<Vec<_>, _>>();
         Ok(data)
