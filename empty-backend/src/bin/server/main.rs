@@ -2,11 +2,8 @@ use std::{error::Error, net::Ipv4Addr};
 
 use actix_web::middleware::Compress;
 use actix_web::{middleware::Logger, web, App, HttpServer};
+use empty_backend::{database, services};
 use log::info;
-
-mod database;
-mod schema;
-mod services;
 
 #[actix_web::main]
 async fn main() -> Result<(), impl Error> {

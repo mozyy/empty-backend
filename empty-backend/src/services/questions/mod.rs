@@ -1,12 +1,12 @@
 use crate::database::DbPool;
 use actix_web::{get, post, put, web, Error as ActixError, HttpResponse, Scope};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use utoipa::{OpenApi, ToSchema};
 
 mod model;
 mod service;
 
-pub use model::{Answer, NewAnswer, NewQuestion, NewQuestionAnswerNth, Question};
+pub use model::{Answer, NewAnswer, NewQuestion, NewQuestionAnswerNth, Question, QuestionAnswer};
 
 #[derive(Default, OpenApi)]
 #[openapi(
@@ -17,7 +17,9 @@ pub use model::{Answer, NewAnswer, NewQuestion, NewQuestionAnswerNth, Question};
         Answer,
         Question,
         PostParams,
-        NewQuestionAnswerNth
+        NewQuestionAnswerNth,
+        QuestionAnswer,
+        GetResp,
     ))
 )]
 pub struct Server {}
@@ -39,9 +41,16 @@ impl super::Server for Server {
     }
 }
 
+#[derive(ToSchema, Serialize)]
+struct GetResp {
+    question: Question,
+    answers: Vec<Answer>,
+    answer: QuestionAnswer,
+}
+
 #[utoipa::path(context_path = "/questions"
 ,responses(
-    (status=200,description="ok",body=[Question])
+    (status=200,description="ok",body=[GetResp])
 ))]
 #[get("")]
 async fn get(pool: web::Data<DbPool>) -> Result<HttpResponse, ActixError> {
@@ -52,7 +61,14 @@ async fn get(pool: web::Data<DbPool>) -> Result<HttpResponse, ActixError> {
     })
     .await?
     .map_err(actix_web::error::ErrorInternalServerError)?;
-
+    let res: Vec<GetResp> = res
+        .into_iter()
+        .map(|(question, answers, answer)| GetResp {
+            question,
+            answers,
+            answer,
+        })
+        .collect();
     Ok(HttpResponse::Ok().json(res))
 }
 
@@ -90,7 +106,7 @@ async fn post(
 #[utoipa::path(
     context_path = "/questions",
     params(
-         ("id", description = "Pet id"),
+         ("id" = i32, description = "Pet id"),
     ),
     responses(
     (status = 200, description = "Pet found from database",body = Question)
@@ -100,13 +116,17 @@ async fn id_get() -> HttpResponse {
     todo!()
 }
 
-#[utoipa::path(context_path = "/questions")]
+#[utoipa::path(context_path = "/questions",params(
+    ("id" = i32, description = "Pet id"),
+))]
 #[post("/{id}")]
 async fn id_post() -> HttpResponse {
     todo!()
 }
 
-#[utoipa::path(context_path = "/questions")]
+#[utoipa::path(context_path = "/questions",params(
+    ("id" = i32, description = "Pet id"),
+))]
 #[put("/{id}")]
 async fn id_put() -> HttpResponse {
     todo!()

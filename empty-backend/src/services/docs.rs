@@ -1,7 +1,6 @@
+use super::questions;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::{SwaggerUi, Url};
-
-use super::questions;
 
 pub struct Server {}
 

@@ -1,7 +1,7 @@
 use actix_web::{http::Method, web, HttpResponse, Responder, Scope};
 
 mod docs;
-mod questions;
+pub mod questions;
 
 trait Server {
     fn service(&self) -> Scope;
