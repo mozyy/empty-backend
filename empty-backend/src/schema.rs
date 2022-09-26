@@ -5,6 +5,8 @@ diesel::table! {
         id -> Int4,
         question_id -> Int4,
         content -> Text,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
@@ -14,6 +16,8 @@ diesel::table! {
         question_id -> Int4,
         answer_id -> Int4,
         content -> Text,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
@@ -22,6 +26,8 @@ diesel::table! {
         id -> Int4,
         content -> Text,
         desc -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 

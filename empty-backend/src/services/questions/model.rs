@@ -1,3 +1,5 @@
+use std::time::SystemTime;
+
 use crate::schema::answers;
 use crate::schema::question_answers;
 use crate::schema::questions;
@@ -10,6 +12,8 @@ pub struct Question {
     pub id: i32,
     pub content: String,
     pub desc: Option<String>,
+    pub created_at: SystemTime,
+    pub updated_at: SystemTime,
 }
 
 #[derive(Insertable, Serialize, Deserialize, ToSchema)]
@@ -25,6 +29,8 @@ pub struct Answer {
     pub id: i32,
     pub question_id: i32,
     pub content: String,
+    pub created_at: SystemTime,
+    pub updated_at: SystemTime,
 }
 #[derive(Insertable, Serialize, Deserialize, ToSchema)]
 #[diesel(table_name = answers)]
@@ -40,6 +46,8 @@ pub struct QuestionAnswer {
     pub question_id: i32,
     pub answer_id: i32,
     pub content: String,
+    pub created_at: SystemTime,
+    pub updated_at: SystemTime,
 }
 #[derive(Insertable, Clone)]
 #[diesel(table_name = question_answers)]

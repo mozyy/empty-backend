@@ -6,6 +6,7 @@ use utoipa::{OpenApi, ToSchema};
 mod model;
 mod service;
 
+use super::system::resources::model::{Resource, Route, Type};
 pub use model::{Answer, NewAnswer, NewQuestion, NewQuestionAnswerNth, Question, QuestionAnswer};
 
 #[derive(Default, OpenApi)]
@@ -20,6 +21,9 @@ pub use model::{Answer, NewAnswer, NewQuestion, NewQuestionAnswerNth, Question, 
         NewQuestionAnswerNth,
         QuestionAnswer,
         GetResp,
+        Resource,
+        Type,
+        Route,
     ))
 )]
 pub struct Server {}
