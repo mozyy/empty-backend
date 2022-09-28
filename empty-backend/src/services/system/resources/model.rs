@@ -1,11 +1,9 @@
-use diesel::sql_types::Timestamp;
+use std::time::SystemTime;
 use utoipa::ToSchema;
 
 #[derive(ToSchema)]
 pub struct Resource {
     id: i32,
-    created_at: Timestamp,
-    updated_at: Timestamp,
     resource_id: i32,
     key: String,
     r#type: Type,
@@ -16,6 +14,8 @@ pub struct Resource {
     icon: String,
     desc: String,
     sort: i32,
+    created_at: SystemTime,
+    updated_at: SystemTime,
 }
 #[derive(ToSchema)]
 pub struct Route {

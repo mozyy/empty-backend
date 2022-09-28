@@ -1,0 +1,446 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "empty_backend",
+    "description": "",
+    "contact": {
+      "name": "",
+      "email": ""
+    },
+    "license": {
+      "name": ""
+    },
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/questions": {
+      "get": {
+        "tags": [
+          "crate"
+        ],
+        "description": "",
+        "operationId": "get",
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GetResp"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      },
+      "post": {
+        "tags": [
+          "crate"
+        ],
+        "description": "",
+        "operationId": "post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostParams"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/questions/{id}": {
+      "get": {
+        "tags": [
+          "crate"
+        ],
+        "description": "",
+        "operationId": "id_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Pet id",
+            "required": true,
+            "deprecated": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pet found from database",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Question"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      },
+      "post": {
+        "tags": [
+          "crate"
+        ],
+        "description": "",
+        "operationId": "id_post",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Pet id",
+            "required": true,
+            "deprecated": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {},
+        "deprecated": false
+      },
+      "put": {
+        "tags": [
+          "crate"
+        ],
+        "description": "",
+        "operationId": "id_put",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Pet id",
+            "required": true,
+            "deprecated": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {},
+        "deprecated": false
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Answer": {
+        "type": "object",
+        "required": [
+          "id",
+          "question_id",
+          "content",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "created_at": {
+            "$ref": "#/components/schemas/SystemTime"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "question_id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "updated_at": {
+            "$ref": "#/components/schemas/SystemTime"
+          }
+        }
+      },
+      "GetResp": {
+        "type": "object",
+        "required": [
+          "question",
+          "answers",
+          "answer"
+        ],
+        "properties": {
+          "answer": {
+            "$ref": "#/components/schemas/QuestionAnswer"
+          },
+          "answers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Answer"
+            }
+          },
+          "question": {
+            "$ref": "#/components/schemas/Question"
+          }
+        }
+      },
+      "NewAnswer": {
+        "type": "object",
+        "required": [
+          "question_id",
+          "content"
+        ],
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "question_id": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "NewQuestion": {
+        "type": "object",
+        "required": [
+          "content"
+        ],
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "desc": {
+            "type": "string"
+          }
+        }
+      },
+      "NewQuestionAnswerNth": {
+        "type": "object",
+        "required": [
+          "answer_nth",
+          "content"
+        ],
+        "properties": {
+          "answer_nth": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "content": {
+            "type": "string"
+          }
+        }
+      },
+      "PostParams": {
+        "type": "object",
+        "required": [
+          "question",
+          "answer",
+          "answer_nth"
+        ],
+        "properties": {
+          "answer": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NewAnswer"
+            }
+          },
+          "answer_nth": {
+            "$ref": "#/components/schemas/NewQuestionAnswerNth"
+          },
+          "question": {
+            "$ref": "#/components/schemas/NewQuestion"
+          }
+        }
+      },
+      "Question": {
+        "type": "object",
+        "required": [
+          "id",
+          "content",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "desc": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "updated_at": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "QuestionAnswer": {
+        "type": "object",
+        "required": [
+          "id",
+          "question_id",
+          "answer_id",
+          "content",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "answer_id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "content": {
+            "type": "string"
+          },
+          "created_at": {
+            "$ref": "#/components/schemas/SystemTime"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "question_id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "updated_at": {
+            "$ref": "#/components/schemas/SystemTime"
+          }
+        }
+      },
+      "Resource": {
+        "type": "object",
+        "required": [
+          "id",
+          "resource_id",
+          "key",
+          "type",
+          "index",
+          "path",
+          "name",
+          "menu",
+          "icon",
+          "desc",
+          "sort",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "created_at": {
+            "$ref": "#/components/schemas/SystemTime"
+          },
+          "desc": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "index": {
+            "type": "boolean"
+          },
+          "key": {
+            "type": "string"
+          },
+          "menu": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "resource_id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sort": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "type": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "updated_at": {
+            "$ref": "#/components/schemas/SystemTime"
+          }
+        }
+      },
+      "Route": {
+        "type": "object",
+        "required": [
+          "path",
+          "index"
+        ],
+        "properties": {
+          "index": {
+            "type": "boolean"
+          },
+          "path": {
+            "type": "string"
+          }
+        }
+      },
+      "Type": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "TypeRoute": {
+                "$ref": "#/components/schemas/Route"
+              }
+            }
+          },
+          {
+            "type": "string",
+            "enum": [
+              "TypeFunction"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "TypeApi": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                },
+                "maxItems": 2,
+                "minItems": 2
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

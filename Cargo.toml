@@ -2,4 +2,5 @@
 members = [
     "empty-backend",
     "empty-backend-openapi",
+    "empty-utils",
 ]

@@ -1,24 +1,34 @@
-use std::time::SystemTime;
-
 use crate::schema::answers;
 use crate::schema::question_answers;
 use crate::schema::questions;
+use crate::utils::timestamp;
+use chrono::NaiveDateTime;
 use diesel::prelude::*;
+use empty_utils::add_orm_field;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
-#[derive(Queryable, Identifiable, Serialize, Deserialize, ToSchema)]
-pub struct Question {
-    pub id: i32,
-    pub content: String,
-    pub desc: Option<String>,
-    pub created_at: SystemTime,
-    pub updated_at: SystemTime,
-}
+// #[derive(Queryable, Identifiable, Serialize, ToSchema)]
+// pub struct Question {
+//     pub id: i32,
+//     pub content: String,
+//     pub desc: Option<String>,
+//     #[serde(with = "timestamp")]
+//     #[schema(value_type = i64)]
+//     pub created_at: NaiveDateTime,
+//     #[serde(with = "timestamp")]
+//     pub updated_at: NaiveDateTime,
+// }
 
-#[derive(Insertable, Serialize, Deserialize, ToSchema)]
+// #[derive(Insertable, Deserialize, ToSchema)]
+// #[diesel(table_name = questions)]
+// pub struct NewQuestion {
+//     pub content: String,
+//     pub desc: Option<String>,
+// }
+#[add_orm_field]
 #[diesel(table_name = questions)]
-pub struct NewQuestion {
+pub struct Question {
     pub content: String,
     pub desc: Option<String>,
 }
@@ -29,8 +39,11 @@ pub struct Answer {
     pub id: i32,
     pub question_id: i32,
     pub content: String,
-    pub created_at: SystemTime,
-    pub updated_at: SystemTime,
+    #[serde(with = "timestamp")]
+    #[schema(value_type = i64)]
+    pub created_at: NaiveDateTime,
+    #[serde(with = "timestamp")]
+    pub updated_at: NaiveDateTime,
 }
 #[derive(Insertable, Serialize, Deserialize, ToSchema)]
 #[diesel(table_name = answers)]
@@ -46,8 +59,11 @@ pub struct QuestionAnswer {
     pub question_id: i32,
     pub answer_id: i32,
     pub content: String,
-    pub created_at: SystemTime,
-    pub updated_at: SystemTime,
+    #[serde(with = "timestamp")]
+    #[schema(value_type = i64)]
+    pub created_at: NaiveDateTime,
+    #[serde(with = "timestamp")]
+    pub updated_at: NaiveDateTime,
 }
 #[derive(Insertable, Clone)]
 #[diesel(table_name = question_answers)]
