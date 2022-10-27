@@ -1,30 +1,38 @@
-use std::time::SystemTime;
+use crate::schema::resources;
+use diesel::Associations;
+use empty_utils::add_orm_field;
+use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
-#[derive(ToSchema)]
+#[add_orm_field]
+#[derive(Associations)]
+#[diesel(belongs_to(Resource))]
 pub struct Resource {
-    id: i32,
     resource_id: i32,
     key: String,
-    r#type: Type,
-    index: bool,
-    path: String,
+    rtype: i32,
     name: String,
-    menu: bool,
-    icon: String,
     desc: String,
     sort: i32,
-    created_at: SystemTime,
-    updated_at: SystemTime,
+    path: String,
+    index: bool,
+    menu: bool,
+    icon: String,
 }
-#[derive(ToSchema)]
+#[derive(ToSchema, Deserialize, Serialize)]
 pub struct Route {
     path: String,
     index: bool,
+    menu: bool,
+    icon: String,
 }
-#[derive(ToSchema)]
+#[derive(ToSchema, Deserialize, Serialize)]
+pub struct Api {
+    path: String,
+}
+#[derive(ToSchema, Deserialize, Serialize)]
 pub enum Type {
     TypeRoute(Route),
     TypeFunction,
-    TypeApi(String, bool),
+    TypeApi(Api),
 }

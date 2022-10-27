@@ -22,8 +22,8 @@ pub use model::{Answer, NewAnswer, NewQuestion, NewQuestionAnswerNth, Question, 
         QuestionAnswer,
         GetResp,
         Resource,
-        Type,
-        Route,
+        // Type,
+        // Route,
     ))
 )]
 pub struct Server {}

@@ -27,51 +27,29 @@ use utoipa::ToSchema;
 //     pub desc: Option<String>,
 // }
 #[add_orm_field]
-#[diesel(table_name = questions)]
 pub struct Question {
     pub content: String,
     pub desc: Option<String>,
 }
 
-#[derive(Queryable, Identifiable, Associations, Serialize, Deserialize, ToSchema)]
+#[add_orm_field]
+#[derive(Associations)]
 #[diesel(belongs_to(Question))]
 pub struct Answer {
-    pub id: i32,
-    pub question_id: i32,
-    pub content: String,
-    #[serde(with = "timestamp")]
-    #[schema(value_type = i64)]
-    pub created_at: NaiveDateTime,
-    #[serde(with = "timestamp")]
-    pub updated_at: NaiveDateTime,
-}
-#[derive(Insertable, Serialize, Deserialize, ToSchema)]
-#[diesel(table_name = answers)]
-pub struct NewAnswer {
     pub question_id: i32,
     pub content: String,
 }
 
-#[derive(Queryable, Identifiable, Associations, Serialize, Deserialize, ToSchema, Clone)]
+#[add_orm_field]
+#[derive(Associations, Clone)]
 #[diesel(belongs_to(Question))]
+#[diesel(belongs_to(Answer))]
 pub struct QuestionAnswer {
-    pub id: i32,
-    pub question_id: i32,
-    pub answer_id: i32,
-    pub content: String,
-    #[serde(with = "timestamp")]
-    #[schema(value_type = i64)]
-    pub created_at: NaiveDateTime,
-    #[serde(with = "timestamp")]
-    pub updated_at: NaiveDateTime,
-}
-#[derive(Insertable, Clone)]
-#[diesel(table_name = question_answers)]
-pub struct NewQuestionAnswer {
     pub question_id: i32,
     pub answer_id: i32,
     pub content: String,
 }
+
 #[derive(Deserialize, ToSchema)]
 pub struct NewQuestionAnswerNth {
     pub answer_nth: i32,

@@ -26,7 +26,6 @@ where
     D: Deserializer<'de>,
 {
     let value = i64::deserialize(deserializer)?;
-    NaiveDateTime::from_timestamp_opt(value / 1000, ((value % 1000) * 1_000_000) as u32).ok_or(
-        serde::de::Error::custom(format!("deserial timestamp error: {}", value)),
-    )
+    NaiveDateTime::from_timestamp_opt(value / 1000, ((value % 1000) * 1_000_000) as u32)
+        .ok_or_else(|| serde::de::Error::custom(format!("deserial timestamp error: {}", value)))
 }
