@@ -4,30 +4,45 @@ use axum::{
     Json,
 };
 
-use crate::{database::DbPool, model::response::ResponseBody, service::questions};
+use crate::{
+    database::DbPool,
+    model::{
+        questions::{QuestionReq, QuestionResp},
+        response::ResponseBody,
+    },
+    service::questions,
+};
 
 #[utoipa::path(
   context_path = "/questions",
-  get,path="/",
+  get,
+  path="/",
   responses(
-      (status=200,description="ok",body=[GetResp])
+      (status=200,description="ok",body=[QuestionResp])
   )
 )]
 pub async fn index_get(State(pool): State<DbPool>) -> impl IntoResponse {
     match questions::get(pool) {
         Ok(res) => Json(ResponseBody::new("success", res)),
-        Err(_) => todo!(),
+        Err(err) => todo!(),
     }
-    // service::select_questions(&mut conn)
-    //     .await?
-    //     .map_err(actix_web::error::ErrorInternalServerError)?;
-    // let res: Vec<GetResp> = res
-    //     .into_iter()
-    //     .map(|(question, answers, answer)| GetResp {
-    //         question,
-    //         answers,
-    //         answer,
-    //     })
-    //     .collect();
-    // Ok(HttpResponse::Ok().json(res))
+}
+
+#[utoipa::path(
+  context_path = "/questions",
+  post,
+  path="/",
+  request_body = [QuestionReq],
+  responses(
+    (status=200,description="ok",body=[i32])
+  )
+)]
+pub async fn index_post(
+    State(pool): State<DbPool>,
+    Json(input): Json<Vec<QuestionReq>>,
+) -> impl IntoResponse {
+    match questions::post(&input, pool) {
+        Ok(res) => Json(ResponseBody::new("success", res)),
+        Err(err) => todo!(),
+    }
 }

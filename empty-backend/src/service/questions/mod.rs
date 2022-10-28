@@ -1,7 +1,7 @@
 use crate::{
     database::DbPool,
     errors::ServiceError,
-    model::questions::{Question, QuestionResp},
+    model::questions::{Question, QuestionReq, QuestionResp},
 };
 
 // mod model;
@@ -42,7 +42,7 @@ use crate::{
 pub fn get(pool: DbPool) -> Result<Vec<QuestionResp>, ServiceError> {
     // use web::block to offload blocking Diesel code without blocking server thread
     let mut conn = pool.get()?;
-    let resp = Question::select_all(&conn)?;
+    let resp = Question::select_all(&mut conn)?;
     Ok(resp)
 
     // service::select_questions(&mut conn)
@@ -57,6 +57,12 @@ pub fn get(pool: DbPool) -> Result<Vec<QuestionResp>, ServiceError> {
     //     })
     //     .collect();
     // Ok(HttpResponse::Ok().json(res))
+}
+pub fn post(req: &Vec<QuestionReq>, pool: DbPool) -> Result<Vec<i32>, ServiceError> {
+    // use web::block to offload blocking Diesel code without blocking server thread
+    let mut conn = pool.get()?;
+    let resp = Question::insert(req, &mut conn)?;
+    Ok(resp)
 }
 
 // #[derive(ToSchema, Deserialize)]

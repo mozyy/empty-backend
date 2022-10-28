@@ -1,6 +1,6 @@
 // DEFINE ERROR HERE
 use crate::model::response::ResponseBody;
-use axum::http::StatusCode;
+use axum::{http::StatusCode, response::IntoResponse};
 use diesel::r2d2::{self, PoolError};
 
 #[derive(Debug)]
@@ -51,9 +51,26 @@ impl From<String> for ServiceError {
             http_status: StatusCode::INTERNAL_SERVER_ERROR,
             body: ResponseBody {
                 message: format!("内部错误: {e}"),
+                data: e,
+            },
+        }
+    }
+}
+
+impl From<diesel::result::Error> for ServiceError {
+    fn from(e: diesel::result::Error) -> Self {
+        ServiceError {
+            http_status: StatusCode::INTERNAL_SERVER_ERROR,
+            body: ResponseBody {
+                message: format!("内部diesel错误: {e}"),
                 data: e.to_string(),
             },
         }
+    }
+}
+impl IntoResponse for ServiceError {
+    fn into_response(self) -> axum::response::Response {
+        todo!()
     }
 }
 

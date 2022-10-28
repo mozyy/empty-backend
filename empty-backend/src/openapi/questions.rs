@@ -1,19 +1,12 @@
-use utoipa::openapi;
+use crate::api::questions;
+use crate::model::questions::{
+    Answer, NewAnswer, NewQuestion, Question, QuestionReq, QuestionResp,
+};
+use utoipa::OpenApi;
 
+#[derive(OpenApi)]
 #[openapi(
-  paths(get, post, id_get, id_post, id_put,),
-  components(schemas(
-      NewAnswer,
-      NewQuestion,
-      Answer,
-      Question,
-      PostParams,
-      NewQuestionAnswerNth,
-      QuestionAnswer,
-      GetResp,
-      Resource,
-      // Type,
-      // Route,
-  ))
+    paths(questions::index_get, questions::index_post),
+    components(schemas(NewAnswer, NewQuestion, Question, Answer, QuestionReq, QuestionResp))
 )]
-pub struct Server {}
+pub struct ApiDoc {}
