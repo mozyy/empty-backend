@@ -5,17 +5,7 @@ diesel::table! {
         id -> Int4,
         question_id -> Int4,
         content -> Text,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
-    }
-}
-
-diesel::table! {
-    question_answers (id) {
-        id -> Int4,
-        question_id -> Int4,
-        answer_id -> Int4,
-        content -> Text,
+        correct -> Bool,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -50,12 +40,9 @@ diesel::table! {
 }
 
 diesel::joinable!(answers -> questions (question_id));
-diesel::joinable!(question_answers -> answers (answer_id));
-diesel::joinable!(question_answers -> questions (question_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     answers,
-    question_answers,
     questions,
     resources,
 );
