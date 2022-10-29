@@ -2,6 +2,7 @@
 name = "empty_backend"
 version = "0.1.0"
 edition = "2021"
+authors = ["yyue <yy@yyue.dev>"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -12,7 +13,7 @@ serde_json = "1.0"
 env_logger = "0.9"
 log = "0.4"
 futures = "0.3"
-utoipa = {version = "2.1", features = ["actix_extras"] }
+utoipa = {version = "2.1", features = ["actix_extras", "yaml"] }
 utoipa-swagger-ui ={version =  "2.0", features = ["actix-web"] }
 diesel = { version = "2.0", features = ["postgres", "r2d2", "chrono"] }
 chrono = { version = "0.4", features = ["serde"] }
@@ -22,6 +23,8 @@ tokio = "1.21"
 tracing = "0.1"
 tracing-subscriber = "0.3"
 thiserror = "1.0"
+tower-http = { version = "0.3", features = ["cors"] }
+
 
 empty_utils = { path="../empty-utils" }
 

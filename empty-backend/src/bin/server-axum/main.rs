@@ -1,5 +1,5 @@
 use axum::{
-    http::StatusCode,
+    http::{HeaderValue, Method},
     response::IntoResponse,
     routing::{get, post},
     Json, Router,
@@ -7,6 +7,7 @@ use axum::{
 use empty_backend::router;
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
+use tower_http::cors::{Any, CorsLayer};
 
 #[tokio::main]
 async fn main() {
@@ -16,7 +17,13 @@ async fn main() {
     // build our application with a route
     let app = Router::new()
         // `GET /` goes to `root`
-        .nest("/x", router::get_router());
+        .nest("/x", router::get_router())
+        .layer(
+            CorsLayer::new()
+                .allow_origin(Any)
+                .allow_methods(Any)
+                .allow_headers(Any),
+        );
 
     // run our app with hyper
     // `axum::Server` is a re-export of `hyper::Server`

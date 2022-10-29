@@ -15,5 +15,5 @@ use crate::{
 pub fn get_router() -> Router<DbPool> {
     let pool = database::get_db_pool();
 
-    Router::with_state(pool).route("/", get(api::index_get))
+    Router::with_state(pool).route("/", get(api::index_get).post(api::index_post))
 }

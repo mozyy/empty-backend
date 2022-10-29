@@ -4,8 +4,8 @@ use utoipa::OpenApi;
 
 fn main() {
     fs::write(
-        "question.json",
-        questions::ApiDoc::openapi().to_pretty_json().unwrap(),
+        "question.yaml",
+        questions::ApiDoc::openapi().to_yaml().unwrap(),
     )
     .unwrap();
 }

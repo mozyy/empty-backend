@@ -1,0 +1,149 @@
+openapi: 3.0.3
+info:
+  title: empty_backend
+  description: ''
+  contact:
+    name: yyue
+    email: yy@yyue.dev
+  license:
+    name: ''
+  version: 0.1.0
+servers: 
+  - url: 'http://127.0.0.1:3000/x'
+paths:
+  /questions/:
+    get:
+      tags:
+      - questions
+      description: ''
+      operationId: index_get
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QuestionResp'
+      deprecated: false
+    post:
+      tags:
+      - questions
+      description: ''
+      operationId: index_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/QuestionReq'
+        required: true
+      responses:
+        '200':
+          description: ok
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  type: integer
+                  format: int32
+      deprecated: false
+components:
+  schemas:
+    Answer:
+      type: object
+      required:
+      - id
+      - question_id
+      - content
+      - correct
+      - created_at
+      - updated_at
+      properties:
+        content:
+          type: string
+        correct:
+          type: boolean
+        created_at:
+          type: integer
+          format: int64
+        id:
+          type: integer
+          format: int32
+        question_id:
+          type: integer
+          format: int32
+        updated_at:
+          type: integer
+          format: int64
+    NewAnswer:
+      type: object
+      required:
+      - question_id
+      - content
+      - correct
+      properties:
+        content:
+          type: string
+        correct:
+          type: boolean
+        question_id:
+          type: integer
+          format: int32
+    NewQuestion:
+      type: object
+      required:
+      - content
+      properties:
+        content:
+          type: string
+        desc:
+          type: string
+    Question:
+      type: object
+      required:
+      - id
+      - content
+      - created_at
+      - updated_at
+      properties:
+        content:
+          type: string
+        created_at:
+          type: integer
+          format: int64
+        desc:
+          type: string
+        id:
+          type: integer
+          format: int32
+        updated_at:
+          type: integer
+          format: int64
+    QuestionReq:
+      type: object
+      required:
+      - new_question
+      - new_answers
+      properties:
+        new_answers:
+          type: array
+          items:
+            $ref: '#/components/schemas/NewAnswer'
+        new_question:
+          $ref: '#/components/schemas/NewQuestion'
+    QuestionResp:
+      type: object
+      required:
+      - question
+      - answers
+      properties:
+        answers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Answer'
+        question:
+          $ref: '#/components/schemas/Question'
