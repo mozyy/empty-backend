@@ -7,11 +7,13 @@ use axum::{
     Router,
 };
 
+pub mod oauth;
 pub mod questions;
 
 pub fn get_router() -> Router {
     Router::new()
         .nest("/questions", questions::get_router())
+        .with_state(())
         .fallback(handler_404)
 }
 

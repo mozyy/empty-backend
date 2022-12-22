@@ -23,7 +23,8 @@ use crate::{
 )]
 pub async fn index_get(State(pool): State<DbPool>) -> impl IntoResponse {
     match questions::get(pool) {
-        Ok(res) => Json(ResponseBody::new("success", res)),
+        Ok(res) => Json(res),
+        // Ok(res) => Json(ResponseBody::new("success", res)),
         Err(err) => todo!(),
     }
 }

@@ -2,7 +2,7 @@ use std::{error::Error, net::Ipv4Addr};
 
 use actix_web::middleware::Compress;
 use actix_web::{middleware::Logger, web, App, HttpServer};
-use empty_backend::{database, services};
+use empty_backend::{database, service};
 
 #[actix_web::main]
 async fn main() -> Result<(), impl Error> {
@@ -17,8 +17,7 @@ async fn main() -> Result<(), impl Error> {
             .app_data(web::Data::new(pool.clone()))
             .wrap(Logger::default())
             .wrap(Compress::default())
-            // .wrap(NormalizePath::default())
-            .configure(services::config_servers)
+        // .wrap(NormalizePath::default())
     })
     .bind((Ipv4Addr::UNSPECIFIED, 8080))?
     .run()
