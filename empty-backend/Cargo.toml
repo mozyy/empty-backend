@@ -24,6 +24,8 @@ tracing = "0.1"
 tracing-subscriber = "0.3"
 thiserror = "1.0"
 tower-http = { version = "0.3", features = ["cors"] }
+oxide-auth = "0.5"
+oxide-auth-axum = "0.3.0"
 
 
 empty_utils = { path="../empty-utils" }

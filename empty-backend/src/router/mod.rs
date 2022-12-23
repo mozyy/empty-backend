@@ -7,13 +7,23 @@ use axum::{
     Router,
 };
 
-pub mod oauth;
-pub mod questions;
+use crate::{
+    api::{oauth, questions},
+    database::{self, DbPool},
+};
 
 pub fn get_router() -> Router {
+    let pool = database::get_db_pool();
     Router::new()
-        .nest("/questions", questions::get_router())
-        .with_state(())
+        .route(
+            "/questions",
+            get(questions::index_get).post(questions::index_post),
+        )
+        .route(
+            "/oauth",
+            get(oauth::get_authorize).post(questions::index_post),
+        )
+        .with_state(pool)
         .fallback(handler_404)
 }
 
