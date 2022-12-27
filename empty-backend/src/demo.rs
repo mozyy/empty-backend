@@ -1,10 +1,11 @@
-use crate::schema::questions;
-
-use empty_utils::add_orm_field;
-
-#[add_orm_field]
-pub struct Question {
-    // pub id: i32,
-    pub content: String,
-    pub desc: Option<String>,
+mod demo {
+    diesel::table! {
+        answers (id) {
+            id -> Int4,
+            content -> Text,
+            correct -> Bool,
+            created_at -> Timestamp,
+            updated_at -> Timestamp,
+        }
+    }
 }

@@ -15,11 +15,12 @@ log = "0.4"
 futures = "0.3"
 utoipa = {version = "2.4", features = ["axum_extras", "yaml"] }
 utoipa-swagger-ui ={version =  "3.0", features = ["axum"] }
-diesel = { version = "2.0", features = ["postgres", "r2d2", "chrono"] }
+diesel = { version = "2.0", features = ["postgres", "r2d2", "chrono", "uuid"] }
 chrono = { version = "0.4", features = ["serde"] }
+uuid= { version = "1.2", features = ["serde"] }
 
 axum = "0.6"
-tokio = "1.23"
+tokio = {version = "1.23", features = ["macros", "rt-multi-thread"]}
 tracing = "0.1"
 tracing-subscriber = "0.3"
 thiserror = "1.0"

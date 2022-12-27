@@ -2,7 +2,7 @@ use convert_case::{Case, Casing};
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{
-    parse::{self, Nothing, Parser},
+    parse::{Nothing, Parser},
     parse_macro_input, ItemStruct,
 };
 

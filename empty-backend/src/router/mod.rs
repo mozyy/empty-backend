@@ -1,15 +1,8 @@
-use actix_web::http::Uri;
-use axum::{
-    handler::Handler,
-    http::StatusCode,
-    response::{Html, IntoResponse},
-    routing::get,
-    Router,
-};
+use axum::{http::StatusCode, response::IntoResponse, routing::get, Router};
 
 use crate::{
     api::{oauth, questions},
-    database::{self, DbPool},
+    database::{self},
 };
 
 pub fn get_router() -> Router {

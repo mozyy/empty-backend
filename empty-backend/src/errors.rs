@@ -1,7 +1,7 @@
 // DEFINE ERROR HERE
 use crate::model::response::ResponseBody;
 use axum::{http::StatusCode, response::IntoResponse};
-use diesel::r2d2::{self, PoolError};
+use diesel::r2d2::PoolError;
 
 #[derive(Debug)]
 pub struct ServiceError {

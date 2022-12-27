@@ -1,12 +1,3 @@
-use actix_web::http::Uri;
-use axum::{
-    handler::Handler,
-    http::StatusCode,
-    response::{Html, IntoResponse},
-    routing::get,
-    Router,
-};
-
 // mod docs;
 pub mod questions;
 mod system;

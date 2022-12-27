@@ -1,27 +1,33 @@
-use axum::{
-    http::{
-        header::{self, HeaderMap, HeaderValue},
-        StatusCode,
-    },
-    response::{IntoResponse, Response},
+use crate::{
+    schema::{clients, redirect_uris},
+    utils::timestamp,
 };
+use chrono::NaiveDateTime;
+use diesel::{prelude::*, result::Error};
 use oxide_auth::{
-    endpoint::{
-        Authorizer, Issuer, OwnerConsent, OwnerSolicitor, PreGrant, Registrar, Scope, Solicitation,
-        WebRequest,
-    },
+    endpoint::{Authorizer, Issuer, OwnerConsent, OwnerSolicitor, Scope, Solicitation, WebRequest},
     frontends::simple::endpoint::{Generic, Vacant},
     primitives::{
         grant::Grant,
         issuer::RefreshedToken,
-        prelude::{AuthMap, IssuedToken, RandomGenerator, TokenMap},
-        registrar::{BoundClient, ClientMap, ClientUrl, RegistrarError},
+        prelude::{IssuedToken, RandomGenerator, TokenMap},
+        registrar::ClientMap,
     },
 };
-use oxide_auth_axum::OAuthResponse;
+use serde::Serialize;
+use utoipa::ToSchema;
+use uuid::Uuid;
 
 pub struct OAuthState {
-    pub endpoint: Generic<Client, Auth, TokenMap<RandomGenerator>, Solicitor, Vec<Scope>, Vacant>,
+    pub endpoint: Generic<
+        // Client,
+        ClientMap,
+        Auth,
+        TokenMap<RandomGenerator>,
+        Solicitor,
+        Vec<Scope>,
+        Vacant,
+    >,
 }
 
 impl OAuthState {
@@ -29,7 +35,8 @@ impl OAuthState {
         OAuthState {
             endpoint: Generic {
                 authorizer: Auth::new(),
-                registrar: Client::new(),
+                // registrar: Client::new(),
+                registrar: ClientMap::new(),
                 issuer: TokenMap::new(RandomGenerator::new(16)),
                 scopes: vec!["default-scope".parse().unwrap()],
                 solicitor: Solicitor::new(),
@@ -62,27 +69,47 @@ impl Authorizer for Auth {
     }
 }
 
-pub struct Client {}
-impl Client {
-    fn new() -> Self {
-        Client {}
-    }
+#[derive(Queryable, Identifiable, Serialize, ToSchema)]
+pub struct Client {
+    pub id: Uuid,
+    pub redirect_uri_id: i32,
+    pub name: String,
+    pub desc: String,
+    pub passphrase: Option<String>,
+    #[serde(with = "timestamp")]
+    pub created_at: NaiveDateTime,
+    #[serde(with = "timestamp")]
+    pub updated_at: NaiveDateTime,
 }
-impl Registrar for Client {
-    fn bound_redirect<'a>(&self, bound: ClientUrl<'a>) -> Result<BoundClient<'a>, RegistrarError> {
-        todo!()
-    }
+#[derive(Queryable, Identifiable, Serialize, ToSchema, Associations)]
+#[diesel(belongs_to(Client))]
+pub struct RedirectUri {
+    pub id: i32,
+    pub url: String,
+    #[serde(with = "timestamp")]
+    pub created_at: NaiveDateTime,
+    pub client_id: Option<Uuid>,
+}
+pub struct ClientUrl {
+    pub client: Client,
+    pub redirect_uris: Vec<RedirectUri>,
+}
 
-    fn negotiate(
-        &self,
-        client: BoundClient,
-        scope: Option<Scope>,
-    ) -> Result<PreGrant, RegistrarError> {
-        todo!()
-    }
-
-    fn check(&self, client_id: &str, passphrase: Option<&[u8]>) -> Result<(), RegistrarError> {
-        todo!()
+impl Client {
+    pub fn select_all(conn: &mut PgConnection) -> Result<Vec<ClientUrl>, Error> {
+        let clients = clients::table.load::<Client>(conn)?;
+        let redirect_uris: Vec<Vec<RedirectUri>> = RedirectUri::belonging_to(&clients)
+            .load(conn)?
+            .grouped_by(&clients);
+        let resp = clients
+            .into_iter()
+            .zip(redirect_uris)
+            .map(|(client, redirect_uris)| ClientUrl {
+                client,
+                redirect_uris,
+            })
+            .collect::<Vec<_>>();
+        Ok(resp)
     }
 }
 

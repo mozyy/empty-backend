@@ -1,15 +1,8 @@
-use axum::{
-    extract::State,
-    response::{IntoResponse, Response},
-    Json,
-};
+use axum::{extract::State, response::IntoResponse, Json};
 
 use crate::{
     database::DbPool,
-    model::{
-        questions::{QuestionReq, QuestionResp},
-        response::ResponseBody,
-    },
+    model::{questions::QuestionReq, response::ResponseBody},
     service::questions,
 };
 

@@ -1,8 +1,5 @@
-use crate::database::DbConnection;
 use crate::schema::answers;
 use crate::schema::questions;
-use crate::utils::timestamp;
-use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use diesel::result::Error;
 use empty_utils::add_orm_field;
