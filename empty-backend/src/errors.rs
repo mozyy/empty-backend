@@ -1,17 +1,23 @@
+use std::error::Error;
+
 // DEFINE ERROR HERE
 use crate::model::response::ResponseBody;
 use axum::{http::StatusCode, response::IntoResponse};
 use diesel::r2d2::PoolError;
+use serde::Serialize;
 
 #[derive(Debug)]
-pub struct ServiceError {
+pub struct ServiceError<T: IntoResponse + Serialize = String> {
     pub http_status: StatusCode,
-    pub body: ResponseBody<String>,
+    pub body: ResponseBody<T>,
 }
 
-impl std::error::Error for ServiceError {}
+impl<T> std::error::Error for ServiceError<T> where T: std::fmt::Debug + IntoResponse + Serialize {}
 
-impl std::fmt::Display for ServiceError {
+impl<T> std::fmt::Display for ServiceError<T>
+where
+    T: IntoResponse + Serialize,
+{
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
@@ -21,20 +27,61 @@ impl std::fmt::Display for ServiceError {
     }
 }
 
-impl ServiceError {
-    pub fn new(http_status: StatusCode, message: String) -> ServiceError {
+impl<T> ServiceError<T>
+where
+    T: IntoResponse + Serialize,
+{
+    pub fn new(http_status: StatusCode, message: String, data: T) -> ServiceError<T> {
         ServiceError {
             http_status,
+            body: ResponseBody { message, data },
+        }
+    }
+}
+
+impl Default for ServiceError<()> {
+    fn default() -> Self {
+        Self::new(StatusCode::NOT_IMPLEMENTED, String::from("服务器错误"), ())
+    }
+}
+
+// impl From<PoolError> for ServiceError<PoolError> {
+//     fn from(e: PoolError) -> Self {
+//         ServiceError {
+//             http_status: StatusCode::INTERNAL_SERVER_ERROR,
+//             body: ResponseBody {
+//                 message: format!("数据库连接错误: {e}"),
+//                 data: e,
+//             },
+//         }
+//     }
+// }
+
+// impl From<diesel::result::Error> for ServiceError<diesel::result::Error> {
+//     fn from(e: diesel::result::Error) -> Self {
+//         ServiceError {
+//             http_status: StatusCode::INTERNAL_SERVER_ERROR,
+//             body: ResponseBody {
+//                 message: format!("数据库错误: {e}"),
+//                 data: e,
+//             },
+//         }
+//     }
+// }
+impl From<PoolError> for ServiceError {
+    fn from(e: PoolError) -> Self {
+        ServiceError {
+            http_status: StatusCode::INTERNAL_SERVER_ERROR,
             body: ResponseBody {
-                message,
-                data: String::new(),
+                message: format!("数据库连接错误: {e}"),
+                data: e.to_string(),
             },
         }
     }
 }
 
-impl From<PoolError> for ServiceError {
-    fn from(e: PoolError) -> Self {
+impl From<diesel::result::Error> for ServiceError {
+    fn from(e: diesel::result::Error) -> Self {
         ServiceError {
             http_status: StatusCode::INTERNAL_SERVER_ERROR,
             body: ResponseBody {
@@ -57,20 +104,12 @@ impl From<String> for ServiceError {
     }
 }
 
-impl From<diesel::result::Error> for ServiceError {
-    fn from(e: diesel::result::Error) -> Self {
-        ServiceError {
-            http_status: StatusCode::INTERNAL_SERVER_ERROR,
-            body: ResponseBody {
-                message: format!("内部diesel错误: {e}"),
-                data: e.to_string(),
-            },
-        }
-    }
-}
-impl IntoResponse for ServiceError {
+impl<T> IntoResponse for ServiceError<T>
+where
+    T: IntoResponse + Serialize,
+{
     fn into_response(self) -> axum::response::Response {
-        todo!()
+        (self.http_status, self.body).into_response()
     }
 }
 

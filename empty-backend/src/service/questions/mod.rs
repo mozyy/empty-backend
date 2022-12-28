@@ -1,3 +1,5 @@
+use std::error::Error;
+
 use crate::{
     database::DbPool,
     errors::ServiceError,

@@ -1,4 +1,5 @@
 use crate::{
+    errors::ServiceError,
     schema::{clients, redirect_uris},
     utils::timestamp,
 };
@@ -69,7 +70,8 @@ impl Authorizer for Auth {
     }
 }
 
-#[derive(Queryable, Identifiable, Serialize, ToSchema)]
+#[derive(Queryable, Identifiable, Serialize, ToSchema, Associations)]
+#[diesel(belongs_to(RedirectUri))]
 pub struct Client {
     pub id: Uuid,
     pub redirect_uri_id: i32,
@@ -81,7 +83,7 @@ pub struct Client {
     #[serde(with = "timestamp")]
     pub updated_at: NaiveDateTime,
 }
-#[derive(Queryable, Identifiable, Serialize, ToSchema, Associations)]
+#[derive(Queryable, Identifiable, Serialize, ToSchema, Associations, Clone)]
 #[diesel(belongs_to(Client))]
 pub struct RedirectUri {
     pub id: i32,
@@ -92,21 +94,55 @@ pub struct RedirectUri {
 }
 pub struct ClientUrl {
     pub client: Client,
-    pub redirect_uris: Vec<RedirectUri>,
+    pub redirect_uri: RedirectUri,
+    pub additional_redirect_uris: Vec<RedirectUri>,
+}
+
+pub struct NewClient {
+    pub name: String,
+    pub desc: String,
+    pub passphrase: Option<String>,
+}
+pub struct NewRedirectUri {
+    pub url: String,
+}
+
+pub struct NewClientUrl {
+    pub new_client: NewClient,
+    pub new_redirect_uris: Vec<NewRedirectUri>,
 }
 
 impl Client {
-    pub fn select_all(conn: &mut PgConnection) -> Result<Vec<ClientUrl>, Error> {
+    pub fn insert(conn: &mut PgConnection, req: NewClientUrl) -> Result<Uuid, ServiceError> {
         let clients = clients::table.load::<Client>(conn)?;
-        let redirect_uris: Vec<Vec<RedirectUri>> = RedirectUri::belonging_to(&clients)
-            .load(conn)?
-            .grouped_by(&clients);
+        todo!();
+    }
+    pub fn select_all(conn: &mut PgConnection) -> Result<Vec<ClientUrl>, ServiceError> {
+        let clients = clients::table.load::<Client>(conn)?;
+        let redirect_uris = redirect_uris::table.load::<RedirectUri>(conn)?;
+
         let resp = clients
             .into_iter()
-            .zip(redirect_uris)
-            .map(|(client, redirect_uris)| ClientUrl {
-                client,
-                redirect_uris,
+            .map(|client| {
+                let id = client.id;
+                let redirect_uri_id = client.redirect_uri_id;
+                let mut redirect_uri: Option<RedirectUri> = None;
+                let mut additional_redirect_uris: Vec<RedirectUri> = vec![];
+                for uri in redirect_uris.clone().into_iter() {
+                    if redirect_uri.is_none() && uri.id == redirect_uri_id {
+                        redirect_uri = Some(uri.clone())
+                    }
+                    match uri.client_id {
+                        Some(client_id) if id == client_id => additional_redirect_uris.push(uri),
+                        _ => {}
+                    }
+                }
+
+                ClientUrl {
+                    client,
+                    redirect_uri: redirect_uri.expect(""),
+                    additional_redirect_uris,
+                }
             })
             .collect::<Vec<_>>();
         Ok(resp)
