@@ -13,8 +13,12 @@ pub fn get_router() -> Router {
             get(questions::index_get).post(questions::index_post),
         )
         .route(
-            "/oauth",
+            "/oauth/authorize",
             get(oauth::get_authorize).post(questions::index_post),
+        )
+        .route(
+            "/oauth/clients",
+            get(oauth::get_clients).post(questions::index_post),
         )
         .with_state(pool)
         .fallback(handler_404)

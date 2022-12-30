@@ -32,5 +32,7 @@ where
 {
     fn into_response(self) -> axum::response::Response {
         serde_json::to_string(&self)
+            .map_err(|e| String::from("json错误") + &e.to_string())
+            .into_response()
     }
 }
