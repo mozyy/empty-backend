@@ -21,7 +21,7 @@ CREATE TABLE redirect_uris (
 
 
 CREATE TABLE clients (
-  id UUID PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
   redirect_uri_id INTEGER  NOT NULL REFERENCES redirect_uris(id),
   name TEXT NOT NULL,
