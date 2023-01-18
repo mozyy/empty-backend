@@ -2,7 +2,7 @@ use crate::schema::answers;
 use crate::schema::questions;
 use diesel::prelude::*;
 use diesel::result::Error;
-use empty_utils::add_orm_field;
+use empty_macro::add_orm_field;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 

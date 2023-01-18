@@ -1,4 +1,4 @@
-use empty_utils::add_field;
+use empty_macro::add_field;
 
 #[test]
 fn test_macro() {

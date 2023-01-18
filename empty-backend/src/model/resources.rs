@@ -1,6 +1,6 @@
 use crate::schema::resources;
 use diesel::Associations;
-use empty_utils::add_orm_field;
+use empty_macro::add_orm_field;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 

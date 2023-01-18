@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package register;
+
+message Empty {
+}
+
+message RegisterRequest {
+    string name = 1;
+}
+
+message Service {
+    int32 id = 1;
+    string endpoint = 2;
+    string created_at = 3;
+}
+
+message GetRequest {
+    string name = 1;
+}
+message LogoutRequest {
+    int32 id = 1;
+}
+
+service RegisterService {
+    rpc register (RegisterRequest) returns (Service) { }
+    rpc logout (LogoutRequest) returns (Empty) { }
+    rpc getService (GetRequest) returns (Service) { }
+}
