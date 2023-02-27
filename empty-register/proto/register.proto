@@ -1,5 +1,6 @@
 syntax = "proto3";
 import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 
 package empty.register.v1;
 
@@ -13,8 +14,9 @@ message LoginRequest {
 
 message Service {
     string id = 1;// 服务id
-    string endpoint = 2;// 接口地址
-    string created_at = 3;
+    string name = 2;// 服务名
+    string endpoint = 3;// 接口地址
+    google.protobuf.Timestamp created_at = 4;
 }
 message Services {
     repeated Service services = 1;
@@ -33,4 +35,8 @@ service RegisterService {
     rpc logout (LogoutRequest) returns (google.protobuf.Empty) { }
     rpc get (GetRequest) returns (Service) { }
     rpc list (google.protobuf.Empty) returns (Services) { }
+}
+
+service HealthService {
+    rpc health_check(google.protobuf.Empty) returns (google.protobuf.Empty){}
 }
