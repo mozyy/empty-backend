@@ -1,0 +1,36 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+
+package empty.register.v1;
+
+message RegisterRequest {
+    string name = 1;
+}
+
+message LoginRequest {
+    string name = 1;// 服务名
+}
+
+message Service {
+    string id = 1;// 服务id
+    string endpoint = 2;// 接口地址
+    string created_at = 3;
+}
+message Services {
+    repeated Service services = 1;
+}
+
+message GetRequest {
+    string name = 1;
+}
+message LogoutRequest {
+    string id = 1;
+}
+
+service RegisterService {
+    rpc register (RegisterRequest) returns (google.protobuf.Empty) { }
+    rpc login (LoginRequest) returns (google.protobuf.Empty) { }
+    rpc logout (LogoutRequest) returns (google.protobuf.Empty) { }
+    rpc get (GetRequest) returns (Service) { }
+    rpc list (google.protobuf.Empty) returns (Services) { }
+}
