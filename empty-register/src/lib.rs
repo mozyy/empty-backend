@@ -20,6 +20,8 @@ pub struct Server {
     serviceMap: Mutex<HashMap<String, Vec<Service>>>,
 }
 
+pub const REGISTER_ADDR: &str = env!("REGISTER_ADDR");
+
 #[tonic::async_trait]
 impl RegisterService for Server {
     async fn register(&self, request: Request<RegisterRequest>) -> Resp<()> {

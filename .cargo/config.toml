@@ -1,0 +1,3 @@
+[env]
+# Set ENV_VAR_NAME=value for any process run by Cargo
+REGISTER_ADDR = "REGISTER_ADDR"
