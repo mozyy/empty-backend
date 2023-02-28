@@ -1,5 +1,5 @@
 [package]
-name = "empty-register"
+name = "empty-registry"
 version = "0.1.0"
 edition = "2021"
 
@@ -24,6 +24,6 @@ tonic-build = "0.8"
 
 
 [[bin]]
-name="empty-register"
+name="empty-registry"
 [[bin]]
-name="empty-register-client"
+name="empty-registry-client"

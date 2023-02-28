@@ -5,5 +5,5 @@ members = [
     "empty-utils",
     "empty-macro",
     "empty-user",
-    "empty-register",
+    "empty-registry",
 ]
