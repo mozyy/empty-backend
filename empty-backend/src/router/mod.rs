@@ -6,7 +6,7 @@ use crate::{
 };
 
 pub fn get_router() -> Router {
-    let pool = database::get_db_pool();
+    let pool = empty_utils::diesel::db::get();
     Router::new()
         .route(
             "/questions",

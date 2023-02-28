@@ -1,7 +1,8 @@
 use std::error::Error;
 
+use empty_utils::diesel::db;
+
 use crate::{
-    database::DbPool,
     errors::ServiceError,
     model::questions::{Question, QuestionReq, QuestionResp},
 };
@@ -41,7 +42,7 @@ use crate::{
 //     answer: QuestionAnswer,
 // }
 
-pub fn get(pool: DbPool) -> Result<Vec<QuestionResp>, ServiceError> {
+pub fn get(pool: db::DbPool) -> Result<Vec<QuestionResp>, ServiceError> {
     // use web::block to offload blocking Diesel code without blocking server thread
     let mut conn = pool.get()?;
     let resp = Question::select_all(&mut conn)?;
@@ -60,7 +61,7 @@ pub fn get(pool: DbPool) -> Result<Vec<QuestionResp>, ServiceError> {
     //     .collect();
     // Ok(HttpResponse::Ok().json(res))
 }
-pub fn post(req: &Vec<QuestionReq>, pool: DbPool) -> Result<Vec<i32>, ServiceError> {
+pub fn post(req: &Vec<QuestionReq>, pool: db::DbPool) -> Result<Vec<i32>, ServiceError> {
     // use web::block to offload blocking Diesel code without blocking server thread
     let mut conn = pool.get()?;
     let resp = Question::insert(req, &mut conn)?;

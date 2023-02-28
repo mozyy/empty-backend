@@ -20,6 +20,7 @@ message MicroService {
     string name = 2;// 服务名
     string endpoint = 3;// 接口地址
     google.protobuf.Timestamp created_at = 4;
+    google.protobuf.Timestamp updated_at = 5;
 }
 message MicroServices {
     repeated MicroService services = 1;

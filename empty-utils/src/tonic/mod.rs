@@ -1,3 +1,5 @@
+use std::fmt::Error;
+
 use tonic::Status;
 
 pub type Resp<T> = core::result::Result<tonic::Response<T>, Status>;
@@ -15,3 +17,16 @@ impl<T> From<Response<T>> for Resp<T> {
         Ok(tonic::Response::new(value.0))
     }
 }
+// impl<T> std::ops::Try for Response<T> {
+//     type Output = Resp<T>;
+
+//     type Residual = Error;
+
+//     fn from_output(output: Self::Output) -> Self {
+//         todo!()
+//     }
+
+//     fn branch(self) -> std::ops::ControlFlow<Self::Residual, Self::Output> {
+//         todo!()
+//     }
+// }

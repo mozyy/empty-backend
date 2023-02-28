@@ -1,7 +1,7 @@
 use axum::{extract::State, response::IntoResponse, Json};
+use empty_utils::diesel::db;
 
 use crate::{
-    database::DbPool,
     model::{questions::QuestionReq, response::ResponseBody},
     service::questions,
 };
@@ -14,7 +14,7 @@ use crate::{
       (status=200,description="ok",body=[QuestionResp])
   )
 )]
-pub async fn index_get(State(pool): State<DbPool>) -> impl IntoResponse {
+pub async fn index_get(State(pool): State<db::DbPool>) -> impl IntoResponse {
     match questions::get(pool) {
         Ok(res) => Json(res),
         // Ok(res) => Json(ResponseBody::new("success", res)),
@@ -32,7 +32,7 @@ pub async fn index_get(State(pool): State<DbPool>) -> impl IntoResponse {
   )
 )]
 pub async fn index_post(
-    State(pool): State<DbPool>,
+    State(pool): State<db::DbPool>,
     Json(input): Json<Vec<QuestionReq>>,
 ) -> impl IntoResponse {
     match questions::post(&input, pool) {

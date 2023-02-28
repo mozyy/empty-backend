@@ -29,7 +29,8 @@ oxide-auth = "0.5"
 oxide-auth-axum = "0.3.0"
 
 
-empty_macro = { path="../empty-macro" }
+empty-macro = { path="../empty-macro" }
+empty-utils = { path="../empty-utils" }
 
 [[bin]]
 name="openapi"

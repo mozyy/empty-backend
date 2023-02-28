@@ -3,6 +3,7 @@ use std::{error::Error, net::Ipv4Addr};
 use actix_web::middleware::Compress;
 use actix_web::{middleware::Logger, web, App, HttpServer};
 use empty_backend::{database, service};
+use empty_utils::diesel::db;
 
 #[actix_web::main]
 async fn main() -> Result<(), impl Error> {
@@ -10,7 +11,7 @@ async fn main() -> Result<(), impl Error> {
 
     println!("starting HTTP server at http://localhost:8080");
     // set up database connection pool
-    let pool = database::get_db_pool();
+    let pool = db::get();
 
     HttpServer::new(move || {
         App::new()

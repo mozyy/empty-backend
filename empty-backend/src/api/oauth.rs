@@ -2,7 +2,7 @@ use axum::extract::{FromRequest, State};
 use oxide_auth_axum::{OAuthRequest, OAuthResponse, WebError};
 
 use super::Result;
-use crate::{database::DbPool, model::oauth::OAuthState};
+use crate::model::oauth::OAuthState;
 
 pub async fn get_authorize(req: OAuthRequest) -> Result<OAuthResponse> {
     // GET requests should not mutate server state and are extremely

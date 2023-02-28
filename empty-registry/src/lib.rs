@@ -5,6 +5,7 @@ pub mod registry {
 
 pub use registry::registry_service_server::RegistryServiceServer;
 pub mod client;
+pub mod schema;
 pub mod server;
 
 pub const REGISTRY_ADDR: &str = env!("REGISTRY_ADDR");

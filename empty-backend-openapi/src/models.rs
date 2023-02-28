@@ -1,20 +1,19 @@
 #![allow(unused_qualifications)]
 
-use crate::models;
 #[cfg(any(feature = "client", feature = "server"))]
 use crate::header;
+use crate::models;
 
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
 pub struct Answer {
     #[serde(rename = "id")]
-    #[serde(skip_serializing_if="Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<isize>,
 
     #[serde(rename = "content")]
-    #[serde(skip_serializing_if="Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<String>,
-
 }
 
 impl Answer {
@@ -37,7 +36,6 @@ impl std::string::ToString for Answer {
             params.push("id".to_string());
             params.push(id.to_string());
         }
-
 
         if let Some(ref content) = self.content {
             params.push("content".to_string());
@@ -71,14 +69,28 @@ impl std::str::FromStr for Answer {
         while key_result.is_some() {
             let val = match string_iter.next() {
                 Some(x) => x,
-                None => return std::result::Result::Err("Missing value while parsing Answer".to_string())
+                None => {
+                    return std::result::Result::Err(
+                        "Missing value while parsing Answer".to_string(),
+                    )
+                }
             };
 
             if let Some(key) = key_result {
                 match key {
-                    "id" => intermediate_rep.id.push(<isize as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
-                    "content" => intermediate_rep.content.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
-                    _ => return std::result::Result::Err("Unexpected key while parsing Answer".to_string())
+                    "id" => intermediate_rep.id.push(
+                        <isize as std::str::FromStr>::from_str(val)
+                            .map_err(|x| format!("{}", x))?,
+                    ),
+                    "content" => intermediate_rep.content.push(
+                        <String as std::str::FromStr>::from_str(val)
+                            .map_err(|x| format!("{}", x))?,
+                    ),
+                    _ => {
+                        return std::result::Result::Err(
+                            "Unexpected key while parsing Answer".to_string(),
+                        )
+                    }
                 }
             }
 
@@ -100,13 +112,16 @@ impl std::str::FromStr for Answer {
 impl std::convert::TryFrom<header::IntoHeaderValue<Answer>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<Answer>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(
+        hdr_value: header::IntoHeaderValue<Answer>,
+    ) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
-             std::result::Result::Ok(value) => std::result::Result::Ok(value),
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for Answer - value: {} is invalid {}",
-                     hdr_value, e))
+            std::result::Result::Ok(value) => std::result::Result::Ok(value),
+            std::result::Result::Err(e) => std::result::Result::Err(format!(
+                "Invalid header value for Answer - value: {} is invalid {}",
+                hdr_value, e
+            )),
         }
     }
 }
@@ -117,21 +132,24 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
-             std::result::Result::Ok(value) => {
-                    match <Answer as std::str::FromStr>::from_str(value) {
-                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
-                        std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into Answer - {}",
-                                value, err))
+            std::result::Result::Ok(value) => {
+                match <Answer as std::str::FromStr>::from_str(value) {
+                    std::result::Result::Ok(value) => {
+                        std::result::Result::Ok(header::IntoHeaderValue(value))
                     }
-             },
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Unable to convert header: {:?} to string: {}",
-                     hdr_value, e))
+                    std::result::Result::Err(err) => std::result::Result::Err(format!(
+                        "Unable to convert header value '{}' into Answer - {}",
+                        value, err
+                    )),
+                }
+            }
+            std::result::Result::Err(e) => std::result::Result::Err(format!(
+                "Unable to convert header: {:?} to string: {}",
+                hdr_value, e
+            )),
         }
     }
 }
-
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
@@ -162,26 +180,24 @@ impl std::ops::DerefMut for Id {
     }
 }
 
-
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
 pub struct Question {
     #[serde(rename = "id")]
-    #[serde(skip_serializing_if="Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<isize>,
 
     #[serde(rename = "question")]
-    #[serde(skip_serializing_if="Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub question: Option<String>,
 
     #[serde(rename = "answers")]
-    #[serde(skip_serializing_if="Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub answers: Option<Vec<models::Answer>>,
 
     #[serde(rename = "answerIds")]
-    #[serde(skip_serializing_if="Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub answer_ids: Option<Vec<i32>>,
-
 }
 
 impl Question {
@@ -207,7 +223,6 @@ impl std::string::ToString for Question {
             params.push(id.to_string());
         }
 
-
         if let Some(ref question) = self.question {
             params.push("question".to_string());
             params.push(question.to_string());
@@ -215,10 +230,16 @@ impl std::string::ToString for Question {
 
         // Skipping answers in query parameter serialization
 
-
         if let Some(ref answer_ids) = self.answer_ids {
             params.push("answerIds".to_string());
-            params.push(answer_ids.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",").to_string());
+            params.push(
+                answer_ids
+                    .iter()
+                    .map(|x| x.to_string())
+                    .collect::<Vec<_>>()
+                    .join(",")
+                    .to_string(),
+            );
         }
 
         params.join(",").to_string()
@@ -250,16 +271,40 @@ impl std::str::FromStr for Question {
         while key_result.is_some() {
             let val = match string_iter.next() {
                 Some(x) => x,
-                None => return std::result::Result::Err("Missing value while parsing Question".to_string())
+                None => {
+                    return std::result::Result::Err(
+                        "Missing value while parsing Question".to_string(),
+                    )
+                }
             };
 
             if let Some(key) = key_result {
                 match key {
-                    "id" => intermediate_rep.id.push(<isize as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
-                    "question" => intermediate_rep.question.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
-                    "answers" => return std::result::Result::Err("Parsing a container in this style is not supported in Question".to_string()),
-                    "answerIds" => return std::result::Result::Err("Parsing a container in this style is not supported in Question".to_string()),
-                    _ => return std::result::Result::Err("Unexpected key while parsing Question".to_string())
+                    "id" => intermediate_rep.id.push(
+                        <isize as std::str::FromStr>::from_str(val)
+                            .map_err(|x| format!("{}", x))?,
+                    ),
+                    "question" => intermediate_rep.question.push(
+                        <String as std::str::FromStr>::from_str(val)
+                            .map_err(|x| format!("{}", x))?,
+                    ),
+                    "answers" => {
+                        return std::result::Result::Err(
+                            "Parsing a container in this style is not supported in Question"
+                                .to_string(),
+                        )
+                    }
+                    "answerIds" => {
+                        return std::result::Result::Err(
+                            "Parsing a container in this style is not supported in Question"
+                                .to_string(),
+                        )
+                    }
+                    _ => {
+                        return std::result::Result::Err(
+                            "Unexpected key while parsing Question".to_string(),
+                        )
+                    }
                 }
             }
 
@@ -283,13 +328,16 @@ impl std::str::FromStr for Question {
 impl std::convert::TryFrom<header::IntoHeaderValue<Question>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<Question>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(
+        hdr_value: header::IntoHeaderValue<Question>,
+    ) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
-             std::result::Result::Ok(value) => std::result::Result::Ok(value),
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for Question - value: {} is invalid {}",
-                     hdr_value, e))
+            std::result::Result::Ok(value) => std::result::Result::Ok(value),
+            std::result::Result::Err(e) => std::result::Result::Err(format!(
+                "Invalid header value for Question - value: {} is invalid {}",
+                hdr_value, e
+            )),
         }
     }
 }
@@ -300,18 +348,21 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
-             std::result::Result::Ok(value) => {
-                    match <Question as std::str::FromStr>::from_str(value) {
-                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
-                        std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into Question - {}",
-                                value, err))
+            std::result::Result::Ok(value) => {
+                match <Question as std::str::FromStr>::from_str(value) {
+                    std::result::Result::Ok(value) => {
+                        std::result::Result::Ok(header::IntoHeaderValue(value))
                     }
-             },
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Unable to convert header: {:?} to string: {}",
-                     hdr_value, e))
+                    std::result::Result::Err(err) => std::result::Result::Err(format!(
+                        "Unable to convert header value '{}' into Question - {}",
+                        value, err
+                    )),
+                }
+            }
+            std::result::Result::Err(e) => std::result::Result::Err(format!(
+                "Unable to convert header: {:?} to string: {}",
+                hdr_value, e
+            )),
         }
     }
 }
-
