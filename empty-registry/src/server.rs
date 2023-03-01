@@ -2,6 +2,7 @@ use crate::registry::{health_service_client::HealthServiceClient, ListRequest};
 use crate::schema::micro_services;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
+use empty_utils::convert::naiveDateTimeToTimestamp;
 use std::{
     collections::HashMap,
     net::SocketAddr,
@@ -52,13 +53,25 @@ struct Service {
     id: Uuid,
     name: String,
     endpoint: String,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+    created_at: NaiveDateTime,
+    updated_at: NaiveDateTime,
 }
 
 impl From<Service> for MicroService {
     fn from(value: Service) -> Self {
-        value.into()
+        MicroService {
+            id: value.id.to_string(),
+            name: value.name,
+            endpoint: value.endpoint,
+            created_at: Some(naiveDateTimeToTimestamp(value.created_at)),
+            updated_at: Some(naiveDateTimeToTimestamp(value.updated_at)),
+        }
+    }
+}
+impl From<Vec<Service>> for MicroServices {
+    fn from(value: Vec<Service>) -> Self {
+        let services: Vec<MicroService> = value.into_iter().map(MicroService::from).collect();
+        MicroServices { services }
     }
 }
 
@@ -88,6 +101,19 @@ impl Registry {
         micro_services::dsl::micro_services
             .filter(micro_services::name.eq(name))
             .first::<Service>(&mut conn)
+            .ok()
+    }
+    fn list_service(&mut self, name: String) -> Option<Vec<Service>> {
+        let mut conn = self.dbPool.get().unwrap();
+        micro_services::dsl::micro_services
+            .filter(micro_services::name.eq(name))
+            .load::<Service>(&mut conn)
+            .ok()
+    }
+    fn all_service(&mut self) -> Option<Vec<Service>> {
+        let mut conn = self.dbPool.get().unwrap();
+        micro_services::dsl::micro_services
+            .load::<Service>(&mut conn)
             .ok()
     }
 }
@@ -122,12 +148,20 @@ impl RegistryService for Server {
         let service = registry
             .get_service(request.into_inner().name)
             .ok_or(Status::out_of_range("未找到服务"))?;
-        Ok(tonic::Response::new(service.into()))
+        Response(service.into()).into()
     }
     async fn list(&self, request: Request<ListRequest>) -> Resp<MicroServices> {
-        todo!()
+        let mut registry = self.registry.lock().unwrap();
+        let services = registry
+            .list_service(request.into_inner().name)
+            .ok_or(Status::out_of_range("未找到服务"))?;
+        Response(services.into()).into()
     }
-    async fn all(&self, request: Request<()>) -> Resp<MicroServices> {
-        todo!()
+    async fn all(&self, _request: Request<()>) -> Resp<MicroServices> {
+        let mut registry = self.registry.lock().unwrap();
+        let services = registry
+            .all_service()
+            .ok_or(Status::out_of_range("未找到服务"))?;
+        Response(services.into()).into()
     }
 }
