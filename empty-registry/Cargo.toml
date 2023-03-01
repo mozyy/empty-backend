@@ -17,6 +17,9 @@ tonic-health = "*"
 empty-utils = {path = "../empty-utils"}
 log = "0.4"
 prost-types = "*"
+lazy_static ="*"
+tracing="*"
+tower-http = { version = "*", features = ["cors", "trace"] }
 
 
 [build-dependencies]

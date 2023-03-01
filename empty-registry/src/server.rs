@@ -129,6 +129,10 @@ impl RegistryService for Server {
         let remote_addr = request.remote_addr();
         let mut registry = self.registry.lock().unwrap();
         registry.register_service(request.into_inner().name, remote_addr.unwrap().to_string());
+        // tracing::info!("received request 1111");
+        // tracing::debug!("sending response");
+        // tracing::warn!("sending2222");
+        // log::info!("log info ");
         Response(()).into()
     }
     async fn unregister(&self, request: Request<UnregisterRequest>) -> Resp<()> {

@@ -10,3 +10,6 @@ tonic = "*"
 diesel = "*"
 chrono = { version = "*" }
 prost-types = "*"
+log = "*"
+tracing-subscriber = { version = "*", features = ["env-filter"] }
+dotenvy ="*"
