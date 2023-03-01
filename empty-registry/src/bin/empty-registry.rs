@@ -1,9 +1,9 @@
-use empty_registry::registry::registry_service_server::RegistryService;
+
 use empty_registry::RegistryServiceServer;
-use tonic::{transport::Server, Request, Response, Status};
+use tonic::{transport::Server};
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let (mut health_reporter, health_service) = tonic_health::server::health_reporter();
+    let (_health_reporter, health_service) = tonic_health::server::health_reporter();
 
     let addr = "127.0.0.1:50051".parse().unwrap();
     let greeter = empty_registry::server::Server::default();

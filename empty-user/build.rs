@@ -1,8 +1,3 @@
-use std::{
-    fs::{self, File},
-    process::{Command, Stdio},
-};
-
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let protos_dir = &std::env::current_dir()?.join("../protos");
     // Command::new("diesel")

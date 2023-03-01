@@ -2,7 +2,6 @@ use axum::{http::StatusCode, response::IntoResponse, routing::get, Router};
 
 use crate::{
     api::{oauth, questions},
-    database::{self},
 };
 
 pub fn get_router() -> Router {

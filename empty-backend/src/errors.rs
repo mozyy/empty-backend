@@ -1,10 +1,10 @@
-use std::error::Error;
+
 
 // DEFINE ERROR HERE
-use crate::model::response::ResponseBody;
+
 use axum::{http::StatusCode, response::IntoResponse};
-use diesel::r2d2::PoolError;
-use serde::Serialize;
+
+
 
 #[derive(thiserror::Error, Debug)]
 pub enum ServiceError {

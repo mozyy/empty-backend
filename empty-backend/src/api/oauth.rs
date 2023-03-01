@@ -1,4 +1,4 @@
-use axum::extract::{FromRequest, State};
+use axum::extract::{FromRequest};
 use oxide_auth_axum::{OAuthRequest, OAuthResponse, WebError};
 
 use super::Result;
@@ -30,8 +30,8 @@ impl<S, B> FromRequest<S, B> for Req {
     type Rejection = WebError;
 
     fn from_request<'life0, 'async_trait>(
-        req: axum::http::Request<B>,
-        state: &'life0 S,
+        _req: axum::http::Request<B>,
+        _state: &'life0 S,
     ) -> core::pin::Pin<
         Box<
             dyn core::future::Future<Output = std::result::Result<Self, Self::Rejection>>

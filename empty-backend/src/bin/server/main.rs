@@ -2,7 +2,6 @@ use std::{error::Error, net::Ipv4Addr};
 
 use actix_web::middleware::Compress;
 use actix_web::{middleware::Logger, web, App, HttpServer};
-use empty_backend::{database, service};
 use empty_utils::diesel::db;
 
 #[actix_web::main]

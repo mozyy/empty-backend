@@ -18,7 +18,7 @@ pub async fn index_get(State(pool): State<db::DbPool>) -> impl IntoResponse {
     match questions::get(pool) {
         Ok(res) => Json(res),
         // Ok(res) => Json(ResponseBody::new("success", res)),
-        Err(err) => todo!(),
+        Err(_err) => todo!(),
     }
 }
 
@@ -37,6 +37,6 @@ pub async fn index_post(
 ) -> impl IntoResponse {
     match questions::post(&input, pool) {
         Ok(res) => Json(ResponseBody::new("success", res)),
-        Err(err) => todo!(),
+        Err(_err) => todo!(),
     }
 }

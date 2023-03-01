@@ -1,7 +1,7 @@
 use tonic::transport::NamedService;
 
 use crate::registry::{
-    health_service_client::HealthServiceClient, registry_service_client::RegistryServiceClient,
+    registry_service_client::RegistryServiceClient,
     RegisterRequest,
 };
 

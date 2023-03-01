@@ -4,7 +4,7 @@ use crate::{
     utils::timestamp,
 };
 use chrono::NaiveDateTime;
-use diesel::{prelude::*, result::Error};
+use diesel::prelude::*;
 use oxide_auth::{
     endpoint::{Authorizer, Issuer, OwnerConsent, OwnerSolicitor, Scope, Solicitation, WebRequest},
     frontends::simple::endpoint::{Generic, Vacant},
@@ -65,7 +65,7 @@ impl Authorizer for Auth {
         todo!()
     }
 
-    fn extract(&mut self, token: &str) -> Result<Option<Grant>, ()> {
+    fn extract(&mut self, _token: &str) -> Result<Option<Grant>, ()> {
         todo!()
     }
 }
@@ -113,8 +113,8 @@ pub struct NewClientUrl {
 }
 
 impl Client {
-    pub fn insert(conn: &mut PgConnection, req: NewClientUrl) -> Result<Uuid, ServiceError> {
-        let clients = clients::table.load::<Client>(conn)?;
+    pub fn insert(conn: &mut PgConnection, _req: NewClientUrl) -> Result<Uuid, ServiceError> {
+        let _clients = clients::table.load::<Client>(conn)?;
         todo!();
     }
     pub fn select_all(conn: &mut PgConnection) -> Result<Vec<ClientUrl>, ServiceError> {
@@ -156,7 +156,7 @@ impl Issue {
     }
 }
 impl Issuer for Issue {
-    fn issue(&mut self, grant: Grant) -> Result<IssuedToken, ()> {
+    fn issue(&mut self, _grant: Grant) -> Result<IssuedToken, ()> {
         todo!()
     }
 

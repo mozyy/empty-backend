@@ -1,26 +1,20 @@
 use crate::registry::{health_service_client::HealthServiceClient, ListRequest};
+use crate::registry::{
+    registry_service_server::RegistryService, GetRequest, MicroService, MicroServices,
+    RegisterRequest, UnregisterRequest,
+};
 use crate::schema::micro_services;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
-use empty_utils::convert::naiveDateTimeToTimestamp;
-use std::{
-    collections::HashMap,
-    net::SocketAddr,
-    time::{Duration, SystemTime},
-};
-use uuid::Uuid;
-
-use crate::registry::{
-    self, registry_service_server::RegistryService, GetRequest, LoginRequest, MicroService,
-    MicroServices, RegisterRequest, UnregisterRequest,
-};
+use empty_utils::convert::naive_date_time_to_timestamp;
 use empty_utils::{
     diesel::db,
     tonic::{Resp, Response},
 };
-use tokio::sync::Mutex;
-use tonic::{codegen::http::request, transport::server::TcpConnectInfo, Code, Request, Status};
-use tonic_health::server::HealthReporter;
+use std::time::Duration;
+use tonic::{Request, Status};
+use uuid::Uuid;
+
 pub async fn health_check(dts: String) -> Result<(), Box<dyn std::error::Error>> {
     let mut client = HealthServiceClient::connect(dts).await?;
 
@@ -34,7 +28,7 @@ pub async fn health_check(dts: String) -> Result<(), Box<dyn std::error::Error>>
 }
 
 struct Registry {
-    dbPool: db::DbPool,
+    db_pool: db::DbPool,
 }
 impl Default for Registry {
     fn default() -> Self {
@@ -63,8 +57,8 @@ impl From<Service> for MicroService {
             id: value.id.to_string(),
             name: value.name,
             endpoint: value.endpoint,
-            created_at: Some(naiveDateTimeToTimestamp(value.created_at)),
-            updated_at: Some(naiveDateTimeToTimestamp(value.updated_at)),
+            created_at: Some(naive_date_time_to_timestamp(value.created_at)),
+            updated_at: Some(naive_date_time_to_timestamp(value.updated_at)),
         }
     }
 }
@@ -77,12 +71,12 @@ impl From<Vec<Service>> for MicroServices {
 
 impl Registry {
     fn new() -> Self {
-        Registry { dbPool: db::get() }
+        Registry { db_pool: db::get() }
     }
 
     fn register_service(&mut self, name: String, endpoint: String) {
         let service = NewService { name, endpoint };
-        let mut conn = self.dbPool.get().unwrap();
+        let mut conn = self.db_pool.get().unwrap();
         diesel::insert_into(micro_services::dsl::micro_services)
             .values(service)
             .execute(&mut conn)
@@ -90,28 +84,28 @@ impl Registry {
     }
 
     fn unregister_service(&mut self, id: Uuid) {
-        let mut conn = self.dbPool.get().unwrap();
+        let mut conn = self.db_pool.get().unwrap();
         diesel::delete(micro_services::dsl::micro_services.find(id))
             .execute(&mut conn)
             .unwrap();
     }
 
     fn get_service(&mut self, name: String) -> Option<Service> {
-        let mut conn = self.dbPool.get().unwrap();
+        let mut conn = self.db_pool.get().unwrap();
         micro_services::dsl::micro_services
             .filter(micro_services::name.eq(name))
             .first::<Service>(&mut conn)
             .ok()
     }
     fn list_service(&mut self, name: String) -> Option<Vec<Service>> {
-        let mut conn = self.dbPool.get().unwrap();
+        let mut conn = self.db_pool.get().unwrap();
         micro_services::dsl::micro_services
             .filter(micro_services::name.eq(name))
             .load::<Service>(&mut conn)
             .ok()
     }
     fn all_service(&mut self) -> Option<Vec<Service>> {
-        let mut conn = self.dbPool.get().unwrap();
+        let mut conn = self.db_pool.get().unwrap();
         micro_services::dsl::micro_services
             .load::<Service>(&mut conn)
             .ok()
@@ -121,7 +115,6 @@ impl Registry {
 #[derive(Default)]
 pub struct Server {
     registry: std::sync::Mutex<Registry>,
-    serviceMap: Mutex<HashMap<String, Vec<MicroService>>>,
 }
 impl Server {
     pub async fn start() {
@@ -147,21 +140,21 @@ impl RegistryService for Server {
         let mut registry = self.registry.lock().unwrap();
         let service = registry
             .get_service(request.into_inner().name)
-            .ok_or(Status::out_of_range("未找到服务"))?;
+            .ok_or_else(|| Status::out_of_range("未找到服务"))?;
         Response(service.into()).into()
     }
     async fn list(&self, request: Request<ListRequest>) -> Resp<MicroServices> {
         let mut registry = self.registry.lock().unwrap();
         let services = registry
             .list_service(request.into_inner().name)
-            .ok_or(Status::out_of_range("未找到服务"))?;
+            .ok_or_else(|| Status::out_of_range("未找到服务"))?;
         Response(services.into()).into()
     }
     async fn all(&self, _request: Request<()>) -> Resp<MicroServices> {
         let mut registry = self.registry.lock().unwrap();
         let services = registry
             .all_service()
-            .ok_or(Status::out_of_range("未找到服务"))?;
+            .ok_or_else(|| Status::out_of_range("未找到服务"))?;
         Response(services.into()).into()
     }
 }
