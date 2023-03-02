@@ -1,6 +1,3 @@
-#[macro_use]
-extern crate lazy_static;
-
 pub use registry::health_service_server;
 pub mod registry {
     tonic::include_proto!("empty.registry.v1");

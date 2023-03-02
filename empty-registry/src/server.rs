@@ -126,13 +126,9 @@ impl Server {
 #[tonic::async_trait]
 impl RegistryService for Server {
     async fn register(&self, request: Request<RegisterRequest>) -> Resp<()> {
-        let remote_addr = request.remote_addr();
         let mut registry = self.registry.lock().unwrap();
-        registry.register_service(request.into_inner().name, remote_addr.unwrap().to_string());
-        // tracing::info!("received request 1111");
-        // tracing::debug!("sending response");
-        // tracing::warn!("sending2222");
-        // log::info!("log info ");
+        let request = request.into_inner();
+        registry.register_service(request.name, request.endpoint);
         Response(()).into()
     }
     async fn unregister(&self, request: Request<UnregisterRequest>) -> Resp<()> {
