@@ -1,6 +1,18 @@
-use empty_registry::{RegistryServiceServer, REGISTRY_ADDR};
-use tonic::transport::{NamedService, Server};
-use tower_http::trace::TraceLayer;
+use axum::{
+    extract::{Path, State},
+    http::{uri::Uri, Request, Response},
+    routing::post,
+    Router,
+};
+use empty_registry::{
+    proxy::{handler, Proxy},
+    registry::RegistryServer,
+    RegistryServiceServer, REGISTRY_ADDR,
+};
+use hyper::{client::HttpConnector, Body};
+use tonic::transport::NamedService;
+
+type Client = hyper::client::Client<HttpConnector, Body>;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -8,23 +20,25 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (_health_reporter, health_service) = tonic_health::server::health_reporter();
 
     let addr = REGISTRY_ADDR.parse().unwrap();
-    let service = empty_registry::server::Server::default();
+    let service = RegistryServer::default();
 
     log::info!("RegistryServer listening on {}", addr);
 
-    Server::builder()
-        // .trace_fn(|request| {
-        //     log::info!("resive request: {:?}", request);
-        //     tracing::info_span!("registry_server", "{:?}", request)
-        // })
-        .layer(TraceLayer::new_for_http())
-        // TODO: helth_service
-        .add_service(health_service)
-        .add_service(RegistryServiceServer::new(service))
-        // TODO: proxy_service
-        // TODO: oauth_service
-        .serve(addr)
-        .await?;
+    let proxy = Proxy::default();
+
+    let registry_service = Router::new()
+        .route_service(
+            &format!("/{}/*rest", RegistryServiceServer::<RegistryServer>::NAME),
+            RegistryServiceServer::new(service),
+        )
+        .route("/:service/*rest", post(Proxy::handler).with_state(proxy));
+
+    // TODO: proxy_service
+    // TODO: oauth_service
+    axum::Server::bind(&addr)
+        .serve(registry_service.into_make_service())
+        .await
+        .unwrap();
 
     Ok(())
 }

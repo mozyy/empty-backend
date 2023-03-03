@@ -1,13 +1,13 @@
-use template::{template_service_server::TemplateService, TemplateRequest, TemplateResponse};
+use pb::{template_service_server::TemplateService, TemplateRequest, TemplateResponse};
 
-pub mod template {
+pub mod pb {
     tonic::include_proto!("empty.template.v1");
 }
 
 pub mod registry {
-    use crate::{template::template_service_server::TemplateServiceServer, Service};
+    use crate::{pb::template_service_server::TemplateServiceServer, Service};
     use empty_registry::{
-        registry::{registry_service_client::RegistryServiceClient, RegisterRequest},
+        pb::{registry_service_client::RegistryServiceClient, RegisterRequest},
         REGISTRY_ADDR,
     };
     use std::net::TcpListener;
@@ -66,6 +66,7 @@ impl TemplateService for Service {
         &self,
         request: tonic::Request<TemplateRequest>,
     ) -> Result<tonic::Response<TemplateResponse>, tonic::Status> {
+        log::info!("");
         let response = self
             .template
             .get_template(request.into_inner().name.as_str());

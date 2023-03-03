@@ -1,5 +1,5 @@
-use crate::registry::{health_service_client::HealthServiceClient, ListRequest};
-use crate::registry::{
+use crate::pb::{health_service_client::HealthServiceClient, ListRequest};
+use crate::pb::{
     registry_service_server::RegistryService, GetRequest, MicroService, MicroServices,
     RegisterRequest, UnregisterRequest,
 };
@@ -27,7 +27,8 @@ pub async fn health_check(dts: String) -> Result<(), Box<dyn std::error::Error>>
     Ok(())
 }
 
-struct Registry {
+#[derive(Clone)]
+pub struct Registry {
     db_pool: db::DbPool,
 }
 impl Default for Registry {
@@ -41,12 +42,12 @@ struct NewService {
     name: String,
     endpoint: String,
 }
-#[derive(Queryable)]
+#[derive(Queryable, Debug)]
 #[diesel(table_name = micro_services)]
-struct Service {
+pub struct Service {
     id: Uuid,
     name: String,
-    endpoint: String,
+    pub endpoint: String,
     created_at: NaiveDateTime,
     updated_at: NaiveDateTime,
 }
@@ -97,7 +98,7 @@ impl Registry {
             .first::<Service>(&mut conn)
             .ok()
     }
-    fn list_service(&mut self, name: String) -> Option<Vec<Service>> {
+    pub fn list_service(&mut self, name: String) -> Option<Vec<Service>> {
         let mut conn = self.db_pool.get().unwrap();
         micro_services::dsl::micro_services
             .filter(micro_services::name.eq(name))
@@ -113,10 +114,10 @@ impl Registry {
 }
 
 #[derive(Default)]
-pub struct Server {
+pub struct RegistryServer {
     registry: std::sync::Mutex<Registry>,
 }
-impl Server {
+impl RegistryServer {
     pub async fn start() {
         loop {
             tokio::time::sleep(Duration::from_secs(5 * 60)).await;
@@ -124,7 +125,7 @@ impl Server {
     }
 }
 #[tonic::async_trait]
-impl RegistryService for Server {
+impl RegistryService for RegistryServer {
     async fn register(&self, request: Request<RegisterRequest>) -> Resp<()> {
         let mut registry = self.registry.lock().unwrap();
         let request = request.into_inner();

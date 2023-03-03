@@ -37,7 +37,7 @@ tonic-health = "0.8"
 prost-types = "0.11"
 tower-http = { version = "0.4", features = ["cors", "trace"] }
 tonic-build = "0.8"
-hyper = "*"
+hyper = "0.14"
 
 # rustful
 axum = { version = "0.6", features = ["http2"] }

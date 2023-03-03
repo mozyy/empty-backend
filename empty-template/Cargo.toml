@@ -13,6 +13,7 @@ tonic = {workspace = true}
 prost = {workspace = true}
 hyper = {workspace = true}
 empty-registry = {workspace = true}
+empty-utils = {workspace = true}
 tokio-stream = {version = "*", features = ["net"]}
 
 

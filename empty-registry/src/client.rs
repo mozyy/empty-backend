@@ -1,6 +1,6 @@
 use tonic::transport::NamedService;
 
-use crate::registry::{registry_service_client::RegistryServiceClient, RegisterRequest};
+use crate::pb::{registry_service_client::RegistryServiceClient, RegisterRequest};
 
 // trait MicroService {
 // }

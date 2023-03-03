@@ -1,7 +1,7 @@
 use std::net::SocketAddr;
 
 use empty_registry::{
-    registry::{registry_service_client::RegistryServiceClient, RegisterRequest},
+    pb::{registry_service_client::RegistryServiceClient, RegisterRequest},
     REGISTRY_ADDR,
 };
 use tonic::transport::Channel;
@@ -19,6 +19,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 async fn register(client: &mut RegistryServiceClient<Channel>) {
     let request = tonic::Request::new(RegisterRequest {
         name: "Tonic".into(),
+        endpoint: "".into(),
     });
 
     let response = client.register(request).await.unwrap();
