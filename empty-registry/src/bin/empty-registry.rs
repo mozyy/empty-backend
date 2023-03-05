@@ -1,7 +1,7 @@
 use axum::{
     extract::{Path, State},
     http::{uri::Uri, Request, Response},
-    routing::post,
+    routing::{any, post},
     Router,
 };
 use empty_registry::{
@@ -31,7 +31,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             &format!("/{}/*rest", RegistryServiceServer::<RegistryServer>::NAME),
             RegistryServiceServer::new(service),
         )
-        .route("/:service/*rest", post(Proxy::handler).with_state(proxy));
+        .route("/:service/*rest", any(Proxy::handler).with_state(proxy));
 
     // TODO: proxy_service
     // TODO: oauth_service

@@ -17,11 +17,12 @@ pub struct Proxy {
 }
 
 impl Proxy {
-    pub async fn handler(
+    pub async fn  handler(
         Path(service): Path<String>,
         State(proxy): State<Proxy>,
         mut req: Request<Body>,
     ) -> Response<Body> {
+        log::info!("proxy req: {:?}",req);
         let path = req.uri().path();
         let path_query = req
             .uri()
@@ -48,6 +49,7 @@ pub async fn handler(
     State(proxy): State<Proxy>,
     mut req: Request<Body>,
 ) -> Response<Body> {
+    log::info!("proxy request: {:?}", req);
     let path = req.uri().path();
     let path_query = req
         .uri()

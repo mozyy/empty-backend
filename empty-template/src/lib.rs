@@ -66,7 +66,7 @@ impl TemplateService for Service {
         &self,
         request: tonic::Request<TemplateRequest>,
     ) -> Result<tonic::Response<TemplateResponse>, tonic::Status> {
-        log::info!("");
+        log::info!("template reservice: {:?}",request);
         let response = self
             .template
             .get_template(request.into_inner().name.as_str());
