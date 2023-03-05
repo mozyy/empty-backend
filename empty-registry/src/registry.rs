@@ -129,7 +129,15 @@ impl RegistryService for RegistryServer {
     async fn register(&self, request: Request<RegisterRequest>) -> Resp<()> {
         let mut registry = self.registry.lock().unwrap();
         let request = request.into_inner();
+        let req = request.clone();
+        if let Some(all) = registry.all_service() {
+            all.iter().for_each(|s| {
+                registry.unregister_service(s.id);
+            })
+        }
+
         registry.register_service(request.name, request.endpoint);
+        log::info!("registry: {:?}", req);
         Response(()).into()
     }
     async fn unregister(&self, request: Request<UnregisterRequest>) -> Resp<()> {

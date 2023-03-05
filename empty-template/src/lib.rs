@@ -5,13 +5,16 @@ pub mod pb {
 }
 
 pub mod registry {
-    use crate::{pb::template_service_server::TemplateServiceServer, Service};
+    use crate::{
+        pb::template_service_server::{TemplateService, TemplateServiceServer},
+        Service,
+    };
     use empty_registry::{
         pb::{registry_service_client::RegistryServiceClient, RegisterRequest},
         REGISTRY_ADDR,
     };
     use std::net::TcpListener;
-    use tonic::transport::{Endpoint, Server};
+    use tonic::transport::{Endpoint, NamedService, Server};
     pub async fn register() {
         let listener = tokio::net::TcpListener::bind("0.0.0.0:0").await.unwrap();
         let local_addr = listener.local_addr().unwrap();
@@ -25,7 +28,7 @@ pub mod registry {
             .unwrap();
 
         let request = tonic::Request::new(RegisterRequest {
-            name: "Tonic".into(),
+            name: TemplateServiceServer::<Service>::NAME.into(),
             endpoint: local_addr.to_string(),
         });
 
@@ -66,7 +69,7 @@ impl TemplateService for Service {
         &self,
         request: tonic::Request<TemplateRequest>,
     ) -> Result<tonic::Response<TemplateResponse>, tonic::Status> {
-        log::info!("template reservice: {:?}",request);
+        log::info!("template reservice: {:?}", request);
         let response = self
             .template
             .get_template(request.into_inner().name.as_str());

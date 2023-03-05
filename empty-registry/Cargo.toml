@@ -21,7 +21,7 @@ lazy_static = {workspace = true}
 tracing={workspace = true}
 axum={workspace = true, features = ["http2"]}
 tower-http = { version = "*", features = ["cors", "trace"] }
-hyper = { workspace = true }
+hyper = { workspace = true , features = ["http2"]} 
 tower={workspace=true}
 
 
