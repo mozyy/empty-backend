@@ -15,6 +15,7 @@ hyper = {workspace = true}
 empty-registry = {workspace = true}
 empty-utils = {workspace = true}
 tokio-stream = {version = "*", features = ["net"]}
+rand = {workspace = true}
 
 
 [build-dependencies]

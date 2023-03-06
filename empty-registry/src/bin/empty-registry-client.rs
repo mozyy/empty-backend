@@ -1,4 +1,4 @@
-use std::net::SocketAddr;
+
 
 use empty_registry::{
     pb::{registry_service_client::RegistryServiceClient, RegisterRequest},

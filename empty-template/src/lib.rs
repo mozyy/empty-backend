@@ -6,17 +6,19 @@ pub mod pb {
 
 pub mod registry {
     use crate::{
-        pb::template_service_server::{TemplateService, TemplateServiceServer},
+        pb::template_service_server::{TemplateServiceServer},
         Service,
     };
     use empty_registry::{
         pb::{registry_service_client::RegistryServiceClient, RegisterRequest},
         REGISTRY_ADDR,
     };
-    use std::net::TcpListener;
-    use tonic::transport::{Endpoint, NamedService, Server};
+    
+    use tonic::transport::{NamedService, Server};
     pub async fn register() {
-        let listener = tokio::net::TcpListener::bind("0.0.0.0:0").await.unwrap();
+        let listener = tokio::net::TcpListener::bind("0.0.0.0:36807")
+            .await
+            .unwrap();
         let local_addr = listener.local_addr().unwrap();
         println!("RegistryServer listening on {}", local_addr);
 

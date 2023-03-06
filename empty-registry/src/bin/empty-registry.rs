@@ -1,16 +1,19 @@
 use axum::{
-    extract::{FromRequestParts, Path, State},
-    http::{uri::Uri, Request, Response},
-    routing::{any, get, post},
+    extract::{FromRequestParts, Path},
+    http::{Request, Response},
+    routing::{any, get},
     Router,
 };
 use empty_registry::{
-    proxy::{handler, Proxy},
-    registry::RegistryServer,
+    proxy::Proxy,
+    registry::{self, model::Registry, service::Service},
     RegistryServiceServer, REGISTRY_ADDR,
 };
 use hyper::{client::HttpConnector, Body};
-use std::{borrow::Borrow, convert::Infallible};
+use std::{
+    convert::Infallible,
+    sync::{Arc, Mutex},
+};
 use tonic::transport::NamedService;
 use tower::service_fn;
 type Client = hyper::client::Client<HttpConnector, Body>;
@@ -18,20 +21,21 @@ type Client = hyper::client::Client<HttpConnector, Body>;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     empty_utils::init();
-    let (_health_reporter, health_service) = tonic_health::server::health_reporter();
+    let (_health_reporter, _health_service) = tonic_health::server::health_reporter();
 
     let addr = REGISTRY_ADDR.parse().unwrap();
-    let service = RegistryServer::default();
+    let registry = Arc::new(Mutex::new(Registry::default()));
+    let service = Service::new(registry.clone());
 
     log::info!("RegistryServer listening on {}", addr);
 
-    let proxy = Proxy::default();
+    let proxy = Proxy::new(registry.clone());
 
     let registry_service = Router::new()
         .layer(tower_http::trace::TraceLayer::new_for_http())
         .layer(tower_http::trace::TraceLayer::new_for_grpc())
         .route_service(
-            &format!("/{}/*rest", RegistryServiceServer::<RegistryServer>::NAME),
+            &format!("/{}/*rest", RegistryServiceServer::<Service>::NAME),
             RegistryServiceServer::new(service),
         )
         .route(
