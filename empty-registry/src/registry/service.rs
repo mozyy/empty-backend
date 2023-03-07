@@ -1,7 +1,7 @@
 use crate::pb::ListRequest;
 use crate::pb::{
     registry_service_server::RegistryService, GetRequest, MicroService, MicroServices,
-    RegisterRequest, UnregisterRequest,
+    RegisterRequest, RegisterResponse, UnregisterRequest,
 };
 
 use empty_utils::tonic::{Resp, Response};
@@ -28,13 +28,13 @@ impl Service {
 }
 #[tonic::async_trait]
 impl RegistryService for Service {
-    async fn register(&self, request: Request<RegisterRequest>) -> Resp<()> {
+    async fn register(&self, request: Request<RegisterRequest>) -> Resp<RegisterResponse> {
         let mut registry = self.registry.lock().unwrap();
         let request = request.into_inner();
         let req = request.clone();
-        registry.register_service(request.name, request.endpoint);
+        let id = registry.register_service(request.name, request.endpoint);
         log::info!("registry: {:?}", req);
-        Response(()).into()
+        Response(RegisterResponse { id: id.to_string() }).into()
     }
     async fn unregister(&self, request: Request<UnregisterRequest>) -> Resp<()> {
         let mut registry = self.registry.lock().unwrap();

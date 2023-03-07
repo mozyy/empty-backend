@@ -1,27 +1,74 @@
-use tonic::transport::NamedService;
+use std::convert::Infallible;
 
-use crate::pb::{registry_service_client::RegistryServiceClient, RegisterRequest};
+use hyper::{Body, Request, Response};
+use tokio::time::{sleep, Duration};
+use tonic::{
+    body::BoxBody,
+    transport::{server::Router, NamedService, Server},
+};
+use tower::Service;
 
-// trait MicroService {
-// }
+use crate::{
+    get_registry_addr,
+    pb::{
+        heartbeat_service_client::HeartbeatServiceClient,
+        registry_service_client::RegistryServiceClient, HeartbeatRequest, RegisterRequest,
+    },
+};
 
-pub struct MicroService {}
+pub async fn register<S>(svc: S) -> Result<(), Box<dyn std::error::Error>>
+where
+    S: Service<Request<Body>, Response = Response<BoxBody>, Error = Infallible>
+        + NamedService
+        + Clone
+        + Send
+        + 'static,
+    S::Future: Send + 'static,
+{
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:0").await?;
+    let local_addr = listener.local_addr()?;
+    log::info!("RegistryServer listening on {}", local_addr);
 
-impl MicroService {
-    pub fn register() {}
-}
+    let incoming = tokio_stream::wrappers::TcpListenerStream::new(listener);
+    let registry_addr = get_registry_addr();
 
-pub async fn register<S: NamedService>() -> Result<(), Box<dyn std::error::Error>> {
-    let mut client = RegistryServiceClient::connect(crate::get_registry_addr()).await?;
-    let name = S::NAME;
+    let mut client_registry =
+        RegistryServiceClient::connect(format!("http://{registry_addr}")).await?;
+    let mut client_heartbeat =
+        HeartbeatServiceClient::connect(format!("http://{registry_addr}")).await?;
+    let service_name = S::NAME.to_string();
+
     let request = tonic::Request::new(RegisterRequest {
-        name: name.to_string(),
-        endpoint: "".to_string(),
+        name: service_name.clone(),
+        endpoint: local_addr.to_string(),
     });
 
-    client.register(request).await?;
+    let response = client_registry.register(request).await?;
+    let request = HeartbeatRequest {
+        name: service_name,
+        id: response.into_inner().id,
+    };
 
-    log::info!("register: {:?}", name);
+    tokio::spawn(async move {
+        loop {
+            sleep(Duration::from_secs(60)).await;
+            client_heartbeat
+                .heartbeat(tonic::Request::new(request.clone()))
+                .await
+                .unwrap();
+        }
+    });
 
+    Server::builder()
+        // .trace_fn(|request| {
+        //     log::info!("resive request: {:?}", request);
+        //     tracing::info_span!("registry_server", "{:?}", request)
+        // })
+        // .layer(TraceLayer::new_for_http())
+        // TODO: helth_service
+        // .add_service(health_service)
+        .add_service(svc)
+        .serve_with_incoming(incoming)
+        .await?;
     Ok(())
 }

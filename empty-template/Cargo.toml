@@ -16,6 +16,8 @@ empty-registry = {workspace = true}
 empty-utils = {workspace = true}
 tokio-stream = {version = "*", features = ["net"]}
 rand = {workspace = true}
+tempfile = {workspace = true}
+tower = {workspace = true}
 
 
 [build-dependencies]

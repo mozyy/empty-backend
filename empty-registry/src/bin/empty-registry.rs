@@ -1,26 +1,32 @@
 use axum::{routing::any, Router};
 use empty_registry::{
     get_registry_addr,
+    heartbeat::Service as HeartbeatService,
     proxy::Proxy,
-    registry::{model::Registry, service::Service},
-    RegistryServiceServer,
+    registry::{model::Registry, service::Service as RegistryService},
+    HeartbeatServiceServer, RegistryServiceServer,
 };
 use hyper::{client::HttpConnector, Body};
 use std::sync::{Arc, Mutex};
 use tonic::transport::NamedService;
+use tonic_health::{
+    proto::health_server::HealthServer,
+    server::{health_reporter, HealthService},
+};
 
 type Client = hyper::client::Client<HttpConnector, Body>;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     empty_utils::init();
-    let (_health_reporter, _health_service) = tonic_health::server::health_reporter();
+    let (_health_reporter, health_service) = health_reporter();
 
     let addr = get_registry_addr().parse().unwrap();
 
     let registry = Arc::new(Mutex::new(Registry::default()));
 
-    let service = Service::new(registry.clone());
+    let registry_service = RegistryService::new(registry.clone());
+    let heartbeat_service = HeartbeatService;
 
     log::info!("RegistryServer listening on {}", addr);
 
@@ -30,8 +36,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // .layer(tower_http::trace::TraceLayer::new_for_http())
         .layer(tower_http::trace::TraceLayer::new_for_grpc())
         .route_service(
-            &format!("/{}/*rest", RegistryServiceServer::<Service>::NAME),
-            RegistryServiceServer::new(service),
+            &format!("/{}/*rest", RegistryServiceServer::<RegistryService>::NAME),
+            RegistryServiceServer::new(registry_service),
+        )
+        .route_service(
+            &format!(
+                "/{}/*rest",
+                HeartbeatServiceServer::<HeartbeatService>::NAME
+            ),
+            HeartbeatServiceServer::new(heartbeat_service),
+        )
+        .route_service(
+            &format!("/{}/*rest", HealthServer::<HealthService>::NAME),
+            health_service,
         )
         .route("/:service/*rest", any(Proxy::handler).with_state(proxy));
 

@@ -23,6 +23,7 @@ axum={workspace = true, features = ["http2"]}
 tower-http = { version = "*", features = ["cors", "trace"] }
 hyper = { workspace = true , features = ["http2"]} 
 tower={workspace=true}
+tokio-stream = {version = "*", features = ["net"]}
 
 
 [build-dependencies]

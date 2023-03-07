@@ -1,50 +1,15 @@
-use pb::{template_service_server::TemplateService, TemplateRequest, TemplateResponse};
+use pb::{
+    template_service_server::TemplateService, template_service_server::TemplateServiceServer,
+    TemplateRequest, TemplateResponse,
+};
 
 pub mod pb {
     tonic::include_proto!("empty.template.v1");
 }
 
-pub mod registry {
-    use crate::{pb::template_service_server::TemplateServiceServer, Service};
-    use empty_registry::{
-        get_registry_addr,
-        pb::{registry_service_client::RegistryServiceClient, RegisterRequest},
-    };
-
-    use tonic::transport::{NamedService, Server};
-    pub async fn register() {
-        let listener = tokio::net::TcpListener::bind("0.0.0.0:36807")
-            .await
-            .unwrap();
-        let local_addr = listener.local_addr().unwrap();
-        println!("RegistryServer listening on {}", local_addr);
-
-        let service = Service::default();
-        let incoming = tokio_stream::wrappers::TcpListenerStream::new(listener);
-
-        let mut client = RegistryServiceClient::connect(format!("http://{}", get_registry_addr()))
-            .await
-            .unwrap();
-
-        let request = tonic::Request::new(RegisterRequest {
-            name: TemplateServiceServer::<Service>::NAME.into(),
-            endpoint: local_addr.to_string(),
-        });
-
-        client.register(request).await.unwrap();
-        Server::builder()
-            // .trace_fn(|request| {
-            //     log::info!("resive request: {:?}", request);
-            //     tracing::info_span!("registry_server", "{:?}", request)
-            // })
-            // .layer(TraceLayer::new_for_http())
-            // TODO: helth_service
-            .add_service(TemplateServiceServer::new(service))
-            // TODO: proxy_service
-            // TODO: oauth_service
-            .serve_with_incoming(incoming)
-            .await
-            .unwrap();
+impl Default for TemplateServiceServer<Service> {
+    fn default() -> Self {
+        Self::new(Service::default())
     }
 }
 
@@ -52,11 +17,11 @@ pub mod registry {
 struct Template {}
 impl Template {
     pub fn get_template(&self, name: &str) -> String {
-        format!("response template service: {name}").to_string()
+        format!("response template service: {name}")
     }
 }
 #[derive(Default)]
-struct Service {
+pub struct Service {
     template: Template,
 }
 

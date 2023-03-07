@@ -1,27 +1,14 @@
-use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
-
-use crate::pb::health_service_client::HealthServiceClient;
+use crate::pb::heartbeat_service_server::HeartbeatService;
 use crate::pb::{MicroService as PBMicroService, MicroServices};
 use crate::schema::micro_services;
 use chrono::{NaiveDateTime, Utc};
 use diesel::prelude::*;
 use empty_utils::convert::naive_date_time_to_timestamp;
 use empty_utils::diesel::db;
+use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 
 use uuid::Uuid;
-
-pub async fn health_check(dts: String) -> Result<(), Box<dyn std::error::Error>> {
-    let mut client = HealthServiceClient::connect(dts).await?;
-
-    let request = tonic::Request::new(());
-
-    let response = client.health_check(request).await?;
-
-    println!("RESPONSE={:?}", response);
-
-    Ok(())
-}
 
 #[derive(Clone)]
 pub struct RegistryDB {
