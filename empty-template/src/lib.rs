@@ -5,15 +5,12 @@ pub mod pb {
 }
 
 pub mod registry {
-    use crate::{
-        pb::template_service_server::{TemplateServiceServer},
-        Service,
-    };
+    use crate::{pb::template_service_server::TemplateServiceServer, Service};
     use empty_registry::{
+        get_registry_addr,
         pb::{registry_service_client::RegistryServiceClient, RegisterRequest},
-        REGISTRY_ADDR,
     };
-    
+
     use tonic::transport::{NamedService, Server};
     pub async fn register() {
         let listener = tokio::net::TcpListener::bind("0.0.0.0:36807")
@@ -25,7 +22,7 @@ pub mod registry {
         let service = Service::default();
         let incoming = tokio_stream::wrappers::TcpListenerStream::new(listener);
 
-        let mut client = RegistryServiceClient::connect(format!("http://{REGISTRY_ADDR}"))
+        let mut client = RegistryServiceClient::connect(format!("http://{}", get_registry_addr()))
             .await
             .unwrap();
 

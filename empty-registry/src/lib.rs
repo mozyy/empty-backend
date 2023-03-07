@@ -9,4 +9,6 @@ pub mod proxy;
 pub mod registry;
 pub mod schema;
 
-pub const REGISTRY_ADDR: &str = env!("REGISTRY_ADDR");
+pub fn get_registry_addr() -> String {
+    std::env::var("REGISTRY_ADDR").unwrap_or_else(|_| String::from("127.0.0.1:50051"))
+}

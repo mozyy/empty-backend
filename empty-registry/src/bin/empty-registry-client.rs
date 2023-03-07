@@ -1,14 +1,13 @@
-
-
 use empty_registry::{
+    get_registry_addr,
     pb::{registry_service_client::RegistryServiceClient, RegisterRequest},
-    REGISTRY_ADDR,
 };
 use tonic::transport::Channel;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut client = RegistryServiceClient::connect(format!("http://{REGISTRY_ADDR}")).await?;
+    let mut client =
+        RegistryServiceClient::connect(format!("http://{}", get_registry_addr())).await?;
     register(&mut client).await;
 
     // all(&mut client).await;

@@ -34,7 +34,7 @@ impl Proxy {
         }
     }
     pub async fn handler(
-        Path((service, rest)): Path<(String, String)>,
+        Path((service, _rest)): Path<(String, String)>,
         State(proxy): State<Proxy>,
         mut req: Request<Body>,
     ) -> Response<Body> {

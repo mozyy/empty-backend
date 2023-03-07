@@ -1,23 +1,24 @@
-use std::time::{Instant, SystemTime};
+use std::time::Instant;
 
-use empty_registry::REGISTRY_ADDR;
+use empty_registry::get_registry_addr;
 use empty_template::pb::TemplateRequest;
 use rand::distributions::{Alphanumeric, DistString};
 
 #[tokio::main]
 async fn main() {
     empty_utils::init();
+    let registry_addr = get_registry_addr();
     let t1: Vec<_> = [0; 1]
         .iter()
-        .map(|_| tokio::spawn(call(REGISTRY_ADDR)))
+        .map(|_| tokio::spawn(call(registry_addr.clone())))
         .collect();
     let t2: Vec<_> = [0; 1]
         .iter()
-        .map(|_| tokio::spawn(call("0.0.0.0:36807")))
+        .map(|_| tokio::spawn(call("0.0.0.0:36807".to_string())))
         .collect();
     // now await them to get the resolve's to complete
-    call(REGISTRY_ADDR).await;
-    call("0.0.0.0:36807").await;
+    call(registry_addr.clone()).await;
+    call("0.0.0.0:36807".to_string()).await;
     log::info!("start");
     let start = Instant::now();
 
@@ -36,7 +37,7 @@ async fn main() {
     );
 }
 
-async fn call(addr: &str) {
+async fn call(addr: String) {
     let mut client = empty_template::pb::template_service_client::TemplateServiceClient::connect(
         format!("http://{addr}"),
     )

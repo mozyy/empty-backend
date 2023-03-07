@@ -12,7 +12,7 @@ impl MicroService {
 }
 
 pub async fn register<S: NamedService>() -> Result<(), Box<dyn std::error::Error>> {
-    let mut client = RegistryServiceClient::connect(crate::REGISTRY_ADDR).await?;
+    let mut client = RegistryServiceClient::connect(crate::get_registry_addr()).await?;
     let name = S::NAME;
     let request = tonic::Request::new(RegisterRequest {
         name: name.to_string(),
