@@ -13,3 +13,11 @@ prost-types = "*"
 log = "*"
 tracing-subscriber = { version = "*", features = ["env-filter"] }
 dotenvy ="*"
+clap = { version = "4.1", features = ["derive"] }
+walkdir = "2.3"
+cargo_toml = "0.15"
+toml = "0.7.2"
+
+[[bin]]
+name = "cli"
+
