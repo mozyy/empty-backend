@@ -5,7 +5,7 @@ use std::{
     error::Error,
     ffi::OsStr,
     fs::{self, read, File},
-    io::{BufRead, BufReader, BufWriter, Write},
+    io::{BufRead, BufReader, BufWriter, Read, Write},
     os::unix::prelude::OsStrExt,
 };
 use walkdir::WalkDir;
@@ -71,16 +71,19 @@ pub fn cli() -> Result<(), Box<dyn Error>> {
             }
             Ok(())
         })?;
-    let cargo_file = parent.join("Cargo.toml");
-    let mut manifest = Manifest::from_slice(&read(&cargo_file)?)?;
+    let cargo_file_name = parent.join("Cargo.toml");
+    let cargo_file = File::open(&cargo_file_name)?;
+    let mut reader = BufReader::new(cargo_file);
+    let mut cargo_string = String::new();
+    reader.read_to_string(&mut cargo_string)?;
+    let mut manifest = Manifest::from_str(&cargo_string)?;
     if let Some(workspace) = manifest.workspace.as_mut() {
-        workspace.members.push(target_file);
+        workspace.members.push(target_file.clone());
     }
     let s = toml::to_string(&manifest)?;
-    println!("{s}");
-    let mut cargo_file = File::open(cargo_file)?;
+    let mut cargo_file = File::create(&cargo_file_name)?;
     cargo_file.write_all(s.as_bytes())?;
-    println!("generate new: {name}, {camel_case}");
+    println!("generate new:{target_file} from  {name}, {camel_case}");
 
     Ok(())
 }
