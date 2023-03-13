@@ -1,0 +1,16 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+package empty.oauth.v1;
+
+message OauthRequest {
+    string name = 1;
+}
+message OauthResponse {
+    string response = 1;
+}
+
+service OauthService {
+    rpc oauth (OauthRequest) returns (OauthResponse) { }
+}
