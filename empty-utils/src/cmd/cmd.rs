@@ -4,9 +4,8 @@ use std::{
     env::current_dir,
     error::Error,
     ffi::OsStr,
-    fs::{self, read, File},
+    fs::{self, File},
     io::{BufRead, BufReader, BufWriter, Read, Write},
-    os::unix::prelude::OsStrExt,
 };
 use walkdir::WalkDir;
 

@@ -1,4 +1,3 @@
-use crate::pb::heartbeat_service_server::HeartbeatService;
 use crate::pb::{MicroService as PBMicroService, MicroServices};
 use crate::schema::micro_services;
 use chrono::{NaiveDateTime, Utc};

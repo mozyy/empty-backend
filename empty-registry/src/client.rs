@@ -4,7 +4,7 @@ use hyper::{Body, Request, Response};
 use tokio::time::{sleep, Duration};
 use tonic::{
     body::BoxBody,
-    transport::{server::Router, NamedService, Server},
+    transport::{NamedService, Server},
 };
 use tower::Service;
 
@@ -51,7 +51,7 @@ where
 
     tokio::spawn(async move {
         loop {
-            sleep(Duration::from_secs(60)).await;
+            sleep(Duration::from_secs(10)).await;
             client_heartbeat
                 .heartbeat(tonic::Request::new(request.clone()))
                 .await

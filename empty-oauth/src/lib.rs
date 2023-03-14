@@ -1,9 +1,11 @@
 use pb::{
-    oauth_service_server::OauthService, oauth_service_server::OauthServiceServer,
-    OauthRequest, OauthResponse,
+    oauth_service_server::OauthService, oauth_service_server::OauthServiceServer, OauthRequest,
+    OauthResponse,
 };
 
 pub mod model;
+pub mod schema;
+pub mod state;
 
 pub mod pb {
     tonic::include_proto!("empty.oauth.v1");
@@ -36,9 +38,7 @@ impl OauthService for Service {
         request: tonic::Request<OauthRequest>,
     ) -> Result<tonic::Response<OauthResponse>, tonic::Status> {
         log::info!("oauth reservice: {:?}", request);
-        let response = self
-            .oauth
-            .get_oauth(request.into_inner().name.as_str());
+        let response = self.oauth.get_oauth(request.into_inner().name.as_str());
         let response = OauthResponse { response };
         Ok(tonic::Response::new(response))
     }

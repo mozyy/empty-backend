@@ -1,58 +1,20 @@
+use crate::schema::{clients, registered_urls};
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use empty_utils::diesel::timestamp;
 use empty_utils::errors::ServiceError;
 use oxide_auth::{
-    endpoint::{Authorizer, Issuer, OwnerConsent, OwnerSolicitor, Scope, Solicitation, WebRequest},
-    frontends::simple::endpoint::{Generic, Vacant},
-    primitives::{
-        grant::Grant,
-        issuer::RefreshedToken,
-        prelude::{IssuedToken, RandomGenerator, TokenMap},
-        registrar::ClientMap,
-    },
+    endpoint::{Authorizer, Issuer, OwnerConsent, OwnerSolicitor, Solicitation, WebRequest},
+    primitives::{grant::Grant, issuer::RefreshedToken, prelude::IssuedToken},
 };
 use serde::Serialize;
 use utoipa::ToSchema;
 use uuid::Uuid;
 
-pub struct OAuthState {
-    pub endpoint: Generic<
-        // Client,
-        ClientMap,
-        Auth,
-        TokenMap<RandomGenerator>,
-        Solicitor,
-        Vec<Scope>,
-        Vacant,
-    >,
-}
-
-impl OAuthState {
-    pub fn new() -> Self {
-        OAuthState {
-            endpoint: Generic {
-                authorizer: Auth::new(),
-                // registrar: Client::new(),
-                registrar: ClientMap::new(),
-                issuer: TokenMap::new(RandomGenerator::new(16)),
-                scopes: vec!["default-scope".parse().unwrap()],
-                solicitor: Solicitor::new(),
-                response: Vacant,
-            },
-        }
-    }
-}
-impl Default for OAuthState {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 pub struct Auth {}
 
 impl Auth {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Auth {}
     }
 }
@@ -68,13 +30,14 @@ impl Authorizer for Auth {
 }
 
 #[derive(Queryable, Identifiable, Serialize, ToSchema, Associations)]
-#[diesel(belongs_to(RedirectUri))]
+#[diesel(belongs_to(RegisteredUrl, foreign_key = redirect_uri_id))]
 pub struct Client {
     pub id: Uuid,
     pub redirect_uri_id: i32,
-    pub name: String,
-    pub desc: String,
-    pub passphrase: Option<String>,
+    // pub name: String,
+    // pub desc: String,
+    pub default_scope: Vec<Option<String>>,
+    pub client_type: Option<String>,
     #[serde(with = "timestamp")]
     pub created_at: NaiveDateTime,
     #[serde(with = "timestamp")]
@@ -82,17 +45,20 @@ pub struct Client {
 }
 #[derive(Queryable, Identifiable, Serialize, ToSchema, Associations, Clone)]
 #[diesel(belongs_to(Client))]
-pub struct RedirectUri {
+pub struct RegisteredUrl {
     pub id: i32,
+    pub client_id: Option<Uuid>,
     pub url: String,
+    pub r#type: i16,
     #[serde(with = "timestamp")]
     pub created_at: NaiveDateTime,
-    pub client_id: Option<Uuid>,
+    #[serde(with = "timestamp")]
+    pub updated_at: NaiveDateTime,
 }
 pub struct ClientUrl {
     pub client: Client,
-    pub redirect_uri: RedirectUri,
-    pub additional_redirect_uris: Vec<RedirectUri>,
+    pub redirect_uri: RegisteredUrl,
+    pub additional_redirect_uris: Vec<RegisteredUrl>,
 }
 
 pub struct NewClient {
@@ -116,15 +82,15 @@ impl Client {
     }
     pub fn select_all(conn: &mut PgConnection) -> Result<Vec<ClientUrl>, ServiceError> {
         let clients = clients::table.load::<Client>(conn)?;
-        let redirect_uris = redirect_uris::table.load::<RedirectUri>(conn)?;
+        let redirect_uris = registered_urls::table.load::<RegisteredUrl>(conn)?;
 
         let resp = clients
             .into_iter()
             .map(|client| {
                 let id = client.id;
                 let redirect_uri_id = client.redirect_uri_id;
-                let mut redirect_uri: Option<RedirectUri> = None;
-                let mut additional_redirect_uris: Vec<RedirectUri> = vec![];
+                let mut redirect_uri: Option<RegisteredUrl> = None;
+                let mut additional_redirect_uris: Vec<RegisteredUrl> = vec![];
                 for uri in redirect_uris.clone().into_iter() {
                     if redirect_uri.is_none() && uri.id == redirect_uri_id {
                         redirect_uri = Some(uri.clone())
@@ -173,7 +139,7 @@ impl Issuer for Issue {
 pub struct Solicitor {}
 
 impl Solicitor {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Solicitor {}
     }
 }
