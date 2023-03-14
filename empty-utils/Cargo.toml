@@ -6,17 +6,23 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tonic = "*"
-diesel = "*"
-chrono = { version = "*" }
-prost-types = "*"
-log = "*"
-tracing-subscriber = { version = "*", features = ["env-filter"] }
-dotenvy ="*"
+tonic = {workspace = true}
+diesel = {workspace = true}
+serde = { workspace = true, features = ["derive"] }
+chrono = {workspace = true, features = ["serde"]}
+prost-types = {workspace = true}
+log = {workspace = true}
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
+dotenvy ={workspace = true}
 clap = { version = "4.1", features = ["derive"] }
 walkdir = "2.3"
 cargo_toml = "0.15"
-toml = "0.7.2"
+toml = "0.7"
+thiserror = {workspace = true}
+axum = {workspace = true}
+
+oxide-auth = "0.5"
+oxide-auth-axum = "0.3"
 
 [[bin]]
 name = "cli"

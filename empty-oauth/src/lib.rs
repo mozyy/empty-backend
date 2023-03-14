@@ -3,6 +3,8 @@ use pb::{
     OauthRequest, OauthResponse,
 };
 
+pub mod model;
+
 pub mod pb {
     tonic::include_proto!("empty.oauth.v1");
 }

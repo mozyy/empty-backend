@@ -6,6 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+# common
 tokio = {workspace = true}
 log = {workspace = true}
 
@@ -14,9 +15,25 @@ prost = {workspace = true}
 hyper = {workspace = true}
 empty-registry = {workspace = true}
 empty-utils = {workspace = true}
-tokio-stream = {version = "*", features = ["net"]}
 rand = {workspace = true}
+dotenvy = {workspace = true}
+
+serde = { workspace = true, features = ["derive"] }
+serde_json = {workspace = true}
+env_logger = {workspace = true}
+futures = {workspace = true}
+utoipa = {workspace = true, features = ["axum_extras", "yaml"] }
+utoipa-swagger-ui ={workspace = true, features = ["axum"] }
+diesel = { workspace = true, features = ["postgres", "r2d2", "chrono", "uuid"] }
+chrono = {workspace = true, features = ["serde"] }
+uuid= { workspace = true, features = ["serde"] }
+
+oxide-auth = "0.5"
+oxide-auth-axum = "0.3"
+
+[dev-dependencies]
 tempfile = {workspace = true}
+tokio-stream = {version = "*", features = ["net"]}
 tower = {workspace = true}
 
 
