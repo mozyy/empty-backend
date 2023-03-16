@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 # common
-tokio = {workspace = true}
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
 log = {workspace = true}
 
 tonic = {workspace = true}

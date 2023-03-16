@@ -5,7 +5,13 @@ use empty_utils::diesel::timestamp;
 use empty_utils::errors::ServiceError;
 use oxide_auth::{
     endpoint::{Authorizer, Issuer, OwnerConsent, OwnerSolicitor, Solicitation, WebRequest},
-    primitives::{grant::Grant, issuer::RefreshedToken, prelude::IssuedToken},
+    frontends::dev::Url,
+    primitives::{
+        grant::Grant,
+        issuer::RefreshedToken,
+        prelude::IssuedToken,
+        registrar::{self, ExactUrl, IgnoreLocalPortUrl},
+    },
 };
 use serde::Serialize;
 use utoipa::ToSchema;
@@ -55,30 +61,126 @@ pub struct RegisteredUrl {
     #[serde(with = "timestamp")]
     pub updated_at: NaiveDateTime,
 }
+
+pub struct NewClient {
+    // pub name: String,
+    // pub desc: String,
+    pub default_scope: Vec<Option<String>>,
+    pub client_type: Option<String>,
+}
+#[derive(Insertable)]
+#[diesel(table_name =registered_urls)]
+pub struct NewRegisteredUrl {
+    pub url: String,
+    #[diesel(column_name = "type_")]
+    pub r#type: i16,
+}
+
+pub struct NewClientUrl {
+    pub new_client: NewClient,
+    pub new_redirect_uris: NewRegisteredUrl,
+    pub new_additional_redirect_uris: Vec<NewRegisteredUrl>,
+}
 pub struct ClientUrl {
     pub client: Client,
     pub redirect_uri: RegisteredUrl,
     pub additional_redirect_uris: Vec<RegisteredUrl>,
 }
+impl From<ClientUrl> for registrar::Client {
+    fn from(value: ClientUrl) -> Self {
+        let ClientUrl {
+            client:
+                Client {
+                    id,
+                    client_type,
+                    default_scope,
+                    ..
+                },
+            redirect_uri,
+            additional_redirect_uris,
+        } = value;
+        let id = id.to_string();
+        let id = id.as_str();
+        let default_scope = default_scope
+            .into_iter()
+            .filter_map(|s| s)
+            .collect::<String>()
+            .parse()
+            .unwrap();
+        let client = if let Some(passphrase) = client_type {
+            registrar::Client::confidential(
+                id,
+                redirect_uri.into(),
+                default_scope,
+                passphrase.as_bytes(),
+            )
+        } else {
+            registrar::Client::public(id, redirect_uri.into(), default_scope)
+        };
 
-pub struct NewClient {
-    pub name: String,
-    pub desc: String,
-    pub passphrase: Option<String>,
+        let additional_redirect_uris = Vec::from_iter(additional_redirect_uris);
+        client.with_additional_redirect_uris(additional_redirect_uris)
+    }
 }
-pub struct NewRedirectUri {
-    pub url: String,
+impl FromIterator<ClientUrl> for Vec<registrar::Client> {
+    fn from_iter<T: IntoIterator<Item = ClientUrl>>(iter: T) -> Self {
+        iter.into_iter()
+            .map(|c| registrar::Client::from(c))
+            .collect()
+    }
+}
+impl From<RegisteredUrl> for registrar::RegisteredUrl {
+    fn from(value: RegisteredUrl) -> Self {
+        let RegisteredUrl { url, r#type, .. } = value;
+        match r#type {
+            1 => url.parse::<Url>().unwrap().into(),
+            2 => url.parse::<ExactUrl>().unwrap().into(),
+            3 => IgnoreLocalPortUrl::new(url).unwrap().into(),
+            _ => panic!(),
+        }
+    }
+}
+impl FromIterator<RegisteredUrl> for Vec<registrar::RegisteredUrl> {
+    fn from_iter<T: IntoIterator<Item = RegisteredUrl>>(iter: T) -> Self {
+        iter.into_iter()
+            .map(|r| registrar::RegisteredUrl::from(r))
+            .collect()
+    }
 }
 
-pub struct NewClientUrl {
-    pub new_client: NewClient,
-    pub new_redirect_uris: Vec<NewRedirectUri>,
-}
+impl ClientUrl {
+    pub fn insert(conn: &mut PgConnection, req: NewClientUrl) -> Result<Uuid, ServiceError> {
+        let client_id = conn.transaction::<_, diesel::result::Error, _>(move |conn| {
+            let redirect_uri_id = diesel::insert_into(registered_urls::dsl::registered_urls)
+                .values(req.new_redirect_uris)
+                .returning(registered_urls::id)
+                .get_result::<i32>(conn)?;
+            let client_id = diesel::insert_into(clients::dsl::clients)
+                .values((
+                    clients::redirect_uri_id.eq(redirect_uri_id),
+                    clients::default_scope.eq(req.new_client.default_scope),
+                    clients::client_type.eq(req.new_client.client_type),
+                ))
+                .returning(clients::id)
+                .get_result::<Uuid>(conn)?;
 
-impl Client {
-    pub fn insert(conn: &mut PgConnection, _req: NewClientUrl) -> Result<Uuid, ServiceError> {
-        let _clients = clients::table.load::<Client>(conn)?;
-        todo!();
+            diesel::insert_into(registered_urls::dsl::registered_urls)
+                .values(
+                    req.new_additional_redirect_uris
+                        .iter()
+                        .map(|uri| {
+                            (
+                                registered_urls::client_id.eq(Some(client_id)),
+                                registered_urls::url.eq(uri.url.clone()),
+                                registered_urls::type_.eq(uri.r#type),
+                            )
+                        })
+                        .collect::<Vec<_>>(),
+                )
+                .execute(conn)?;
+            Ok(client_id)
+        })?;
+        Ok(client_id)
     }
     pub fn select_all(conn: &mut PgConnection) -> Result<Vec<ClientUrl>, ServiceError> {
         let clients = clients::table.load::<Client>(conn)?;

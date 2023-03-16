@@ -11,6 +11,45 @@ message OauthResponse {
     string response = 1;
 }
 
+message AccessTokenRequest {
+    
+}
+message AccessTokenResponse {
+    
+}
+message AuthorizationRequest {
+    
+}
+message AuthorizationResponse {
+    
+}
+message ClientCredentialsRequest {
+    
+}
+message ClientCredentialsResponse {
+    
+}
+message RefreshRequest {
+    
+}
+message RefreshResponse {
+    
+}
+message ResourceRequest {
+    
+}
+message ResourceResponse {
+    
+}
+
+
+
+
+
 service OauthService {
-    rpc oauth (OauthRequest) returns (OauthResponse) { }
+    rpc AccessToken (AccessTokenRequest) returns (AccessTokenResponse) { }
+    rpc Authorization (AuthorizationRequest) returns (AuthorizationResponse) { }
+    rpc ClientCredentials (ClientCredentialsRequest) returns (ClientCredentialsResponse) { }
+    rpc Refresh (RefreshRequest) returns (RefreshResponse) { }
+    rpc Resource (ResourceRequest) returns (ResourceResponse) { }
 }
