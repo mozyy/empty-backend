@@ -1,7 +1,11 @@
+use empty_utils::tonic::Resp;
 use pb::{
-    oauth_service_server::OauthService, oauth_service_server::OauthServiceServer, OauthRequest,
-    OauthResponse,
+    oauth_service_server::OauthService, oauth_service_server::OauthServiceServer,
+    AccessTokenRequest, AccessTokenResponse, AuthorizationRequest, AuthorizationResponse,
+    ClientCredentialsRequest, ClientCredentialsResponse, RefreshRequest, RefreshResponse,
+    ResourceRequest, ResourceResponse,
 };
+use tonic::Request;
 
 pub mod model;
 pub mod schema;
@@ -33,14 +37,29 @@ pub struct Service {
 // https://github.com/rust-lang/rust/issues/91611
 #[tonic::async_trait]
 impl OauthService for Service {
-    async fn oauth(
+    async fn access_token(
         &self,
-        request: tonic::Request<OauthRequest>,
-    ) -> Result<tonic::Response<OauthResponse>, tonic::Status> {
-        log::info!("oauth reservice: {:?}", request);
-        let response = self.oauth.get_oauth(request.into_inner().name.as_str());
-        let response = OauthResponse { response };
-        Ok(tonic::Response::new(response))
+        request: Request<AccessTokenRequest>,
+    ) -> Resp<AccessTokenResponse> {
+        todo!()
+    }
+    async fn authorization(
+        &self,
+        request: Request<AuthorizationRequest>,
+    ) -> Resp<AuthorizationResponse> {
+        todo!()
+    }
+    async fn client_credentials(
+        &self,
+        request: Request<ClientCredentialsRequest>,
+    ) -> Resp<ClientCredentialsResponse> {
+        todo!()
+    }
+    async fn refresh(&self, request: Request<RefreshRequest>) -> Resp<RefreshResponse> {
+        todo!()
+    }
+    async fn resource(&self, request: Request<ResourceRequest>) -> Resp<ResourceResponse> {
+        todo!()
     }
 }
 

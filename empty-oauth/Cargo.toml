@@ -39,6 +39,8 @@ tower = {workspace = true}
 
 [build-dependencies]
 tonic-build = {workspace = true}
+prost-build = {workspace = true}
+
 
 
 [[bin]]
