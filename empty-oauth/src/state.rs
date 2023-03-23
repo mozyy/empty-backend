@@ -22,7 +22,7 @@ type Endpoing = Generic<
 >;
 pub struct OAuthState {
     pub endpoint: Mutex<Endpoing>,
-    db: db::DbPool,
+    pub db: db::DbPool,
 }
 
 impl OAuthState {
