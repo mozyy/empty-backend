@@ -11,6 +11,6 @@ message TemplateResponse {
     string response = 1;
 }
 
-service TemplateService {
+service Template {
     rpc template (TemplateRequest) returns (TemplateResponse) { }
 }

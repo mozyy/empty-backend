@@ -16,33 +16,45 @@ message UnregisterRequest {
     string name = 1;
     string id = 2;
 }
+message UnregisterResponse {
+    string name = 1;
+    string id = 2;
+}
 
 message LoginRequest {
     string name = 1;// 服务名
 }
 
-message MicroService {
+message Service {
     string id = 1;// 服务id
     string name = 2;// 服务名
     string endpoint = 3;// 接口地址
     google.protobuf.Timestamp created_at = 4;
     google.protobuf.Timestamp updated_at = 5;
 }
-message MicroServices {
-    repeated MicroService services = 1;
-}
 
 message GetRequest {
     string name = 1;
 }
+message GetResponse {
+    Service service = 1;
+}
 message ListRequest {
     string name = 1;
 }
+message ListResponse {
+    Service service = 1;
+}
+message AllRequest {
+}
+message AllResponse {
+   repeated Service services = 1;
+}
 
-service RegistryService {
-    rpc register (RegisterRequest) returns (RegisterResponse) { }
-    rpc unregister (UnregisterRequest) returns (google.protobuf.Empty) { }
-    rpc get (GetRequest) returns (MicroService) { }
-    rpc list (ListRequest) returns (MicroServices) { }
-    rpc all (google.protobuf.Empty) returns (MicroServices) { }
+service Registry {
+    rpc Register (RegisterRequest) returns (RegisterResponse) { }
+    rpc Unregister (UnregisterRequest) returns (UnregisterResponse) { }
+    rpc Get (GetRequest) returns (GetResponse) { }
+    rpc List (ListRequest) returns (ListResponse) { }
+    rpc All (AllRequest) returns (AllResponse) { }
 }

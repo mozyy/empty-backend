@@ -13,7 +13,7 @@ use uuid::Uuid;
 pub struct RegistryDB {
     db_pool: db::DbPool,
 }
-impl Default for RegistryDB {
+impl Default for RegistryDB { 
     fn default() -> Self {
         Self::new()
     }

@@ -7,7 +7,7 @@ pub use pb::registry_service_server::RegistryServiceServer;
 pub mod client;
 pub mod heartbeat;
 pub mod proxy;
-pub mod registry;
+pub mod registry; 
 pub mod schema;
 
 pub fn get_registry_addr() -> String {

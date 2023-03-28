@@ -8,18 +8,18 @@ message TokenResponse {
     string access_token = 1;
     string token_type = 2;
     int32 expires_in = 3;
-    optional string refresh_token = 4;
-    optional string scope = 5;
+    string refresh_token = 4;
+    string scope = 5;
     
 }
 message PasswordRequest {
     string username = 1;
     string password = 2;
-    optional string scope = 3;
+    string scope = 3;
 }
 
 
-service OauthService {
+service Oauth {
     // token
     // rpc Token (TokenRequest) returns (TokenResponse) { }
     // Authorization: base64(client_id:client_screct:timestamp:sha256(client_id:client_screct:timestamp:screct))

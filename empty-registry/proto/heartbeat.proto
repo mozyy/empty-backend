@@ -8,7 +8,9 @@ message HeartbeatRequest {
     string name = 1;
     string id = 2;
 }
+message HeartbeatResponse {
+}
 
-service HeartbeatService {
-    rpc Heartbeat(HeartbeatRequest) returns (google.protobuf.Empty){}
+service Heartbeat {
+    rpc Heartbeat(HeartbeatRequest) returns (HeartbeatResponse){}
 }
