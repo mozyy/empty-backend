@@ -1,14 +1,14 @@
-use std::{borrow::Cow, collections::HashMap, str::FromStr};
+use std::{str::FromStr};
 
 use chrono::NaiveDateTime;
 use empty_utils::{errors::ServiceError, tonic::Resp};
-use oxide_auth::endpoint::{QueryParameter, WebRequest, WebResponse};
+
 use pb::{
     oauth_server::Oauth as OauthService, oauth_server::OauthServer, PasswordRequest, TokenResponse,
 };
 use state::OAuthState;
 use tokio::sync::Mutex;
-use tonic::{Code, Request, Status};
+
 
 pub mod model;
 pub mod schema;
@@ -42,8 +42,8 @@ pub struct Service {
 #[tonic::async_trait]
 impl OauthService for Service {
     async fn password(&self, request: tonic::Request<PasswordRequest>) -> Resp<TokenResponse> {
-        let client = Client::parse(&request);
-        let state = self.state.lock().await;
+        let _client = Client::parse(&request);
+        let _state = self.state.lock().await;
         todo!()
     }
 }
@@ -73,9 +73,9 @@ impl FromStr for Client {
             .ok_or_else(|| tonic::Status::unauthenticated("no timestamp"))?;
         let timestamp = timestamp
             .parse::<i64>()
-            .map_err(|e| tonic::Status::unauthenticated("no timestamp2"))?;
+            .map_err(|_e| tonic::Status::unauthenticated("no timestamp2"))?;
 
-        let time = NaiveDateTime::from_timestamp_opt(
+        let _time = NaiveDateTime::from_timestamp_opt(
             timestamp / 1000,
             ((timestamp % 1000) * 1_000_000) as u32,
         )
@@ -94,13 +94,13 @@ impl Client {
         let auth = match auth {
             Some(auth) => auth
                 .to_str()
-                .map_err(|e| tonic::Status::unauthenticated("auth err"))?,
+                .map_err(|_e| tonic::Status::unauthenticated("auth err"))?,
             None => return Err(tonic::Status::unauthenticated("no auth").into()),
         };
         let client = auth.parse::<Client>()?;
         Ok(client)
     }
-    pub async fn check(&self, state: OAuthState) -> Result<(), ServiceError> {
+    pub async fn check(&self, _state: OAuthState) -> Result<(), ServiceError> {
         todo!()
     }
 }

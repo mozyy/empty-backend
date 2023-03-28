@@ -1,10 +1,10 @@
-use empty_utils::diesel::db::{self, DbPool};
+use empty_utils::diesel::db::{self};
 use oxide_auth::{
     endpoint::Scope,
     frontends::simple::endpoint::{Generic, Vacant},
     primitives::{
         prelude::{RandomGenerator, TokenMap},
-        registrar::{Client, ClientMap},
+        registrar::{ClientMap},
     },
 };
 use tokio::sync::Mutex;

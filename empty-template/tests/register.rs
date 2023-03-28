@@ -1,5 +1,5 @@
-use empty_template::pb::template_service_server::TemplateServiceServer;
-use empty_template::pb::{template_service_client::TemplateServiceClient, TemplateRequest};
+use empty_template::pb::template_server::TemplateServer;
+use empty_template::pb::{template_client::TemplateClient, TemplateRequest};
 use empty_template::Service;
 use std::{future::Future, sync::Arc};
 use tempfile::NamedTempFile;
@@ -35,7 +35,7 @@ async fn add_merchant_test() {
     }
 }
 
-async fn server_and_client_stub() -> (impl Future<Output = ()>, TemplateServiceClient<Channel>) {
+async fn server_and_client_stub() -> (impl Future<Output = ()>, TemplateClient<Channel>) {
     let socket = NamedTempFile::new().unwrap();
     let socket = Arc::new(socket.into_temp_path());
     std::fs::remove_file(&*socket).unwrap();
@@ -45,7 +45,7 @@ async fn server_and_client_stub() -> (impl Future<Output = ()>, TemplateServiceC
 
     let serve_future = async {
         let result = Server::builder()
-            .add_service(TemplateServiceServer::new(Service::default()))
+            .add_service(TemplateServer::new(Service::default()))
             .serve_with_incoming(stream)
             .await;
         // Server must be running fine...
@@ -64,7 +64,7 @@ async fn server_and_client_stub() -> (impl Future<Output = ()>, TemplateServiceC
         .await
         .unwrap();
 
-    let client = TemplateServiceClient::new(channel);
+    let client = TemplateClient::new(channel);
 
     (serve_future, client)
 }

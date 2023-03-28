@@ -1,5 +1,5 @@
-use empty_oauth::pb::oauth_service_server::OauthServiceServer;
-use empty_oauth::pb::{oauth_service_client::OauthServiceClient, OauthRequest};
+use empty_oauth::pb::oauth_server::OauthServer;
+use empty_oauth::pb::{oauth_client::OauthClient, OauthRequest};
 use empty_oauth::Service;
 use std::{future::Future, sync::Arc};
 use tempfile::NamedTempFile;
@@ -35,7 +35,7 @@ async fn add_merchant_test() {
     }
 }
 
-async fn server_and_client_stub() -> (impl Future<Output = ()>, OauthServiceClient<Channel>) {
+async fn server_and_client_stub() -> (impl Future<Output = ()>, OauthClient<Channel>) {
     let socket = NamedTempFile::new().unwrap();
     let socket = Arc::new(socket.into_temp_path());
     std::fs::remove_file(&*socket).unwrap();
@@ -45,7 +45,7 @@ async fn server_and_client_stub() -> (impl Future<Output = ()>, OauthServiceClie
 
     let serve_future = async {
         let result = Server::builder()
-            .add_service(OauthServiceServer::new(Service::default()))
+            .add_service(OauthServer::new(Service::default()))
             .serve_with_incoming(stream)
             .await;
         // Server must be running fine...
@@ -64,7 +64,7 @@ async fn server_and_client_stub() -> (impl Future<Output = ()>, OauthServiceClie
         .await
         .unwrap();
 
-    let client = OauthServiceClient::new(channel);
+    let client = OauthClient::new(channel);
 
     (serve_future, client)
 }
