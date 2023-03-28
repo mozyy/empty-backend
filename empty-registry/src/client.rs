@@ -11,8 +11,8 @@ use tower::Service;
 use crate::{
     get_registry_addr,
     pb::{
-        heartbeat_service_client::HeartbeatServiceClient,
-        registry_service_client::RegistryServiceClient, HeartbeatRequest, RegisterRequest,
+        heartbeat_client::HeartbeatClient, registry_client::RegistryClient, HeartbeatRequest,
+        RegisterRequest,
     },
 };
 
@@ -32,10 +32,8 @@ where
     let incoming = tokio_stream::wrappers::TcpListenerStream::new(listener);
     let registry_addr = get_registry_addr();
 
-    let mut client_registry =
-        RegistryServiceClient::connect(format!("http://{registry_addr}")).await?;
-    let mut client_heartbeat =
-        HeartbeatServiceClient::connect(format!("http://{registry_addr}")).await?;
+    let mut client_registry = RegistryClient::connect(format!("http://{registry_addr}")).await?;
+    let mut client_heartbeat = HeartbeatClient::connect(format!("http://{registry_addr}")).await?;
     let service_name = S::NAME.to_string();
 
     let request = tonic::Request::new(RegisterRequest {

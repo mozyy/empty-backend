@@ -1,13 +1,13 @@
 use pb::{
-    template_service_server::TemplateService, template_service_server::TemplateServiceServer,
-    TemplateRequest, TemplateResponse,
+    template_server::Template as TemplateService, template_server::TemplateServer, TemplateRequest,
+    TemplateResponse,
 };
 
 pub mod pb {
     tonic::include_proto!("empty.template.v1");
 }
 
-impl Default for TemplateServiceServer<Service> {
+impl Default for TemplateServer<Service> {
     fn default() -> Self {
         Self::new(Service::default())
     }

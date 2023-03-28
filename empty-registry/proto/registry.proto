@@ -17,8 +17,6 @@ message UnregisterRequest {
     string id = 2;
 }
 message UnregisterResponse {
-    string name = 1;
-    string id = 2;
 }
 
 message LoginRequest {
@@ -43,7 +41,7 @@ message ListRequest {
     string name = 1;
 }
 message ListResponse {
-    Service service = 1;
+    repeated Service services = 1;
 }
 message AllRequest {
 }

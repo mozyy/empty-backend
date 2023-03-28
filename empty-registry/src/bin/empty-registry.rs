@@ -4,7 +4,7 @@ use empty_registry::{
     heartbeat::Service as HeartbeatService,
     proxy::Proxy,
     registry::{model::Registry, service::Service as RegistryService},
-    HeartbeatServiceServer, RegistryServiceServer,
+    HeartbeatServer, RegistryServer,
 };
 use hyper::{client::HttpConnector, Body};
 use std::sync::{Arc, Mutex};
@@ -36,15 +36,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // .layer(tower_http::trace::TraceLayer::new_for_http())
         .layer(tower_http::trace::TraceLayer::new_for_grpc())
         .route_service(
-            &format!("/{}/*rest", RegistryServiceServer::<RegistryService>::NAME),
-            RegistryServiceServer::new(registry_service),
+            &format!("/{}/*rest", RegistryServer::<RegistryService>::NAME),
+            RegistryServer::new(registry_service),
         )
         .route_service(
-            &format!(
-                "/{}/*rest",
-                HeartbeatServiceServer::<HeartbeatService>::NAME
-            ),
-            HeartbeatServiceServer::new(heartbeat_service),
+            &format!("/{}/*rest", HeartbeatServer::<HeartbeatService>::NAME),
+            HeartbeatServer::new(heartbeat_service),
         )
         .route_service(
             &format!("/{}/*rest", HealthServer::<HealthService>::NAME),

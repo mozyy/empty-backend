@@ -1,13 +1,15 @@
-use crate::pb::{heartbeat_service_server::HeartbeatService, HeartbeatRequest};
+use empty_utils::tonic::Resp;
+
+use crate::pb::{heartbeat_server::Heartbeat, HeartbeatRequest, HeartbeatResponse};
 
 pub struct Service;
 
 #[tonic::async_trait]
-impl HeartbeatService for Service {
+impl Heartbeat for Service {
     async fn heartbeat(
         &self,
         _request: tonic::Request<HeartbeatRequest>,
-    ) -> Result<tonic::Response<()>, tonic::Status> {
-        Ok(tonic::Response::new(()))
+    ) -> Resp<HeartbeatResponse> {
+        Ok(tonic::Response::new(HeartbeatResponse {}))
     }
 }

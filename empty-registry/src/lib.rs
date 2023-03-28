@@ -2,12 +2,12 @@ pub mod pb {
     tonic::include_proto!("empty.registry.v1");
 }
 
-pub use pb::heartbeat_service_server::HeartbeatServiceServer;
-pub use pb::registry_service_server::RegistryServiceServer;
+pub use pb::heartbeat_server::HeartbeatServer;
+pub use pb::registry_server::RegistryServer;
 pub mod client;
 pub mod heartbeat;
 pub mod proxy;
-pub mod registry; 
+pub mod registry;
 pub mod schema;
 
 pub fn get_registry_addr() -> String {

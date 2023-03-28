@@ -1,7 +1,9 @@
-use crate::pb::ListRequest;
 use crate::pb::{
-    registry_service_server::RegistryService, GetRequest, MicroService, MicroServices,
-    RegisterRequest, RegisterResponse, UnregisterRequest,
+    registry_server::Registry as RegistryService, GetRequest, RegisterRequest, RegisterResponse,
+    Service as PBService, UnregisterRequest,
+};
+use crate::pb::{
+    AllRequest, AllResponse, GetResponse, ListRequest, ListResponse, UnregisterResponse,
 };
 
 use empty_utils::tonic::{Resp, Response};
@@ -36,30 +38,39 @@ impl RegistryService for Service {
         log::info!("registry: {:?}", req);
         Response(RegisterResponse { id: id.to_string() }).into()
     }
-    async fn unregister(&self, request: Request<UnregisterRequest>) -> Resp<()> {
+    async fn unregister(&self, request: Request<UnregisterRequest>) -> Resp<UnregisterResponse> {
         let mut registry = self.registry.lock().unwrap();
         registry.unregister_service(request.into_inner().id.parse().unwrap());
-        Response(()).into()
+        Response(UnregisterResponse {}).into()
     }
-    async fn get(&self, request: Request<GetRequest>) -> Resp<MicroService> {
+    async fn get(&self, request: Request<GetRequest>) -> Resp<GetResponse> {
         let mut registry = self.registry.lock().unwrap();
         let service = registry
             .get_service(request.into_inner().name)
             .ok_or_else(|| Status::out_of_range("未找到服务"))?;
-        Response(service.into()).into()
+        Response(GetResponse {
+            service: Some(service.into()),
+        })
+        .into()
     }
-    async fn list(&self, request: Request<ListRequest>) -> Resp<MicroServices> {
+    async fn list(&self, request: Request<ListRequest>) -> Resp<ListResponse> {
         let mut registry = self.registry.lock().unwrap();
         let services = registry
             .list_service(request.into_inner().name)
             .ok_or_else(|| Status::out_of_range("未找到服务"))?;
-        Response(services.into()).into()
+        Response(ListResponse {
+            services: services.into_iter().map(|s| s.into()).collect(),
+        })
+        .into()
     }
-    async fn all(&self, _request: Request<()>) -> Resp<MicroServices> {
+    async fn all(&self, _request: Request<AllRequest>) -> Resp<AllResponse> {
         let mut registry = self.registry.lock().unwrap();
         let services = registry
             .all_service()
             .ok_or_else(|| Status::out_of_range("未找到服务"))?;
-        Response(services.into()).into()
+        Response(AllResponse {
+            services: services.into_iter().map(|s| s.into()).collect(),
+        })
+        .into()
     }
 }

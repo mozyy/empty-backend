@@ -1,4 +1,4 @@
-use crate::pb::{MicroService as PBMicroService, MicroServices};
+use crate::pb::Service as PBService;
 use crate::schema::micro_services;
 use chrono::{NaiveDateTime, Utc};
 use diesel::prelude::*;
@@ -13,7 +13,7 @@ use uuid::Uuid;
 pub struct RegistryDB {
     db_pool: db::DbPool,
 }
-impl Default for RegistryDB { 
+impl Default for RegistryDB {
     fn default() -> Self {
         Self::new()
     }
@@ -34,21 +34,15 @@ pub struct MicroService {
     pub updated_at: NaiveDateTime,
 }
 
-impl From<MicroService> for PBMicroService {
+impl From<MicroService> for PBService {
     fn from(value: MicroService) -> Self {
-        PBMicroService {
+        PBService {
             id: value.id.to_string(),
             name: value.name,
             endpoint: value.endpoint,
             created_at: Some(naive_date_time_to_timestamp(value.created_at)),
             updated_at: Some(naive_date_time_to_timestamp(value.updated_at)),
         }
-    }
-}
-impl From<Vec<MicroService>> for MicroServices {
-    fn from(value: Vec<MicroService>) -> Self {
-        let services: Vec<PBMicroService> = value.into_iter().map(PBMicroService::from).collect();
-        MicroServices { services }
     }
 }
 

@@ -37,11 +37,9 @@ async fn main() {
 }
 
 async fn call(addr: String) {
-    let mut client = empty_oauth::pb::oauth_service_client::OauthServiceClient::connect(format!(
-        "http://{addr}"
-    ))
-    .await
-    .unwrap();
+    let mut client = empty_oauth::pb::oauth_client::OauthClient::connect(format!("http://{addr}"))
+        .await
+        .unwrap();
     let start = Alphanumeric.sample_string(&mut rand::thread_rng(), 16);
     // let request = OauthRequest { name: start };
     // let response = client.oauth(tonic::Request::new(request)).await.unwrap();

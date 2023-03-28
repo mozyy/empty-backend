@@ -4,8 +4,7 @@ use chrono::NaiveDateTime;
 use empty_utils::{errors::ServiceError, tonic::Resp};
 use oxide_auth::endpoint::{QueryParameter, WebRequest, WebResponse};
 use pb::{
-    oauth_service_server::OauthService, oauth_service_server::OauthServiceServer, PasswordRequest,
-    TokenResponse,
+    oauth_server::Oauth as OauthService, oauth_server::OauthServer, PasswordRequest, TokenResponse,
 };
 use state::OAuthState;
 use tokio::sync::Mutex;
@@ -19,7 +18,7 @@ pub mod pb {
     tonic::include_proto!("empty.oauth.v1");
 }
 
-impl Default for OauthServiceServer<Service> {
+impl Default for OauthServer<Service> {
     fn default() -> Self {
         Self::new(Service::default())
     }
@@ -27,6 +26,7 @@ impl Default for OauthServiceServer<Service> {
 
 #[derive(Default)]
 struct Oauth {}
+
 impl Oauth {
     pub fn get_oauth(&self, name: &str) -> String {
         format!("response oauth service: {name}")

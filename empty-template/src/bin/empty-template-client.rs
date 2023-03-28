@@ -38,11 +38,10 @@ async fn main() {
 }
 
 async fn call(addr: String) {
-    let mut client = empty_template::pb::template_service_client::TemplateServiceClient::connect(
-        format!("http://{addr}"),
-    )
-    .await
-    .unwrap();
+    let mut client =
+        empty_template::pb::template_client::TemplateClient::connect(format!("http://{addr}"))
+            .await
+            .unwrap();
     let start = Alphanumeric.sample_string(&mut rand::thread_rng(), 16);
     let request = TemplateRequest { name: start };
     let response = client.template(tonic::Request::new(request)).await.unwrap();

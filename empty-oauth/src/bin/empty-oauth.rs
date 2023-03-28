@@ -1,9 +1,9 @@
-use empty_oauth::pb::oauth_service_server::OauthServiceServer;
+use empty_oauth::pb::oauth_server::OauthServer;
 
 #[tokio::main]
 async fn main() {
     empty_utils::init();
-    empty_registry::client::register(OauthServiceServer::default())
+    empty_registry::client::register(OauthServer::default())
         .await
         .unwrap();
 }
