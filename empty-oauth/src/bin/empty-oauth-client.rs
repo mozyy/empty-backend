@@ -1,7 +1,6 @@
 use std::time::Instant;
 
 use empty_registry::get_registry_addr;
-use empty_oauth::pb::OauthRequest;
 use rand::distributions::{Alphanumeric, DistString};
 
 #[tokio::main]
@@ -38,13 +37,13 @@ async fn main() {
 }
 
 async fn call(addr: String) {
-    let mut client = empty_oauth::pb::oauth_service_client::OauthServiceClient::connect(
-        format!("http://{addr}"),
-    )
+    let mut client = empty_oauth::pb::oauth_service_client::OauthServiceClient::connect(format!(
+        "http://{addr}"
+    ))
     .await
     .unwrap();
     let start = Alphanumeric.sample_string(&mut rand::thread_rng(), 16);
-    let request = OauthRequest { name: start };
-    let response = client.oauth(tonic::Request::new(request)).await.unwrap();
-    log::info!("{:?}", response);
+    // let request = OauthRequest { name: start };
+    // let response = client.oauth(tonic::Request::new(request)).await.unwrap();
+    // log::info!("{:?}", response);
 }

@@ -31,6 +31,10 @@ uuid= { workspace = true, features = ["serde"] }
 oxide-auth = "0.5"
 oxide-auth-axum = "0.3"
 
+sha3 = "*"
+base64ct = "*"
+rsa = "*"
+
 [dev-dependencies]
 tempfile = {workspace = true}
 tokio-stream = {version = "*", features = ["net"]}

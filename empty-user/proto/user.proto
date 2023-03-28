@@ -1,0 +1,61 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+package empty.user.v1;
+
+service User {
+    rpc Register (RegisterRequest) returns (RegisterResponse) { }
+    rpc Login (LoginRequest) returns (LoginResponse) { }
+    rpc Refresh (RefreshRequest) returns (RefreshResponse) { }
+    rpc Logout (LogoutRequest) returns (LogoutResponse) { }
+    rpc Info (InfoRequest) returns (InfoResponse) { }
+}
+
+
+message Account {
+    string id = 1;
+    string mobile = 2;
+    string username = 3;
+    string avatar = 4;
+}
+message Token {
+    string access_token = 1;
+    int32 expires_in = 2;
+    string refresh_token = 3;
+}
+
+
+message RegisterRequest {
+    string mobile = 1;
+    string password = 2;
+}
+message RegisterResponse{
+    Token token = 1;
+}
+message LoginRequest {
+    string mobile = 1;
+    string username = 2;
+}
+message LoginResponse{
+    Token token = 1;
+}
+message RefreshRequest {
+    string refresh_token = 1;
+}
+message RefreshResponse{
+    Token token = 1;
+}
+message LogoutRequest {
+    string access_token = 1;
+}
+message LogoutResponse{
+    
+}
+message InfoRequest {
+    string access_token = 1;
+}
+message InfoResponse{
+    Account account = 1;
+}
+

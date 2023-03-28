@@ -1,16 +1,15 @@
-use std::{borrow::Cow, collections::HashMap};
+use std::{borrow::Cow, collections::HashMap, str::FromStr};
 
+use chrono::NaiveDateTime;
 use empty_utils::{errors::ServiceError, tonic::Resp};
 use oxide_auth::endpoint::{QueryParameter, WebRequest, WebResponse};
 use pb::{
-    oauth_service_server::OauthService, oauth_service_server::OauthServiceServer,
-    AccessTokenRequest, AccessTokenResponse, AuthorizationRequest, AuthorizationResponse,
-    ClientCredentialsRequest, ClientCredentialsResponse, RefreshRequest, RefreshResponse,
-    ResourceRequest, ResourceResponse,
+    oauth_service_server::OauthService, oauth_service_server::OauthServiceServer, PasswordRequest,
+    TokenResponse,
 };
 use state::OAuthState;
 use tokio::sync::Mutex;
-use tonic::Request;
+use tonic::{Code, Request, Status};
 
 pub mod model;
 pub mod schema;
@@ -38,93 +37,70 @@ pub struct Service {
     state: Mutex<OAuthState>,
 }
 
-impl WebRequest for AccessTokenRequest {
-    type Error = empty_utils::errors::ServiceError;
-
-    type Response = AccessTokenResponse;
-
-    fn query(&mut self) -> Result<Cow<dyn QueryParameter + 'static>, Self::Error> {
-        let mut hash: HashMap<String, String> = HashMap::new();
-        hash.insert(String::from("response_type"), self.response_type.clone());
-        hash.insert(String::from("client_id"), self.client_id.clone());
-        hash.insert(String::from("state"), self.state.clone());
-        hash.insert(
-            String::from("redirect_uri"),
-            self.redirect_uri.clone().unwrap_or_default(),
-        );
-        hash.insert(
-            String::from("scope"),
-            self.scope.clone().unwrap_or_default(),
-        );
-        // Ok(hash.into())
-        let hash = Cow::Borrowed(&hash as &dyn QueryParameter);
-        Ok(hash)
-    }
-
-    fn urlbody(&mut self) -> Result<Cow<dyn QueryParameter + 'static>, Self::Error> {
-        let hash: HashMap<String, String> = HashMap::new();
-        Ok(Cow::Borrowed(&hash))
-    }
-
-    fn authheader(&mut self) -> Result<Option<Cow<str>>, Self::Error> {
-        Ok(None)
-    }
-}
-impl WebResponse for AccessTokenResponse {
-    type Error = ServiceError;
-
-    fn ok(&mut self) -> Result<(), Self::Error> {
-        todo!()
-    }
-
-    fn redirect(&mut self, url: oxide_auth::frontends::dev::Url) -> Result<(), Self::Error> {
-        todo!()
-    }
-
-    fn client_error(&mut self) -> Result<(), Self::Error> {
-        todo!()
-    }
-
-    fn unauthorized(&mut self, header_value: &str) -> Result<(), Self::Error> {
-        todo!()
-    }
-
-    fn body_text(&mut self, text: &str) -> Result<(), Self::Error> {
-        todo!()
-    }
-
-    fn body_json(&mut self, data: &str) -> Result<(), Self::Error> {
-        todo!()
-    }
-}
 // TODO: async_trait to async_fn_in_trait
 // https://github.com/rust-lang/rust/issues/91611
 #[tonic::async_trait]
 impl OauthService for Service {
-    async fn access_token(
-        &self,
-        request: Request<AccessTokenRequest>,
-    ) -> Resp<AccessTokenResponse> {
-        let mut state = self.state.lock().await;
+    async fn password(&self, request: tonic::Request<PasswordRequest>) -> Resp<TokenResponse> {
+        let client = Client::parse(&request);
+        let state = self.state.lock().await;
+        todo!()
+    }
+}
 
-        todo!()
+struct Client {
+    client_id: String,
+    client_screct: Option<String>,
+}
+impl FromStr for Client {
+    type Err = ServiceError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut auth = s.split(':');
+        let client_id = auth
+            .next()
+            .ok_or_else(|| tonic::Status::unauthenticated("no client"))?;
+        let client_screct = auth
+            .next()
+            .ok_or_else(|| tonic::Status::unauthenticated("no screct"))?;
+        let client_screct = if client_screct.is_empty() {
+            None
+        } else {
+            Some(client_screct.to_owned())
+        };
+        let timestamp = auth
+            .next()
+            .ok_or_else(|| tonic::Status::unauthenticated("no timestamp"))?;
+        let timestamp = timestamp
+            .parse::<i64>()
+            .map_err(|e| tonic::Status::unauthenticated("no timestamp2"))?;
+
+        let time = NaiveDateTime::from_timestamp_opt(
+            timestamp / 1000,
+            ((timestamp % 1000) * 1_000_000) as u32,
+        )
+        .ok_or_else(|| tonic::Status::unauthenticated("no timestamp"))?;
+        // TODO: check timestamp
+        // TODO: check sha256
+        Ok(Self {
+            client_id: client_id.to_owned(),
+            client_screct,
+        })
     }
-    async fn authorization(
-        &self,
-        request: Request<AuthorizationRequest>,
-    ) -> Resp<AuthorizationResponse> {
-        todo!()
+}
+impl Client {
+    pub fn parse<T>(request: &tonic::Request<T>) -> Result<Self, ServiceError> {
+        let auth = request.metadata().get("Authorization");
+        let auth = match auth {
+            Some(auth) => auth
+                .to_str()
+                .map_err(|e| tonic::Status::unauthenticated("auth err"))?,
+            None => return Err(tonic::Status::unauthenticated("no auth").into()),
+        };
+        let client = auth.parse::<Client>()?;
+        Ok(client)
     }
-    async fn client_credentials(
-        &self,
-        request: Request<ClientCredentialsRequest>,
-    ) -> Resp<ClientCredentialsResponse> {
-        todo!()
-    }
-    async fn refresh(&self, request: Request<RefreshRequest>) -> Resp<RefreshResponse> {
-        todo!()
-    }
-    async fn resource(&self, request: Request<ResourceRequest>) -> Resp<ResourceResponse> {
+    pub async fn check(&self, state: OAuthState) -> Result<(), ServiceError> {
         todo!()
     }
 }

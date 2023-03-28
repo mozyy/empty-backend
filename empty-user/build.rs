@@ -1,5 +1,5 @@
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let protos_dir = &std::env::current_dir()?.join("../protos");
+    // let protos_dir = &std::env::current_dir()?.join("../protos");
     // Command::new("diesel")
     //     .args(["migration", "run"])
     //     .current_dir(current_dir)
@@ -11,9 +11,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     //     .args(["-p"])
     //     .stdout(stdio)
     //     .spawn()?;
-    tonic_build::configure()
-        .out_dir(protos_dir)
-        .compile(&[protos_dir.join("user.proto")], &[protos_dir])?;
-    // tonic_build::compile_protos("../protos/user.proto")?;
+    // tonic_build::configure()
+    //     .out_dir(protos_dir)
+    //     .compile(&[protos_dir.join("user.proto")], &[protos_dir])?;
+    tonic_build::compile_protos("./proto/user.proto")?;
     Ok(())
 }
