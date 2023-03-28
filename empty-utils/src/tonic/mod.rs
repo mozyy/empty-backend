@@ -1,8 +1,4 @@
-
-
-use tonic::Status;
-
-pub type Resp<T> = core::result::Result<tonic::Response<T>, Status>;
+pub type Resp<T> = core::result::Result<tonic::Response<T>, tonic::Status>;
 
 pub struct Response<T>(pub T);
 

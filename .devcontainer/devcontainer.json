@@ -32,7 +32,8 @@
         "tamasfe.even-better-toml",
         "eamodio.gitlens",
         "zxh404.vscode-proto3",
-        "serayuzgur.crates"
+        "serayuzgur.crates",
+        "tamasfe.even-better-toml"
       ]
     }
   },

@@ -16,6 +16,11 @@ dotenvy = {workspace = true}
 tonic = {workspace = true}
 prost = {workspace = true}
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+serde = { workspace = true, features = ["derive"] }
+empty-utils={workspace = true}
+empty-registry={workspace = true}
+prost-types={workspace = true}
+log={workspace = true}
 
 [build-dependencies]
 tonic-build = {workspace = true}

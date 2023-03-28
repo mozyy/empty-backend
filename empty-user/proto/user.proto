@@ -1,5 +1,4 @@
 syntax = "proto3";
-import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
 package empty.user.v1;
@@ -13,16 +12,20 @@ service User {
 }
 
 
-message Account {
+message Info {
     string id = 1;
     string mobile = 2;
     string username = 3;
     string avatar = 4;
+    google.protobuf.Timestamp created_at = 5;
+    google.protobuf.Timestamp updated_at = 6;
 }
 message Token {
     string access_token = 1;
     int32 expires_in = 2;
     string refresh_token = 3;
+    google.protobuf.Timestamp created_at = 4;
+    google.protobuf.Timestamp updated_at = 5;
 }
 
 
@@ -35,7 +38,7 @@ message RegisterResponse{
 }
 message LoginRequest {
     string mobile = 1;
-    string username = 2;
+    string password = 2;
 }
 message LoginResponse{
     Token token = 1;
@@ -56,6 +59,6 @@ message InfoRequest {
     string access_token = 1;
 }
 message InfoResponse{
-    Account account = 1;
+    Info info = 1;
 }
 
