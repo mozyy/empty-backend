@@ -4,17 +4,17 @@ use axum::{http::StatusCode, response::IntoResponse};
 
 #[derive(thiserror::Error, Debug)]
 pub enum ServiceError {
-    #[error("{1}")]
+    #[error("axum error:{1}")]
     AxumStatus(StatusCode, String),
-    #[error("数据库连接错误")]
+    #[error("diesel pool error")]
     PoolError(#[from] diesel::r2d2::PoolError),
-    #[error("数据库错误")]
+    #[error("diesel error")]
     DieselError(#[from] diesel::result::Error),
-    #[error("oauth错误")]
+    #[error("oauth error")]
     AuthError(#[from] oxide_auth_axum::WebError),
-    #[error("tonic错误")]
+    #[error("tonic error")]
     StatusError(#[from] tonic::Status),
-    #[error("{0}")]
+    #[error("string error:{0}")]
     String(String),
 }
 

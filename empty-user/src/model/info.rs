@@ -1,7 +1,10 @@
-use crate::schema::infos::{self};
+use crate::{
+    pb,
+    schema::infos::{self},
+};
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
-use empty_utils::{diesel::timestamp, errors::ServiceError};
+use empty_utils::{convert::naive_date_time_to_timestamp, diesel::timestamp, errors::ServiceError};
 use serde::Serialize;
 
 use uuid::Uuid;
@@ -17,6 +20,28 @@ pub struct Info {
     pub created_at: NaiveDateTime,
     #[serde(with = "timestamp")]
     pub updated_at: NaiveDateTime,
+}
+
+impl From<Info> for pb::Info {
+    fn from(value: Info) -> Self {
+        let Info {
+            id,
+            mobile,
+            username,
+            avatar,
+            created_at,
+            updated_at,
+            ..
+        } = value;
+        Self {
+            id: id.to_string(),
+            mobile,
+            username: username.unwrap_or_default(),
+            avatar: avatar.unwrap_or_default(),
+            created_at: Some(naive_date_time_to_timestamp(created_at)),
+            updated_at: Some(naive_date_time_to_timestamp(updated_at)),
+        }
+    }
 }
 
 #[derive(Insertable)]
@@ -44,6 +69,11 @@ pub fn insert(conn: &mut PgConnection, info: NewInfo) -> Result<Uuid, ServiceErr
         .returning(infos::id)
         .get_result(conn)?;
     Ok(id)
+}
+
+pub fn query_by_id(conn: &mut PgConnection, id: Uuid) -> Result<Info, ServiceError> {
+    let info = infos::dsl::infos.find(id).first(conn)?;
+    Ok(info)
 }
 
 pub fn query_by_mobile(conn: &mut PgConnection, mobile: String) -> Result<Info, ServiceError> {
