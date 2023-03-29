@@ -11,7 +11,7 @@ use crate::errors::ServiceError;
 pub struct DbPool(r2d2::Pool<ConnectionManager<PgConnection>>);
 
 impl DbPool {
-    pub fn new() -> Self {
+    fn new() -> Self {
         // set up database connection pool
         let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
         let manager = ConnectionManager::<PgConnection>::new(&database_url);
@@ -27,10 +27,17 @@ impl DbPool {
 
         Self(db_pool)
     }
+
     pub fn get_conn(
         &self,
     ) -> Result<PooledConnection<ConnectionManager<PgConnection>>, ServiceError> {
         let conn = self.0.get()?;
         Ok(conn)
+    }
+}
+
+impl Default for DbPool {
+    fn default() -> Self {
+        Self::new()
     }
 }

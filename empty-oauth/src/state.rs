@@ -27,7 +27,7 @@ pub struct OAuthState {
 
 impl OAuthState {
     pub fn new() -> Self {
-        let db = db::DbPool::new();
+        let db = db::DbPool::default();
         let mut conn = db.get_conn().unwrap();
         let clients = model::ClientUrl::select_all(&mut conn).unwrap();
         let clients = Vec::from_iter(clients);

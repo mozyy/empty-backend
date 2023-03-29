@@ -9,6 +9,7 @@ service User {
     rpc Refresh (RefreshRequest) returns (RefreshResponse) { }
     rpc Logout (LogoutRequest) returns (LogoutResponse) { }
     rpc Info (InfoRequest) returns (InfoResponse) { }
+    rpc Verify (VerifyRequest) returns (VerifyResponse) { }
 }
 
 
@@ -60,5 +61,13 @@ message InfoRequest {
 }
 message InfoResponse{
     Info info = 1;
+}
+
+message VerifyRequest {
+    string access_token = 1;
+    string resource = 2;
+}
+message VerifyResponse{
+    string id = 1;
 }
 

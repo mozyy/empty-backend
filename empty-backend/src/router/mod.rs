@@ -3,7 +3,7 @@ use axum::{http::StatusCode, response::IntoResponse, routing::get, Router};
 use crate::api::{oauth, questions};
 
 pub fn get_router() -> Router {
-    let pool = empty_utils::diesel::db::DbPool::new();
+    let pool = empty_utils::diesel::db::DbPool::default();
     Router::new()
         .route(
             "/questions",

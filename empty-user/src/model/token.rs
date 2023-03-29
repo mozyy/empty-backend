@@ -1,63 +1,43 @@
-use crate::{pb, schema::tokens};
-use chrono::NaiveDateTime;
 use diesel::prelude::*;
-use empty_utils::{convert::naive_date_time_to_timestamp, errors::ServiceError};
-
+use diesel::{Connection, PgConnection};
+use empty_utils::errors::ServiceError;
 use uuid::Uuid;
 
-#[derive(Queryable, Identifiable, Associations)]
-#[diesel(primary_key(access_token), belongs_to(super::info::Info))]
-pub struct Token {
-    pub access_token: String,
-    pub info_id: Uuid,
-    pub expires_in: i32,
-    pub refresh_token: String,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
-}
+use crate::schema::{access_tokens, refresh_tokens};
 
-impl From<Token> for pb::Token {
-    fn from(value: Token) -> Self {
-        let Token {
-            access_token,
-            info_id: _,
-            expires_in,
-            refresh_token,
-            created_at,
-            updated_at,
-        } = value;
-        Self {
-            access_token,
-            expires_in,
-            refresh_token,
-            created_at: Some(naive_date_time_to_timestamp(created_at)),
-            updated_at: Some(naive_date_time_to_timestamp(updated_at)),
-        }
-    }
-}
+use super::{
+    access_token::{AccessToken, NewAccessToken},
+    refresh_token::NewRefreshToken,
+};
 
-#[derive(Insertable)]
-#[diesel(table_name =tokens)]
 pub struct NewToken {
-    pub access_token: String,
-    pub info_id: Uuid,
-    pub expires_in: i32,
-    pub refresh_token: String,
+    new_access_token: NewAccessToken,
+    new_refresh_token: NewRefreshToken,
 }
+
 impl NewToken {
-    pub fn new(info_id: Uuid) -> Self {
+    pub fn new(info_id: Uuid, scope: String) -> Self {
+        let new_refresh_token = NewRefreshToken::new(info_id);
+        let new_access_token =
+            NewAccessToken::new(info_id, scope, new_refresh_token.refresh_token.clone());
         Self {
-            access_token: Uuid::new_v4().to_string(),
-            info_id,
-            expires_in: 3600,
-            refresh_token: Uuid::new_v4().to_string(),
+            new_access_token,
+            new_refresh_token,
         }
     }
 }
 
-pub fn insert(conn: &mut PgConnection, token: NewToken) -> Result<Token, ServiceError> {
-    let id = diesel::insert_into(tokens::dsl::tokens)
-        .values(token)
-        .get_result(conn)?;
-    Ok(id)
+pub fn insert(conn: &mut PgConnection, token: NewToken) -> Result<AccessToken, ServiceError> {
+    let access_token = conn.transaction::<_, ServiceError, _>(|conn| {
+        diesel::insert_into(refresh_tokens::dsl::refresh_tokens)
+            .values(token.new_refresh_token)
+            .execute(conn)?;
+        let access_token = diesel::insert_into(access_tokens::dsl::access_tokens)
+            .values(token.new_access_token)
+            .get_result(conn)?;
+        Ok(access_token)
+        // todo!()
+    })?;
+
+    Ok(access_token)
 }

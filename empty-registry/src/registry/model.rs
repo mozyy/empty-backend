@@ -9,15 +9,11 @@ use std::sync::{Arc, Mutex};
 
 use uuid::Uuid;
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct RegistryDB {
     db_pool: db::DbPool,
 }
-impl Default for RegistryDB {
-    fn default() -> Self {
-        Self::new()
-    }
-}
+
 #[derive(Insertable)]
 #[diesel(table_name = micro_services)]
 struct NewMicroService {
@@ -47,12 +43,6 @@ impl From<MicroService> for PBService {
 }
 
 impl RegistryDB {
-    fn new() -> Self {
-        RegistryDB {
-            db_pool: db::DbPool::new(),
-        }
-    }
-
     pub fn register_service(&mut self, name: String, endpoint: String) {
         let service = NewMicroService { name, endpoint };
         let mut conn = self.db_pool.get_conn().unwrap();
