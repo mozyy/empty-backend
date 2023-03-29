@@ -4,7 +4,7 @@ use oxide_auth::{
     frontends::simple::endpoint::{Generic, Vacant},
     primitives::{
         prelude::{RandomGenerator, TokenMap},
-        registrar::{ClientMap},
+        registrar::ClientMap,
     },
 };
 use tokio::sync::Mutex;
@@ -27,8 +27,8 @@ pub struct OAuthState {
 
 impl OAuthState {
     pub fn new() -> Self {
-        let db = db::get();
-        let mut conn = db.get().unwrap();
+        let db = db::DbPool::new();
+        let mut conn = db.get_conn().unwrap();
         let clients = model::ClientUrl::select_all(&mut conn).unwrap();
         let clients = Vec::from_iter(clients);
         let client_map = ClientMap::from_iter(clients.into_iter());

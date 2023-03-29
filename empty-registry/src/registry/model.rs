@@ -48,12 +48,14 @@ impl From<MicroService> for PBService {
 
 impl RegistryDB {
     fn new() -> Self {
-        RegistryDB { db_pool: db::get() }
+        RegistryDB {
+            db_pool: db::DbPool::new(),
+        }
     }
 
     pub fn register_service(&mut self, name: String, endpoint: String) {
         let service = NewMicroService { name, endpoint };
-        let mut conn = self.db_pool.get().unwrap();
+        let mut conn = self.db_pool.get_conn().unwrap();
         diesel::insert_into(micro_services::dsl::micro_services)
             .values(service)
             .execute(&mut conn)
@@ -61,28 +63,28 @@ impl RegistryDB {
     }
 
     pub fn unregister_service(&mut self, id: Uuid) {
-        let mut conn = self.db_pool.get().unwrap();
+        let mut conn = self.db_pool.get_conn().unwrap();
         diesel::delete(micro_services::dsl::micro_services.find(id))
             .execute(&mut conn)
             .unwrap();
     }
 
     pub fn get_service(&mut self, name: String) -> Option<MicroService> {
-        let mut conn = self.db_pool.get().unwrap();
+        let mut conn = self.db_pool.get_conn().unwrap();
         micro_services::dsl::micro_services
             .filter(micro_services::name.eq(name))
             .first::<MicroService>(&mut conn)
             .ok()
     }
     pub fn list_service(&mut self, name: String) -> Option<Vec<MicroService>> {
-        let mut conn = self.db_pool.get().unwrap();
+        let mut conn = self.db_pool.get_conn().unwrap();
         micro_services::dsl::micro_services
             .filter(micro_services::name.eq(name))
             .load::<MicroService>(&mut conn)
             .ok()
     }
     pub fn all_service(&mut self) -> Option<Vec<MicroService>> {
-        let mut conn = self.db_pool.get().unwrap();
+        let mut conn = self.db_pool.get_conn().unwrap();
         micro_services::dsl::micro_services
             .load::<MicroService>(&mut conn)
             .ok()

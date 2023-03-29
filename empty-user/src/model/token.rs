@@ -1,8 +1,8 @@
 use crate::{pb, schema::tokens};
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
-use empty_utils::{convert::naive_date_time_to_timestamp, diesel::timestamp, errors::ServiceError};
-use serde::Serialize;
+use empty_utils::{convert::naive_date_time_to_timestamp, errors::ServiceError};
+
 use uuid::Uuid;
 
 #[derive(Queryable, Identifiable, Associations)]
@@ -20,7 +20,7 @@ impl From<Token> for pb::Token {
     fn from(value: Token) -> Self {
         let Token {
             access_token,
-            info_id,
+            info_id: _,
             expires_in,
             refresh_token,
             created_at,

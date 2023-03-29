@@ -1,6 +1,5 @@
 use crate::pb::{
-    registry_server::Registry as RegistryService, GetRequest, RegisterRequest, RegisterResponse,
-    Service as PBService, UnregisterRequest,
+    registry_server::Registry as RegistryService, GetRequest, RegisterRequest, RegisterResponse, UnregisterRequest,
 };
 use crate::pb::{
     AllRequest, AllResponse, GetResponse, ListRequest, ListResponse, UnregisterResponse,

@@ -1,11 +1,6 @@
+use empty_utils::{diesel::db, errors::ServiceError};
 
-
-use empty_utils::diesel::db;
-
-use crate::{
-    errors::ServiceError,
-    model::questions::{Question, QuestionReq, QuestionResp},
-};
+use crate::model::questions::{Question, QuestionReq, QuestionResp};
 
 // mod model;
 // mod service;
@@ -44,7 +39,7 @@ use crate::{
 
 pub fn get(pool: db::DbPool) -> Result<Vec<QuestionResp>, ServiceError> {
     // use web::block to offload blocking Diesel code without blocking server thread
-    let mut conn = pool.get()?;
+    let mut conn = pool.get_conn()?;
     let resp = Question::select_all(&mut conn)?;
     Ok(resp)
 
@@ -63,7 +58,7 @@ pub fn get(pool: db::DbPool) -> Result<Vec<QuestionResp>, ServiceError> {
 }
 pub fn post(req: &Vec<QuestionReq>, pool: db::DbPool) -> Result<Vec<i32>, ServiceError> {
     // use web::block to offload blocking Diesel code without blocking server thread
-    let mut conn = pool.get()?;
+    let mut conn = pool.get_conn()?;
     let resp = Question::insert(req, &mut conn)?;
     Ok(resp)
 }

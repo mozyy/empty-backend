@@ -1,11 +1,9 @@
 use axum::{http::StatusCode, response::IntoResponse, routing::get, Router};
 
-use crate::{
-    api::{oauth, questions},
-};
+use crate::api::{oauth, questions};
 
 pub fn get_router() -> Router {
-    let pool = empty_utils::diesel::db::get();
+    let pool = empty_utils::diesel::db::DbPool::new();
     Router::new()
         .route(
             "/questions",

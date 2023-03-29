@@ -3,7 +3,7 @@ use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use empty_utils::{diesel::timestamp, errors::ServiceError};
 use serde::Serialize;
-use tonic::codegen::ok;
+
 use uuid::Uuid;
 
 #[derive(Queryable, Identifiable, Serialize)]
