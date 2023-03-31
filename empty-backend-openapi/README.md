@@ -1,6 +1,6 @@
 # Rust API for openapi_client
 
-This is a sample server Petstore server. For this sample, you can use the api key `special-key` to test the authorization filters.
+接口文档
 
 ## Overview
 
@@ -13,8 +13,8 @@ To see how to make this your own, look here:
 
 [README]((https://openapi-generator.tech))
 
-- API version: 1.0.0
-- Build date: 2022-09-19T14:25:14.774Z[Etc/UTC]
+- API version: 1.0
+- Build date: 2022-09-21T05:59:54.404415Z[Etc/UTC]
 
 
 
@@ -61,21 +61,15 @@ cargo run --example server
 To run a client, follow one of the following simple steps:
 
 ```
-cargo run --example client DeletePet
-cargo run --example client FindPetsByStatus
-cargo run --example client FindPetsByTags
-cargo run --example client GetPetById
-cargo run --example client UpdatePetWithForm
-cargo run --example client UploadFile
-cargo run --example client DeleteOrder
-cargo run --example client GetInventory
-cargo run --example client GetOrderById
-cargo run --example client CreateUsersWithArrayInput
-cargo run --example client CreateUsersWithListInput
-cargo run --example client DeleteUser
-cargo run --example client GetUserByName
-cargo run --example client LoginUser
-cargo run --example client LogoutUser
+cargo run --example client QuestionsIdAnswersAnswerIdPut
+cargo run --example client QuestionsIdAnswersGet
+cargo run --example client QuestionsIdAnswersPatch
+cargo run --example client QuestionsIdAnswersPost
+cargo run --example client QuestionsIdDelete
+cargo run --example client QuestionsIdGet
+cargo run --example client QuestionsIdPut
+cargo run --example client QuestionsGet
+cargo run --example client QuestionsPost
 ```
 
 ### HTTPS
@@ -105,65 +99,31 @@ See https://doc.rust-lang.org/cargo/reference/manifest.html#the-features-section
 
 ## Documentation for API Endpoints
 
-All URIs are relative to *http://petstore.swagger.io/v2*
+All URIs are relative to *https://api.server.test/v1*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**addPet**](docs/pet_api.md#addPet) | **POST** /pet | Add a new pet to the store
-[**deletePet**](docs/pet_api.md#deletePet) | **DELETE** /pet/{petId} | Deletes a pet
-[**findPetsByStatus**](docs/pet_api.md#findPetsByStatus) | **GET** /pet/findByStatus | Finds Pets by status
-[**findPetsByTags**](docs/pet_api.md#findPetsByTags) | **GET** /pet/findByTags | Finds Pets by tags
-[**getPetById**](docs/pet_api.md#getPetById) | **GET** /pet/{petId} | Find pet by ID
-[**updatePet**](docs/pet_api.md#updatePet) | **PUT** /pet | Update an existing pet
-[**updatePetWithForm**](docs/pet_api.md#updatePetWithForm) | **POST** /pet/{petId} | Updates a pet in the store with form data
-[**uploadFile**](docs/pet_api.md#uploadFile) | **POST** /pet/{petId}/uploadImage | uploads an image
-[**deleteOrder**](docs/store_api.md#deleteOrder) | **DELETE** /store/order/{orderId} | Delete purchase order by ID
-[**getInventory**](docs/store_api.md#getInventory) | **GET** /store/inventory | Returns pet inventories by status
-[**getOrderById**](docs/store_api.md#getOrderById) | **GET** /store/order/{orderId} | Find purchase order by ID
-[**placeOrder**](docs/store_api.md#placeOrder) | **POST** /store/order | Place an order for a pet
-[**createUser**](docs/user_api.md#createUser) | **POST** /user | Create user
-[**createUsersWithArrayInput**](docs/user_api.md#createUsersWithArrayInput) | **POST** /user/createWithArray | Creates list of users with given input array
-[**createUsersWithListInput**](docs/user_api.md#createUsersWithListInput) | **POST** /user/createWithList | Creates list of users with given input array
-[**deleteUser**](docs/user_api.md#deleteUser) | **DELETE** /user/{username} | Delete user
-[**getUserByName**](docs/user_api.md#getUserByName) | **GET** /user/{username} | Get user by user name
-[**loginUser**](docs/user_api.md#loginUser) | **GET** /user/login | Logs user into the system
-[**logoutUser**](docs/user_api.md#logoutUser) | **GET** /user/logout | Logs out current logged in user session
-[**updateUser**](docs/user_api.md#updateUser) | **PUT** /user/{username} | Updated user
+[****](docs/default_api.md#) | **PUT** /questions/{id}/answers/{answerId} | 
+[****](docs/default_api.md#) | **GET** /questions/{id}/answers/ | 
+[****](docs/default_api.md#) | **PATCH** /questions/{id}/answers/ | 
+[****](docs/default_api.md#) | **POST** /questions/{id}/answers/ | 
+[****](docs/default_api.md#) | **DELETE** /questions/{id} | 
+[****](docs/default_api.md#) | **GET** /questions/{id} | 
+[****](docs/default_api.md#) | **PUT** /questions/{id} | 
+[****](docs/question_api.md#) | **GET** /questions | 
+[****](docs/question_api.md#) | **POST** /questions | 
 
 
 ## Documentation For Models
 
- - [ApiResponse](docs/ApiResponse.md)
- - [Category](docs/Category.md)
- - [Order](docs/Order.md)
- - [Pet](docs/Pet.md)
- - [Tag](docs/Tag.md)
- - [User](docs/User.md)
+ - [Answer](docs/Answer.md)
+ - [Id](docs/Id.md)
+ - [Question](docs/Question.md)
 
 
 ## Documentation For Authorization
+ Endpoints do not require authorization.
 
-## api_key
-- **Type**: API key
-
-Example
-```
-```
-## petstore_auth
-- **Type**: OAuth
-- **Flow**: implicit
-- **Authorization URL**: http://petstore.swagger.io/api/oauth/dialog
-- **Scopes**: 
- - **write:pets**: modify pets in your account
- - **read:pets**: read your pets
-
-Example
-```
-```
-
-Or via OAuth2 module to automatically refresh tokens and perform user authentication.
-```
-```
 
 ## Author
 

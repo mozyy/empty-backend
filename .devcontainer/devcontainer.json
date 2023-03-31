@@ -30,6 +30,8 @@
         "mutantdino.resourcemonitor",
         "rust-lang.rust-analyzer", // 0.3.1170 for fix GLIBC_2.29 not found
         "tamasfe.even-better-toml",
+        "eamodio.gitlens",
+        "zxh404.vscode-proto3",
         "serayuzgur.crates"
       ]
     }

@@ -1,0 +1,16 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+package empty.template.v1;
+
+message TemplateRequest {
+    string name = 1;
+}
+message TemplateResponse {
+    string response = 1;
+}
+
+service Template {
+    rpc template (TemplateRequest) returns (TemplateResponse) { }
+}

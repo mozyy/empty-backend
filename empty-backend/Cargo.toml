@@ -1,16 +1,47 @@
 [package]
-name = "empty-backend"
+name = "empty_backend"
 version = "0.1.0"
 edition = "2021"
+authors = ["yyue <yy@yyue.dev>"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tonic = "0.8"
-prost = "0.11"
-prost-types = "0.11"
-tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
-diesel = { version = "2.0", features = ["postgres"] }
+actix-web = {workspace = true}
+serde = { workspace = true, features = ["derive"] }
+serde_json = {workspace = true}
+env_logger = {workspace = true}
+log = {workspace = true}
+futures = {workspace = true}
+utoipa = {workspace = true, features = ["axum_extras", "yaml"] }
+utoipa-swagger-ui ={workspace = true, features = ["axum"] }
+diesel = { workspace = true, features = ["postgres", "r2d2", "chrono", "uuid"] }
+chrono = {workspace = true, features = ["serde"] }
+uuid= { workspace = true, features = ["serde"] }
+
+axum = { workspace = true, features = ["http2"] }
+tokio = {workspace = true, features = ["macros", "rt-multi-thread"]}
+tracing ={workspace = true}
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
+thiserror = {workspace = true}
+tower-http = { workspace = true, features = ["cors", "trace"] }
+
+
+empty-macro = { workspace = true }
+empty-utils = { workspace = true }
+
+oxide-auth = "0.5"
+oxide-auth-axum = "0.3"
 
 [build-dependencies]
 tonic-build = "0.8"
+
+[[bin]]
+name="openapi"
+
+[[bin]]
+name="server"
+
+[[bin]]
+name="server-axum"
+
