@@ -3,7 +3,7 @@ use std::env;
 use diesel::pg::PgConnection;
 use diesel::r2d2::{self, ConnectionManager, PooledConnection};
 
-use crate::errors::ServiceError;
+use crate::errors::ServiceResult;
 
 // pub type DbConnection = PooledConnection<PgConnection>;
 
@@ -28,9 +28,7 @@ impl DbPool {
         Self(db_pool)
     }
 
-    pub fn get_conn(
-        &self,
-    ) -> Result<PooledConnection<ConnectionManager<PgConnection>>, ServiceError> {
+    pub fn get_conn(&self) -> ServiceResult<PooledConnection<ConnectionManager<PgConnection>>> {
         let conn = self.0.get()?;
         Ok(conn)
     }

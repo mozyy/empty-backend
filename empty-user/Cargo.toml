@@ -3,29 +3,6 @@ name = "empty-user"
 version = "0.1.0"
 edition = "2021"
 
-
-
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-diesel = { workspace = true, features = ["postgres", "r2d2", "chrono", "uuid"] }
-chrono = { workspace = true, features = ["serde"] }
-uuid= { workspace = true, features = ["serde"] }
-dotenvy = {workspace = true}
-
-tonic = {workspace = true}
-prost = {workspace = true}
-tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
-serde = { workspace = true, features = ["derive"] }
-empty-utils={workspace = true}
-empty-registry={workspace = true}
-prost-types={workspace = true}
-log={workspace = true}
-
-[build-dependencies]
-tonic-build = {workspace = true}
-diesel_cli_ext = {workspace = true}
-
-
-[[bin]]
-name="empty-user"

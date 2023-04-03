@@ -3,7 +3,6 @@ pub mod convert;
 pub mod diesel;
 pub mod errors;
 pub mod log;
-pub mod tonic;
 
 // init dotenv, log
 pub fn init() {
