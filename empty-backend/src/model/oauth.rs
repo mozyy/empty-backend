@@ -113,11 +113,11 @@ pub struct NewClientUrl {
 }
 
 impl Client {
-    pub fn insert(conn: &mut PgConnection, _req: NewClientUrl) -> Result<Uuid, ServiceError> {
+    pub fn insert(conn: &mut PgConnection, _req: NewClientUrl) -> ServiceResult<Uuid> {
         let _clients = clients::table.load::<Client>(conn)?;
         todo!();
     }
-    pub fn select_all(conn: &mut PgConnection) -> Result<Vec<ClientUrl>, ServiceError> {
+    pub fn select_all(conn: &mut PgConnection) -> ServiceResult<Vec<ClientUrl>> {
         let clients = clients::table.load::<Client>(conn)?;
         let redirect_uris = redirect_uris::table.load::<RedirectUri>(conn)?;
 

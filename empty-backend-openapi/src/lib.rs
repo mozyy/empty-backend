@@ -210,7 +210,7 @@ impl<T: Api<C> + Send + Sync, C: Clone + Send + Sync> ContextWrapperExt<C> for T
 
 #[async_trait]
 impl<T: Api<C> + Send + Sync, C: Clone + Send + Sync> ApiNoContext<C> for ContextWrapper<T, C> {
-    fn poll_ready(&self, cx: &mut Context) -> Poll<Result<(), ServiceError>> {
+    fn poll_ready(&self, cx: &mut Context) -> Poll<ServiceResult<()>> {
         self.api().poll_ready(cx)
     }
 

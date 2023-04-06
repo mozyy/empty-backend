@@ -14,6 +14,8 @@ pub enum ServiceError {
     AuthError(#[from] oxide_auth_axum::WebError),
     #[error("tonic error")]
     StatusError(#[from] tonic::Status),
+    #[error("tonic error")]
+    TransportError(#[from] tonic::transport::Error),
     #[error("string error:{0}")]
     String(String),
 }
@@ -27,6 +29,7 @@ impl IntoResponse for ServiceError {
             ServiceError::AuthError(e) => e.to_string(),
             ServiceError::StatusError(e) => e.to_string(),
             ServiceError::String(e) => e,
+            ServiceError::TransportError(e) => e.to_string(),
         };
         (StatusCode::INTERNAL_SERVER_ERROR, message).into_response()
     }
@@ -41,7 +44,10 @@ impl From<ServiceError> for tonic::Status {
             ServiceError::AuthError(e) => e.to_string(),
             ServiceError::StatusError(e) => return e,
             ServiceError::String(e) => e,
+            ServiceError::TransportError(e) => e.to_string(),
         };
         tonic::Status::unknown(message)
     }
 }
+
+pub type ServiceResult<T = ()> = Result<T, ServiceError>;

@@ -63,7 +63,7 @@ impl NewInfo {
     }
 }
 
-pub fn insert(conn: &mut PgConnection, info: NewInfo) -> Result<Uuid, ServiceError> {
+pub fn insert(conn: &mut PgConnection, info: NewInfo) -> ServiceResult<Uuid> {
     let id = diesel::insert_into(infos::dsl::infos)
         .values(info)
         .returning(infos::id)
@@ -71,12 +71,12 @@ pub fn insert(conn: &mut PgConnection, info: NewInfo) -> Result<Uuid, ServiceErr
     Ok(id)
 }
 
-pub fn query_by_id(conn: &mut PgConnection, id: Uuid) -> Result<Info, ServiceError> {
+pub fn query_by_id(conn: &mut PgConnection, id: Uuid) -> ServiceResult<Info> {
     let info = infos::dsl::infos.find(id).first(conn)?;
     Ok(info)
 }
 
-pub fn query_by_mobile(conn: &mut PgConnection, mobile: String) -> Result<Info, ServiceError> {
+pub fn query_by_mobile(conn: &mut PgConnection, mobile: String) -> ServiceResult<Info> {
     let info = infos::dsl::infos
         .filter(infos::mobile.eq(mobile))
         .first(conn)?;

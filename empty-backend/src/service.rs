@@ -1,8 +1,6 @@
+use create::protos::proto::user::oauth;
 use oauth::o_auth_service_server::{OAuthService, OAuthServiceServer};
-use protos::proto::user::oauth;
 use tonic::{transport::Server, Request, Response, Status};
-
-mod protos;
 
 #[derive(Default)]
 pub struct MyGreeter {}

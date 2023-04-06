@@ -84,10 +84,7 @@ impl NewAccessToken {
     }
 }
 
-pub fn insert(
-    conn: &mut PgConnection,
-    access_token: NewAccessToken,
-) -> Result<AccessToken, ServiceError> {
+pub fn insert(conn: &mut PgConnection, access_token: NewAccessToken) -> ServiceResult<AccessToken> {
     let access_token = diesel::insert_into(access_tokens::dsl::access_tokens)
         .values(access_token)
         .get_result(conn)?;
@@ -97,7 +94,7 @@ pub fn insert(
 pub fn query_by_access_token(
     conn: &mut PgConnection,
     access_token: String,
-) -> Result<AccessToken, ServiceError> {
+) -> ServiceResult<AccessToken> {
     let access_token = access_tokens::table.find(access_token).first(conn)?;
     Ok(access_token)
 }
@@ -105,15 +102,12 @@ pub fn query_by_access_token(
 pub fn query_by_refresh_token(
     conn: &mut PgConnection,
     refresh_token: String,
-) -> Result<AccessToken, ServiceError> {
+) -> ServiceResult<AccessToken> {
     let refresh_token = access_tokens::table.find(refresh_token).first(conn)?;
     Ok(refresh_token)
 }
 
-pub fn delete_by_access_token(
-    conn: &mut PgConnection,
-    access_token: String,
-) -> Result<(), ServiceError> {
+pub fn delete_by_access_token(conn: &mut PgConnection, access_token: String) -> ServiceResult<()> {
     diesel::delete(access_tokens::table.find(access_token)).execute(conn)?;
     Ok(())
 }
@@ -121,7 +115,7 @@ pub fn delete_by_access_token(
 pub fn delete_by_refresh_token(
     conn: &mut PgConnection,
     refresh_token: String,
-) -> Result<(), ServiceError> {
+) -> ServiceResult<()> {
     diesel::delete(access_tokens::table.filter(access_tokens::refresh_token.eq(refresh_token)))
         .execute(conn)?;
     Ok(())

@@ -1,4 +1,4 @@
-use std::{str::FromStr};
+use std::str::FromStr;
 
 use chrono::NaiveDateTime;
 use empty_utils::{errors::ServiceError, tonic::Resp};
@@ -8,7 +8,6 @@ use pb::{
 };
 use state::OAuthState;
 use tokio::sync::Mutex;
-
 
 pub mod model;
 pub mod schema;
@@ -89,7 +88,7 @@ impl FromStr for Client {
     }
 }
 impl Client {
-    pub fn parse<T>(request: &tonic::Request<T>) -> Result<Self, ServiceError> {
+    pub fn parse<T>(request: &tonic::Request<T>) -> ServiceResult<Self> {
         let auth = request.metadata().get("Authorization");
         let auth = match auth {
             Some(auth) => auth
@@ -100,7 +99,7 @@ impl Client {
         let client = auth.parse::<Client>()?;
         Ok(client)
     }
-    pub async fn check(&self, _state: OAuthState) -> Result<(), ServiceError> {
+    pub async fn check(&self, _state: OAuthState) -> ServiceResult<()> {
         todo!()
     }
 }

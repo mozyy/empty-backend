@@ -37,7 +37,7 @@ use crate::model::questions::{Question, QuestionReq, QuestionResp};
 //     answer: QuestionAnswer,
 // }
 
-pub fn get(pool: db::DbPool) -> Result<Vec<QuestionResp>, ServiceError> {
+pub fn get(pool: db::DbPool) -> ServiceResult<Vec<QuestionResp>> {
     // use web::block to offload blocking Diesel code without blocking server thread
     let mut conn = pool.get_conn()?;
     let resp = Question::select_all(&mut conn)?;
@@ -56,7 +56,7 @@ pub fn get(pool: db::DbPool) -> Result<Vec<QuestionResp>, ServiceError> {
     //     .collect();
     // Ok(HttpResponse::Ok().json(res))
 }
-pub fn post(req: &Vec<QuestionReq>, pool: db::DbPool) -> Result<Vec<i32>, ServiceError> {
+pub fn post(req: &Vec<QuestionReq>, pool: db::DbPool) -> ServiceResult<Vec<i32>> {
     // use web::block to offload blocking Diesel code without blocking server thread
     let mut conn = pool.get_conn()?;
     let resp = Question::insert(req, &mut conn)?;
