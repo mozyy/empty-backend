@@ -1,0 +1,92 @@
+syntax = "proto3";
+
+package blog.v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+
+service BlogService {
+  rpc List(ListRequest) returns (ListResponse) {
+    option (google.api.http) = {
+      get: "/blogs"
+    };
+  }
+  rpc Get(GetRequest) returns (GetResponse) {
+    option (google.api.http) = {
+      get: "/blogs/{id}"
+    };
+  }
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      post: "/blogs",
+      body: "*"
+    };
+  }
+  rpc Update(UpdateRequest) returns (UpdateResponse) {
+    option (google.api.http) = {
+      patch: "/blogs/{id}",
+      body: "*"
+    };
+  }
+  rpc Delete(DeleteRequest) returns (DeleteResponse) {
+    option (google.api.http) = {
+      delete: "/blogs/{id}",
+    };
+  }
+}
+
+// Blog item
+message Blog {
+  int32 id = 1; // id
+  string title = 2; // blog title
+  string image = 3; // blog image
+  string summary = 4; // blog summary
+  string markdown = 5; // markdown
+  string author = 6; // author
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+// New Blog item
+message NewBlog {
+  string title = 1; // blog title
+  string image = 2; // blog image
+  string summary = 3; // blog summary
+  string markdown = 4; // markdown
+  string author = 5; // author
+}
+
+message ListRequest {}
+message ListResponse {
+  repeated Blog blog = 1;
+}
+
+message GetRequest {
+  int32 id = 1;
+}
+message GetResponse {
+  Blog blog = 1;
+}
+
+message CreateRequest {
+  NewBlog blog = 1;
+}
+message CreateResponse {
+  Blog blog = 1;
+}
+
+message UpdateRequest {
+  int32 id = 1;
+  NewBlog blog = 2;
+}
+message UpdateResponse {
+  Blog blog = 1;
+}
+
+message DeleteRequest {
+  int32 id = 1;
+  NewBlog blog = 2;
+}
+message DeleteResponse {
+  Blog blog = 1;
+}

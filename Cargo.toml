@@ -8,6 +8,7 @@ members = [
     "empty-registry",
     "empty-template",
     "empty-oauth",
+    "proto",
 ]
 
 [workspace.dependencies]

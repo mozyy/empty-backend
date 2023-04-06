@@ -1,0 +1,237 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "empty-blog",
+    "description": "",
+    "license": {
+      "name": ""
+    },
+    "version": "0.1.0"
+  },
+  "servers": [
+    {
+      "url": "https://yyuck.com/i/api",
+      "description": "Local server"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "tags": [
+          "blog"
+        ],
+        "operationId": "get",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Blog"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "blog"
+        ],
+        "operationId": "post_item",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewBlog"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Blog"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{id}": {
+      "get": {
+        "tags": [
+          "blog"
+        ],
+        "operationId": "get_item",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Blog"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "blog"
+        ],
+        "operationId": "put_item",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewBlog"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "blog"
+        ],
+        "operationId": "delete_item",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Blog": {
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "image",
+          "summary",
+          "markdown",
+          "author",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "author": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "image": {
+            "type": "string"
+          },
+          "markdown": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "NewBlog": {
+        "type": "object",
+        "required": [
+          "title",
+          "image",
+          "summary",
+          "markdown",
+          "author"
+        ],
+        "properties": {
+          "author": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "markdown": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "blog",
+      "description": "blog api"
+    }
+  ]
+}
