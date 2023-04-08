@@ -30,6 +30,7 @@ static_resources:
               "@type": type.googleapis.com/envoy.extensions.filters.http.grpc_json_transcoder.v3.GrpcJsonTranscoder
               proto_descriptor: "/proto/blog/blog.pb"
               services: ["blog.v1.BlogService"]
+              match_incoming_request_route: true
               print_options:
                 add_whitespace: true
                 always_print_primitive_fields: true
