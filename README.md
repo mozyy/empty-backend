@@ -9,7 +9,7 @@ protoc -I./proto/proto \
   --openapiv2_out=../empty-frontend/src/api/openapi \
   ./proto/proto/blog/blog.proto
 
-sudo docker run -it --rm --network="host" \
+sudo docker run --name envoy -it --rm --network="host" \
   -v "$(pwd)/proto/proto:/proto:ro" \
   -v "$(pwd)/envoy.yaml:/etc/envoy/envoy.yaml:ro" \
   envoyproxy/envoy:v1.25-latest

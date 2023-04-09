@@ -12,8 +12,11 @@ pub struct Service {
 #[tonic::async_trait]
 impl BlogService for Service {
     async fn list(&self, _request: Request<blog::ListRequest>) -> Resp<blog::ListResponse> {
+        log::debug!("request list");
         let mut conn = self.db.get_conn()?;
+        log::debug!("get conn");
         let blogs = model::query_list(&mut conn).await?;
+        log::debug!("get blogs");
         Ok(Response::new(blog::ListResponse {
             blogs: blogs.into_iter().map(blog::Blog::from).collect(),
         }))

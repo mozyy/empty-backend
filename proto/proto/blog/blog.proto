@@ -10,7 +10,7 @@ import "protoc-gen-openapiv2/options/annotations.proto";
 option go_package = "blog.v1";
 
  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
-   host: "http://127.0.0.1:51051";
+   host: "127.0.0.1:51051";
  };
 
 service BlogService {

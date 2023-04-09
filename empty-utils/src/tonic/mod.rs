@@ -1,3 +1,19 @@
+use std::{iter::once, time::Duration};
+
+use hyper::header;
+use tonic::transport::Server;
+use tower::{
+    layer::util::{Identity, Stack},
+    timeout::TimeoutLayer,
+    ServiceBuilder,
+};
+use tower_http::{
+    classify::{GrpcCode, GrpcErrorsAsFailures, SharedClassifier},
+    compression::CompressionLayer,
+    sensitive_headers::SetSensitiveHeadersLayer,
+    trace::{DefaultMakeSpan, TraceLayer},
+};
+
 pub type Resp<T> = core::result::Result<tonic::Response<T>, tonic::Status>;
 
 pub struct Response<T>(pub T);
@@ -26,3 +42,27 @@ impl<T> From<Response<T>> for Resp<T> {
 //         todo!()
 //     }
 // }
+
+pub fn server() -> Server<
+    Stack<
+        Stack<TraceLayer<SharedClassifier<GrpcErrorsAsFailures>>, Stack<TimeoutLayer, Identity>>,
+        Identity,
+    >,
+> {
+    // Build our middleware stack
+    let layer = ServiceBuilder::new()
+        // Set a timeout
+        .timeout(Duration::from_secs(10))
+        // Compress responses
+        // .layer(CompressionLayer::new())
+        // Mark the `Authorization` header as sensitive so it doesn't show in logs
+        // .layer(SetSensitiveHeadersLayer::new(once(header::AUTHORIZATION)))
+        // Log all requests and responses
+        .layer(
+            tower_http::trace::TraceLayer::new_for_grpc(), // .on_request(DefaultMakeSpan::new().include_headers(true)),
+        )
+        .into_inner();
+
+    let server = Server::builder().layer(layer);
+    server
+}

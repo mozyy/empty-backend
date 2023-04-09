@@ -1,5 +1,5 @@
 use blog::service::Service;
-use empty_utils::errors::ServiceResult;
+use empty_utils::{errors::ServiceResult, tonic::server};
 use proto::blog::blog_service_server::BlogServiceServer;
 use tonic::transport::{NamedService, Server};
 
@@ -10,13 +10,13 @@ async fn main() -> ServiceResult {
     let addr = "127.0.0.1:50051".parse().unwrap();
     let greeter = Service::default();
 
-    println!(
+    log::info!(
         "GreeterServer listening on {}, name: {}",
         addr,
         BlogServiceServer::<Service>::NAME
     );
 
-    Server::builder()
+    server()
         .add_service(BlogServiceServer::new(greeter))
         .serve(addr)
         .await?;
