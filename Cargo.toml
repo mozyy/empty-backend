@@ -10,6 +10,7 @@ members = [
     "empty-oauth",
     "proto",
     "blog",
+    "file",
 ]
 
 [workspace.dependencies]

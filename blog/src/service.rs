@@ -1,5 +1,5 @@
 use empty_utils::{diesel::db, errors::ServiceError, tonic::Resp};
-use proto::blog::{self, blog_service_server::BlogService};
+use proto::pb::blog::{self, blog_service_server::BlogService};
 use tonic::{Request, Response};
 
 use crate::model;

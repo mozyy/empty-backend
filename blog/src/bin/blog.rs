@@ -1,13 +1,13 @@
 use blog::service::Service;
 use empty_utils::{errors::ServiceResult, tonic::server};
-use proto::blog::blog_service_server::BlogServiceServer;
+use proto::pb::blog::blog_service_server::BlogServiceServer;
 use tonic::transport::{NamedService, Server};
 
 #[tokio::main]
 async fn main() -> ServiceResult {
     empty_utils::init();
 
-    let addr = "127.0.0.1:50051".parse().unwrap();
+    let addr = "0.0.0.0:50051".parse().unwrap();
     let greeter = Service::default();
 
     log::info!(

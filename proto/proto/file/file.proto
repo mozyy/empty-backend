@@ -1,94 +1,88 @@
 syntax = "proto3";
 
-package blog.v1;
+package file.v1;
 
 
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
+import "google/api/httpbody.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
-option go_package = "blog.v1";
+option go_package = "file.v1";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   host: "yyuck.com";
   schemes: HTTPS;
 };
 
-service BlogService {
+service FileService {
   rpc List(ListRequest) returns (ListResponse) {
     option (google.api.http) = {
-      get: "/blog.v1.BlogService/blogs"
+      get: "/file.v1.FileService/files"
     };
   }
   rpc Get(GetRequest) returns (GetResponse) {
     option (google.api.http) = {
-      get: "/blog.v1.BlogService/blogs/{id}"
+      get: "/file.v1.FileService/files/{id}"
     };
   }
   rpc Create(CreateRequest) returns (CreateResponse) {
     option (google.api.http) = {
-      post: "/blog.v1.BlogService/blogs",
+      post: "/file.v1.FileService/files",
       body: "*"
     };
   }
   rpc Update(UpdateRequest) returns (UpdateResponse) {
     option (google.api.http) = {
-      patch: "/blog.v1.BlogService/blogs/{id}",
+      patch: "/file.v1.FileService/files/{id}",
       body: "*"
     };
   }
   rpc Delete(DeleteRequest) returns (DeleteResponse) {
     option (google.api.http) = {
-      delete: "/blog.v1.BlogService/blogs/{id}",
+      delete: "/file.v1.FileService/files/{id}",
     };
   }
 }
 
-// Blog item
-message Blog {
+// File item
+message File {
   int32 id = 1; // id
-  string title = 2; // blog title
-  string image = 3; // blog image
-  string summary = 4; // blog summary
-  string markdown = 5; // markdown
-  string author = 6; // author
-  google.protobuf.Timestamp created_at = 7;
-  google.protobuf.Timestamp updated_at = 8;
+  google.api.HttpBody http_body = 2;
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
 }
-// New Blog item
-message NewBlog {
-  string title = 1; // blog title
-  string image = 2; // blog image
-  string summary = 3; // blog summary
-  string markdown = 4; // markdown
-  string author = 5; // author
+// New File item
+message NewFile {
+  // The raw HTTP body is bound to this field.
+  google.api.HttpBody http_body = 1;
 }
 
 message ListRequest {}
 message ListResponse {
-  repeated Blog blogs = 1;
+  repeated File files = 1;
 }
 
 message GetRequest {
   int32 id = 1;
 }
 message GetResponse {
-  Blog blog = 1;
+  File file = 1;
 }
 
 message CreateRequest {
-  NewBlog blog = 1;
+  NewFile file = 1;
 }
 message CreateResponse {
-  Blog blog = 1;
+  File file = 1;
 }
 
 message UpdateRequest {
   int32 id = 1;
-  NewBlog blog = 2;
+  NewFile file = 2;
 }
 message UpdateResponse {
-  Blog blog = 1;
+  File file = 1;
 }
 
 message DeleteRequest {

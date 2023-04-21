@@ -4,7 +4,7 @@ use empty_utils::{
     convert::naive_date_time_to_timestamp,
     errors::{ServiceError, ServiceResult},
 };
-use proto::blog;
+use proto::pb::blog;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 

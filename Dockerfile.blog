@@ -1,0 +1,5 @@
+FROM debian:bullseye-slim
+RUN apt-get update && apt-get install -y libpq-dev && rm -rf /var/lib/apt/lists/*
+COPY target/release/blog /usr/local/bin/blog
+EXPOSE 50051
+CMD ["blog"]

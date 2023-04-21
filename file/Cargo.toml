@@ -1,0 +1,29 @@
+[package]
+name = "file"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde = { workspace = true, features = ["derive"] }
+serde_json = {workspace = true}
+log = {workspace = true}
+utoipa = {workspace = true, features = ["axum_extras", "chrono", "uuid"] }
+utoipa-swagger-ui ={workspace = true, features = ["axum"] }
+diesel = { workspace = true, features = ["postgres", "r2d2", "chrono", "uuid"] }
+chrono = {workspace = true, features = ["serde"] }
+uuid= { workspace = true, features = ["serde"] }
+dotenvy = {workspace = true}
+
+
+tonic = { workspace = true }
+tokio = {workspace = true, features = ["macros", "rt-multi-thread"]}
+tracing ={workspace = true}
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
+thiserror = {workspace = true}
+tower-http = { workspace = true, features = ["cors", "trace", "compression-br", "compression-gzip","set-header"] }
+
+
+empty-utils = { workspace = true }
+proto = { workspace = true }

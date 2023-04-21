@@ -14,7 +14,8 @@ impl DbPool {
     fn new() -> Self {
         // set up database connection pool
         let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-        let manager = ConnectionManager::<PgConnection>::new(&database_url);
+            log::debug!("Connection Pg pool database:111 {database_url}");
+            let manager = ConnectionManager::<PgConnection>::new(&database_url);
         let db_pool = r2d2::Pool::builder()
             .max_size(5)
             .build(manager)
