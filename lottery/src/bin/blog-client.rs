@@ -17,4 +17,4 @@
 //     log::info!("connect success");
 //     dbg!(blogs);
 // }
-fn main(){}
+fn main() {}

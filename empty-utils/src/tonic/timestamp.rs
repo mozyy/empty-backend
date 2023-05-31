@@ -1,10 +1,8 @@
-use chrono::{Duration, NaiveDate, NaiveDateTime, Timelike};
+use chrono::{NaiveDate, NaiveDateTime, Timelike};
 use diesel::{
-    backend::{self, Backend},
     data_types::PgTimestamp,
     deserialize::{self, FromSql},
     pg::{Pg, PgValue},
-    prelude::*,
     serialize::{self, Output, ToSql},
     sql_types, AsExpression, FromSqlRow,
 };

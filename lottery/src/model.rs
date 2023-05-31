@@ -1,8 +1,6 @@
 use crate::pb;
 use diesel::prelude::*;
-use empty_utils::{
-    errors::{ServiceError, ServiceResult},
-};
+use empty_utils::errors::{ServiceError, ServiceResult};
 
 use crate::schema::{items, lotterys, remarks};
 
@@ -16,40 +14,68 @@ pub async fn query_list(conn: &mut PgConnection) -> ServiceResult<Vec<pb::Lotter
         .load(conn)?
         .grouped_by(&lotterys);
 
-    let lotterys = lotterys.into_iter().zip(items).zip(remarks).map(|((lottery, items), remarks)|pb::Lottery{
-            lottery:Some(lottery),
+    let lotterys = lotterys
+        .into_iter()
+        .zip(items)
+        .zip(remarks)
+        .map(|((lottery, items), remarks)| pb::Lottery {
+            lottery: Some(lottery),
             items,
             remarks,
-    }).collect();
+        })
+        .collect();
     Ok(lotterys)
 }
 pub async fn query_by_id(conn: &mut PgConnection, id: i32) -> ServiceResult<pb::Lottery> {
     let lottery = lotterys::table.find(id).first::<pb::LotteryInfo>(conn)?;
     let items = pb::Item::belonging_to(&lottery).load::<pb::Item>(conn)?;
     let remarks = pb::Remark::belonging_to(&lottery).load::<pb::Remark>(conn)?;
-    let lottery = pb::Lottery{lottery:Some(lottery),items, remarks};
+    let lottery = pb::Lottery {
+        lottery: Some(lottery),
+        items,
+        remarks,
+    };
     Ok(lottery)
 }
-pub async fn insert(
-    conn: &mut PgConnection,
-    value: pb::NewLottery,
-) -> ServiceResult<pb::Lottery> {
+pub async fn insert(conn: &mut PgConnection, value: pb::NewLottery) -> ServiceResult<pb::Lottery> {
     let lottery = diesel::insert_into(lotterys::table)
         .values(value.lottery)
         .get_result::<pb::LotteryInfo>(conn)?;
     let items = diesel::insert_into(items::table)
-    .values(value.items.into_iter().map(|i|(
-        items::name.eq(i.name),
-        items::value.eq(i.value),
-        items::lottery_id.eq(lottery.id)
-    )).collect::<Vec<_>>()).get_results::<pb::Item>(conn)?;
+        .values(
+            value
+                .items
+                .into_iter()
+                .map(|i| {
+                    (
+                        items::name.eq(i.name),
+                        items::value.eq(i.value),
+                        items::lottery_id.eq(lottery.id),
+                    )
+                })
+                .collect::<Vec<_>>(),
+        )
+        .get_results::<pb::Item>(conn)?;
     let remarks = diesel::insert_into(remarks::table)
-    .values(value.remarks.into_iter().map(|i|(
-        remarks::name.eq(i.name),
-        remarks::require.eq(i.require),
-        remarks::lottery_id.eq(lottery.id)
-    )).collect::<Vec<_>>()).get_results::<pb::Remark>(conn)?;
-    let lottery = pb::Lottery{lottery:Some(lottery), items,remarks};
+        .values(
+            value
+                .remarks
+                .into_iter()
+                .map(|i| {
+                    (
+                        remarks::name.eq(i.name),
+                        remarks::require.eq(i.require),
+                        remarks::lottery_id.eq(lottery.id),
+                    )
+                })
+                .collect::<Vec<_>>(),
+        )
+        .get_results::<pb::Remark>(conn)?;
+    let lottery = pb::Lottery {
+        lottery: Some(lottery),
+        items,
+        remarks,
+    };
     Ok(lottery)
 }
 // TODO: patch
@@ -64,19 +90,41 @@ pub async fn update_by_id(
         .get_result::<pb::LotteryInfo>(conn)?;
     diesel::delete(items::table.filter(items::lottery_id.eq(id))).execute(conn)?;
     let items = diesel::insert_into(items::table)
-    .values(value.items.into_iter().map(|i|(
-        items::name.eq(i.name),
-        items::value.eq(i.value),
-        items::lottery_id.eq(id)
-    )).collect::<Vec<_>>()).get_results::<pb::Item>(conn)?;
+        .values(
+            value
+                .items
+                .into_iter()
+                .map(|i| {
+                    (
+                        items::name.eq(i.name),
+                        items::value.eq(i.value),
+                        items::lottery_id.eq(id),
+                    )
+                })
+                .collect::<Vec<_>>(),
+        )
+        .get_results::<pb::Item>(conn)?;
     diesel::delete(remarks::table.filter(remarks::lottery_id.eq(id))).execute(conn)?;
     let remarks = diesel::insert_into(remarks::table)
-    .values(value.remarks.into_iter().map(|i|(
-        remarks::name.eq(i.name),
-        remarks::require.eq(i.require),
-        remarks::lottery_id.eq(id)
-    )).collect::<Vec<_>>()).get_results::<pb::Remark>(conn)?;
-    let lottery = pb::Lottery{lottery:Some(lottery), items,remarks};
+        .values(
+            value
+                .remarks
+                .into_iter()
+                .map(|i| {
+                    (
+                        remarks::name.eq(i.name),
+                        remarks::require.eq(i.require),
+                        remarks::lottery_id.eq(id),
+                    )
+                })
+                .collect::<Vec<_>>(),
+        )
+        .get_results::<pb::Remark>(conn)?;
+    let lottery = pb::Lottery {
+        lottery: Some(lottery),
+        items,
+        remarks,
+    };
     Ok(lottery)
 }
 pub async fn delete_by_id(conn: &mut PgConnection, id: i32) -> ServiceResult {

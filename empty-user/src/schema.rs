@@ -38,8 +38,4 @@ diesel::table! {
 
 diesel::joinable!(access_tokens -> infos (info_id));
 
-diesel::allow_tables_to_appear_in_same_query!(
-    access_tokens,
-    infos,
-    scopes,
-);
+diesel::allow_tables_to_appear_in_same_query!(access_tokens, infos, scopes,);

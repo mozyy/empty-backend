@@ -1,7 +1,7 @@
-use std::{iter::once, time::Duration};
+use std::{time::Duration};
 pub mod timestamp;
 
-use hyper::header;
+
 use tonic::transport::Server;
 use tower::{
     layer::util::{Identity, Stack},
@@ -9,9 +9,8 @@ use tower::{
     ServiceBuilder,
 };
 use tower_http::{
-    classify::{GrpcCode, GrpcErrorsAsFailures, SharedClassifier},
-    sensitive_headers::SetSensitiveHeadersLayer,
-    trace::{DefaultMakeSpan, TraceLayer},
+    classify::{GrpcErrorsAsFailures, SharedClassifier},
+    trace::{TraceLayer},
 };
 
 pub type Resp<T> = core::result::Result<tonic::Response<T>, tonic::Status>;

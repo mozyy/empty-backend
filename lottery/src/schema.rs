@@ -37,8 +37,4 @@ diesel::table! {
 diesel::joinable!(items -> lotterys (lottery_id));
 diesel::joinable!(remarks -> lotterys (lottery_id));
 
-diesel::allow_tables_to_appear_in_same_query!(
-    items,
-    lotterys,
-    remarks,
-);
+diesel::allow_tables_to_appear_in_same_query!(items, lotterys, remarks,);
