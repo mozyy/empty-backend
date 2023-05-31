@@ -1,5 +1,5 @@
 [package]
-name = "blog"
+name = "lottery"
 version = "0.1.0"
 edition = "2021"
 
@@ -26,12 +26,10 @@ tower-http = { workspace = true, features = ["cors", "trace", "compression-br", 
 
 
 empty-utils = { workspace = true }
-proto = { workspace = true }
+# proto = { workspace = true }
 
-# template
 prost = {workspace = true}
 prost-types = {workspace = true}
-prost-wkt-types = { workspace = true }
 
 [build-dependencies]
 tonic-build = {workspace = true}

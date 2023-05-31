@@ -7,9 +7,10 @@ edition = "2021"
 
 [dependencies]
 tonic = {workspace = true}
-diesel = {workspace = true}
+diesel = { workspace = true, features = ["postgres", "r2d2", "chrono", "uuid"] }
 serde = { workspace = true, features = ["derive"] }
 chrono = {workspace = true, features = ["serde"]}
+prost = {workspace = true}
 prost-types = {workspace = true}
 log = {workspace = true}
 tracing-subscriber = { workspace = true, features = ["env-filter"] }

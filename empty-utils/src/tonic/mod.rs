@@ -1,4 +1,5 @@
 use std::{iter::once, time::Duration};
+pub mod timestamp;
 
 use hyper::header;
 use tonic::transport::Server;
@@ -9,7 +10,6 @@ use tower::{
 };
 use tower_http::{
     classify::{GrpcCode, GrpcErrorsAsFailures, SharedClassifier},
-    compression::CompressionLayer,
     sensitive_headers::SetSensitiveHeadersLayer,
     trace::{DefaultMakeSpan, TraceLayer},
 };

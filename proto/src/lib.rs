@@ -5,6 +5,9 @@ pub mod pb {
     pub mod file {
         tonic::include_proto!("file.v1");
     }
+    pub mod lottery {
+        tonic::include_proto!("lottery.v1");
+    }
 }
 
 pub mod google {

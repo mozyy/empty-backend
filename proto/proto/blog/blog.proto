@@ -52,7 +52,7 @@ message Blog {
   string summary = 4; // blog summary
   string markdown = 5; // markdown
   string author = 6; // author
-  google.protobuf.Timestamp created_at = 7;
+  optional google.protobuf.Timestamp created_at = 7;
   google.protobuf.Timestamp updated_at = 8;
 }
 // New Blog item

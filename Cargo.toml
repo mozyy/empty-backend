@@ -11,6 +11,7 @@ members = [
     "proto",
     "blog",
     "file",
+    "lottery",
 ]
 
 [workspace.dependencies]
@@ -29,22 +30,25 @@ futures = "0.3"
 rand = "0.8.4"
 
 # database
-diesel = { version = "2.0", features = ["postgres", "r2d2", "chrono", "uuid"] }
+diesel = { version = "2.0.4", features = ["postgres", "r2d2", "chrono", "uuid"] }
 chrono = { version = "0.4", features = ["serde"] }
 uuid= { version = "1.3", features = ["serde", "v4"] }
 dotenvy = "0.15"
 diesel_cli_ext="0.3"
 
 # grpc
-tonic = "0.8"
+tonic = "0.9"
 prost = "0.11"
-tonic-health = "0.8"
+tonic-health = "0.9"
 prost-types = "0.11"
 tower-http = { version = "0.4", features = ["cors", "trace"] }
-tonic-build = "0.8"
-prost-build = "*"
+tonic-build = "0.9"
+prost-build = "0.11"
 hyper = "0.14"
 tower = "0.4"
+
+prost-wkt = "0.4"
+prost-wkt-types = "0.4"
 
 # rustful
 axum = { version = "0.6", features = ["http2"] }
@@ -60,7 +64,7 @@ empty-macro = { path="empty-macro" }
 proto = { path="proto" }
 
 # micro
-syn = "1.0"
+syn = "2.0"
 quote = "1.0"
 proc-macro2="1.0"
 convert_case = "0.6"
@@ -69,4 +73,4 @@ convert_case = "0.6"
 tempfile ="3.4"
 
 # 
-oxide-auth = "*"
+oxide-auth = "0.5"
