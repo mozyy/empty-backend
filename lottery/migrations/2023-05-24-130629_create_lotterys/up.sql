@@ -1,33 +1,24 @@
 -- Your SQL goes here
 
+CREATE TYPE item AS (
+  name TEXT,
+  value INTEGER
+);
+
+CREATE TYPE remark AS (
+  name TEXT,
+  require BOOLEAN
+);
 
 CREATE TABLE lotterys (
   id SERIAL PRIMARY KEY,
   title TEXT NOT NULL,
   type INTEGER NOT NULL,
+  items item[] NOT NULL,
   remark BOOLEAN NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  remarks remark[] NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 SELECT diesel_manage_updated_at('lotterys');
-
-CREATE TABLE items (
-  id SERIAL PRIMARY KEY,
-  name TEXT NOT NULL,
-  value INTEGER NOT NULL,
-  lottery_id INTEGER  NOT NULL REFERENCES lotterys(id),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-SELECT diesel_manage_updated_at('items');
-
-CREATE TABLE remarks (
-  id SERIAL PRIMARY KEY,
-  name TEXT NOT NULL,
-  require BOOLEAN NOT NULL,
-  lottery_id INTEGER  NOT NULL REFERENCES lotterys(id),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-SELECT diesel_manage_updated_at('remarks');

@@ -54,56 +54,33 @@ enum Type {
 
 // Lottery item
 message Item {
-  int32 id = 1; // id
-  string name = 2; // lottery title
-  int32 value = 3; // lottery summary
-  int32 lottery_id = 4; // id
-  google.protobuf.Timestamp created_at = 5;
-  google.protobuf.Timestamp updated_at = 6;
-}
-message NewItem {
   string name = 1; // lottery title
   int32 value = 2; // lottery summary
 }
 // Lottery item
 message Remark {
-  int32 id = 1; // id
-  string name = 2; // lottery title
-  bool require = 3; // lottery summary
-  int32 lottery_id = 4; // id
-  google.protobuf.Timestamp created_at = 5;
-  google.protobuf.Timestamp updated_at = 6;
-}
-message NewRemark {
   string name = 1; // lottery title
   bool require = 2; // lottery summary
 }
 
 // Lottery item
-message LotteryInfo {
+message Lottery {
   int32 id = 1; // id
   string title = 2; // lottery title
   Type type = 3; // lottery image
-  bool remark = 4; // lottery summary
-  google.protobuf.Timestamp created_at = 5;
-  google.protobuf.Timestamp updated_at = 6;
+  repeated Item items = 4;
+  bool remark = 5; // lottery summary
+  repeated Remark remarks = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
 }
-// Lottery item
-message Lottery {
-  LotteryInfo lottery = 1;
-  repeated Item items = 2;
-  repeated Remark remarks = 3;
-}
-// New Blog item
-message NewLotteryInfo {
+
+message NewLottery {
   string title = 1; // lottery title
   Type type = 2; // lottery image
-  bool remark = 3; // lottery summary
-}
-message NewLottery {
-  NewLotteryInfo lottery = 1; // lottery title
-  repeated NewItem items = 2; // lottery image
-  repeated NewRemark remarks = 3; // lottery summary
+  repeated Item items = 3; // lottery image
+  bool remark = 4; // lottery summary
+  repeated Remark remarks = 5; // lottery summary
 }
 
 message ListRequest {}

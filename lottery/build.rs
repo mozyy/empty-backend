@@ -3,42 +3,35 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // .out_dir("../protos")
         .type_attribute(
             "lottery.v1.Item",
-            "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Associations, ::diesel::prelude::Selectable)]
-            #[diesel(table_name=crate::schema::items)]
-            #[diesel(belongs_to(LotteryInfo, foreign_key = lottery_id))]",
-        )
-        .type_attribute(
-            "lottery.v1.NewItem",
-            "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
-            #[diesel(table_name=crate::schema::items)]",
+            "#[derive(::diesel::FromSqlRow, ::diesel::AsExpression)]
+            #[diesel(sql_type = crate::schema::sql_types::Item)]",
         )
         .type_attribute(
             "lottery.v1.Remark",
-            "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Associations, ::diesel::prelude::Selectable)]
-            #[diesel(table_name=crate::schema::remarks,belongs_to(LotteryInfo, foreign_key = lottery_id))]",
+            "#[derive(::diesel::FromSqlRow, ::diesel::AsExpression)]
+            #[diesel(sql_type = crate::schema::sql_types::Remark)]",
         )
         .type_attribute(
-            "lottery.v1.NewRemark",
-            "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
-            #[diesel(table_name=crate::schema::remarks)]",
-        )
-        .type_attribute(
-            "lottery.v1.LotteryInfo",
+            "lottery.v1.Lottery",
             "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable)]
             #[diesel(table_name=crate::schema::lotterys)]",
         )
         .type_attribute(
-            "lottery.v1.NewLotteryInfo",
+            "lottery.v1.NewLottery",
             "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
             #[diesel(table_name=crate::schema::lotterys)]",
         )
         .field_attribute(
-            "lottery.v1.LotteryInfo.type",
+            "type",
             "#[diesel(column_name = \"type_\")]",
         )
         .field_attribute(
-            "lottery.v1.NewLotteryInfo.type",
-            "#[diesel(column_name = \"type_\")]",
+            "created_at",
+            "#[diesel(deserialize_as = ::empty_utils::tonic::timestamp::Timestamp)]",
+        )
+        .field_attribute(
+            "updated_at",
+            "#[diesel(deserialize_as = ::empty_utils::tonic::timestamp::Timestamp)]",
         )
         .extern_path(
             ".google.protobuf.Timestamp",

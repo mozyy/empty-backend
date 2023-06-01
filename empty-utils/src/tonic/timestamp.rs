@@ -142,6 +142,14 @@ impl From<chrono::NaiveDateTime> for Timestamp {
         }
     }
 }
+// impl From<chrono::NaiveDateTime> for Timestamp {
+//     fn from(time: chrono::NaiveDateTime) -> Self {
+//         Self {
+//             seconds: time.timestamp(),
+//             nanos: time.nanosecond() as i32,
+//         }
+//     }
+// }
 
 // impl<DB> ToSql<sql_types::Timestamp, DB> for Timestamp
 // where

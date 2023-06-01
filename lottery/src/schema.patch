@@ -1,0 +1,20 @@
+diff --git a/lottery/src/schema.rs b/lottery/src/schema.rs
+index 9fe3f0c..010ddba 100644
+--- a/lottery/src/schema.rs
++++ b/lottery/src/schema.rs
+@@ -17,13 +17,13 @@ diesel::table! {
+ 
+     lotterys (id) {
+         id -> Int4,
+         title -> Text,
+         #[sql_name = "type"]
+         type_ -> Int4,
+-        items -> Array<Nullable<Item>>,
++        items -> Array<Item>,
+         remark -> Bool,
+-        remarks -> Array<Nullable<Remark>>,
++        remarks -> Array<Remark>,
+         created_at -> Timestamp,
+         updated_at -> Timestamp,
+     }
+ }
