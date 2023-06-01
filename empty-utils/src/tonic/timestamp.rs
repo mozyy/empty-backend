@@ -7,6 +7,8 @@ use diesel::{
     sql_types, AsExpression, FromSqlRow,
 };
 
+// ----------------------- https://github.com/tokio-rs/prost/blob/master/prost-types/src/protobuf.rs#L2296
+
 // #[derive(AsExpression, FromSqlRow, Debug, Clone, PartialEq)]
 // #[diesel(sql_type = sql_types::Timestamp)]
 // #[diesel(sql_type = sql_types::Timestamptz)]
@@ -142,25 +144,9 @@ impl From<chrono::NaiveDateTime> for Timestamp {
         }
     }
 }
-// impl From<chrono::NaiveDateTime> for Timestamp {
-//     fn from(time: chrono::NaiveDateTime) -> Self {
-//         Self {
-//             seconds: time.timestamp(),
-//             nanos: time.nanosecond() as i32,
-//         }
-//     }
-// }
 
-// impl<DB> ToSql<sql_types::Timestamp, DB> for Timestamp
-// where
-//     DB: Backend,
-//     Self: ToSql<sql_types::Timestamp, DB>,
-// {
-//     fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, DB>) -> serialize::Result {
-//         chrono::NaiveDateTime::from(self).to_sql(out)
-//     }
-// }
 
+// ------------------------ https://github.com/diesel-rs/diesel/blob/master/diesel/src/pg/types/date_and_time/chrono.rs#L14
 // Postgres timestamps start from January 1st 2000.
 fn pg_epoch() -> NaiveDateTime {
     NaiveDate::from_ymd_opt(2000, 1, 1)

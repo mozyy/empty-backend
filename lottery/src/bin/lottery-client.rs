@@ -10,6 +10,16 @@ async fn main() {
     let mut client = pb::lottery_service_client::LotteryServiceClient::connect(base_url.to_owned())
         .await
         .unwrap();
+
+    let create = client
+        .create(tonic::Request::new(pb::CreateRequest {
+            lottery: Some(pb::NewLottery{ title: String::from("title"), r#type: pb::Type::Percent.into(), 
+            items: vec![pb::Item{name:String::from("item name1"),value: 1}, 
+            pb::Item{name:String::from("item name2"),value: 2}], remark: true, remarks: vec![] })
+        }))
+        .await
+        .unwrap();
+    dbg!(create);
     let blogs = client
         .list(tonic::Request::new(pb::ListRequest {}))
         .await
