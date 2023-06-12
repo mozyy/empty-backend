@@ -2,8 +2,7 @@ use axum::{extract::State, response::IntoResponse, Json};
 use empty_utils::diesel::db;
 
 use crate::{
-    model::{questions::QuestionReq, response::ResponseBody},
-    service::questions,
+    model::{questions::QuestionReq, response::ResponseBody}, service::questions,
 };
 
 #[utoipa::path(

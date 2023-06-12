@@ -1,6 +1,6 @@
 use blog::service::Service;
 use empty_utils::{errors::ServiceResult, tonic::server};
-use proto::pb::blog::blog_service_server::BlogServiceServer;
+use blog::pb::blog_service_server::BlogServiceServer;
 use tonic::transport::{NamedService, Server};
 
 #[tokio::main]

@@ -9,9 +9,14 @@ use std::sync::{Arc, Mutex};
 
 use uuid::Uuid;
 
-#[derive(Clone, Default)]
+#[derive(Clone)]
 pub struct RegistryDB {
     db_pool: db::DbPool,
+}
+impl Default for RegistryDB {
+    fn default() -> Self {
+        Self { db_pool: db::DbPool::new("empty_registry") }
+    }
 }
 
 #[derive(Insertable)]

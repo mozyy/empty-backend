@@ -1,26 +1,26 @@
 use axum::extract::{FromRequest};
+use empty_utils::errors::{ServiceResult, ServiceError};
 use oxide_auth_axum::{OAuthRequest, OAuthResponse, WebError};
 
-use super::Result;
-use crate::model::oauth::OAuthState;
+use crate::{model::oauth::OAuthState};
 
-pub async fn get_authorize(req: OAuthRequest) -> Result<OAuthResponse> {
+pub async fn get_authorize(req: OAuthRequest) -> ServiceResult<OAuthResponse> {
     // GET requests should not mutate server state and are extremely
     // vulnerable accidental repetition as well as Cross-Site Request
     // Forgery (CSRF).
     let mut flow = OAuthState::new().endpoint.authorization_flow();
     log::info!("get auth");
-    let r = flow.execute(req)?;
+    let r = flow.execute(req).map_err(|_|ServiceError::String(String::from("oauth")))?;
     Ok(r)
 }
 
-pub async fn get_clients(req: OAuthRequest) -> Result<OAuthResponse> {
+pub async fn get_clients(req: OAuthRequest) -> ServiceResult<OAuthResponse> {
     // GET requests should not mutate server state and are extremely
     // vulnerable accidental repetition as well as Cross-Site Request
     // Forgery (CSRF).
     let mut flow = OAuthState::new().endpoint.authorization_flow();
     log::info!("infoooooooo!3");
-    let r = flow.execute(req)?;
+    let r = flow.execute(req).map_err(|_|ServiceError::String(String::from("oauth")))?;
     Ok(r)
 }
 

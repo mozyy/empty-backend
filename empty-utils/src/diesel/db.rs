@@ -11,16 +11,16 @@ use crate::errors::{ServiceResult};
 pub struct DbPool(r2d2::Pool<ConnectionManager<PgConnection>>);
 
 impl DbPool {
-    fn new() -> Self {
+    pub fn new(table: &str) -> Self {
         // set up database connection pool
-        let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-        log::debug!("Connection Pg pool database:111 {database_url}");
+        let database_url = env::var("DATABASE_URL_BASE").expect("DATABASE_URL_BASE must be set");
+        let database_url = format!("{database_url}/{table}");
         let manager = ConnectionManager::<PgConnection>::new(&database_url);
         let db_pool = r2d2::Pool::builder()
             .max_size(5)
             .build(manager)
             .expect("Failed to create pool.");
-        if let Some((_, database)) = database_url.split_once('@') {
+        if let Some((_, database)) = &database_url.split_once('@') {
             log::debug!("Connection Pg pool database: {database}");
         } else {
             log::debug!("Connection Pg pool database_url: {database_url}");
@@ -35,8 +35,8 @@ impl DbPool {
     }
 }
 
-impl Default for DbPool {
-    fn default() -> Self {
-        Self::new()
-    }
-}
+// impl Default for DbPool {
+//     fn default() -> Self {
+//         Self::new()
+//     }
+// }

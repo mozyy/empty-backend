@@ -1,45 +1,46 @@
 syntax = "proto3";
 
-package blog.v1;
+package blog;
 
 
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
-option go_package = "blog.v1";
+option go_package = "blog";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
-  host: "yyuck.com";
   schemes: HTTPS;
+  host: "yyuck.com";
+  base_path: "/blog.BlogService";
 };
 
 service BlogService {
   rpc List(ListRequest) returns (ListResponse) {
     option (google.api.http) = {
-      get: "/blog.v1.BlogService/blogs"
+      get: "/blogs"
     };
   }
   rpc Get(GetRequest) returns (GetResponse) {
     option (google.api.http) = {
-      get: "/blog.v1.BlogService/blogs/{id}"
+      get: "/blogs/{id}"
     };
   }
   rpc Create(CreateRequest) returns (CreateResponse) {
     option (google.api.http) = {
-      post: "/blog.v1.BlogService/blogs",
+      post: "/blogs",
       body: "*"
     };
   }
   rpc Update(UpdateRequest) returns (UpdateResponse) {
     option (google.api.http) = {
-      patch: "/blog.v1.BlogService/blogs/{id}",
+      patch: "/blogs/{id}",
       body: "*"
     };
   }
   rpc Delete(DeleteRequest) returns (DeleteResponse) {
     option (google.api.http) = {
-      delete: "/blog.v1.BlogService/blogs/{id}",
+      delete: "/blogs/{id}",
     };
   }
 }

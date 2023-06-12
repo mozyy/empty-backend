@@ -4,9 +4,14 @@ use tonic::{Request, Response};
 
 use crate::model;
 
-#[derive(Default)]
 pub struct Service {
     db: db::DbPool,
+}
+
+impl Default for Service {
+    fn default() -> Self {
+        Self { db: db::DbPool::new("lottery") }
+    }
 }
 
 #[tonic::async_trait]

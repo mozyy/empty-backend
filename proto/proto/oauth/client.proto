@@ -1,46 +1,46 @@
 syntax = "proto3";
 
-package lottery;
+package oauth;
 
 
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
-option go_package = "lottery";
+option go_package = "oauth.v1";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   schemes: HTTPS;
   host: "yyuck.com";
-  base_path: "/lottery.LotteryService";
+  base_path: "/oauth.ClientService";
 };
 
-service LotteryService {
+service ClientService {
   rpc List(ListRequest) returns (ListResponse) {
     option (google.api.http) = {
-      get: "/lotterys"
+      get: "/clients"
     };
   }
   rpc Get(GetRequest) returns (GetResponse) {
     option (google.api.http) = {
-      get: "/lotterys/{id}"
+      get: "/clients/{id}"
     };
   }
   rpc Create(CreateRequest) returns (CreateResponse) {
     option (google.api.http) = {
-      post: "/lotterys",
+      post: "/clients",
       body: "*"
     };
   }
   rpc Update(UpdateRequest) returns (UpdateResponse) {
     option (google.api.http) = {
-      patch: "/lotterys/{id}",
+      patch: "/clients/{id}",
       body: "*"
     };
   }
   rpc Delete(DeleteRequest) returns (DeleteResponse) {
     option (google.api.http) = {
-      delete: "/lotterys/{id}",
+      delete: "/clients/{id}",
     };
   }
 }
@@ -55,60 +55,60 @@ enum Type {
 
 // Lottery item
 message Item {
-  string name = 1; // lottery title
-  int32 value = 2; // lottery summary
+  string name = 1; // oauth title
+  int32 value = 2; // oauth summary
 }
 // Lottery item
 message Remark {
-  string name = 1; // lottery title
-  bool require = 2; // lottery summary
+  string name = 1; // oauth title
+  bool require = 2; // oauth summary
 }
 
 // Lottery item
 message Lottery {
   int32 id = 1; // id
-  string title = 2; // lottery title
-  Type type = 3; // lottery image
+  string title = 2; // oauth title
+  Type type = 3; // oauth image
   repeated Item items = 4;
-  bool remark = 5; // lottery summary
+  bool remark = 5; // oauth summary
   repeated Remark remarks = 6;
   google.protobuf.Timestamp created_at = 7;
   google.protobuf.Timestamp updated_at = 8;
 }
 
 message NewLottery {
-  string title = 1; // lottery title
-  Type type = 2; // lottery image
-  repeated Item items = 3; // lottery image
-  bool remark = 4; // lottery summary
-  repeated Remark remarks = 5; // lottery summary
+  string title = 1; // oauth title
+  Type type = 2; // oauth image
+  repeated Item items = 3; // oauth image
+  bool remark = 4; // oauth summary
+  repeated Remark remarks = 5; // oauth summary
 }
 
 message ListRequest {}
 message ListResponse {
-  repeated Lottery lotterys = 1;
+  repeated Lottery clients = 1;
 }
 
 message GetRequest {
   int32 id = 1;
 }
 message GetResponse {
-  Lottery lottery = 1;
+  Lottery oauth = 1;
 }
 
 message CreateRequest {
-  NewLottery lottery = 1;
+  NewLottery oauth = 1;
 }
 message CreateResponse {
-  Lottery lottery = 1;
+  Lottery oauth = 1;
 }
 
 message UpdateRequest {
   int32 id = 1;
-  NewLottery lottery = 2;
+  NewLottery oauth = 2;
 }
 message UpdateResponse {
-  Lottery lottery = 1;
+  Lottery oauth = 1;
 }
 
 message DeleteRequest {

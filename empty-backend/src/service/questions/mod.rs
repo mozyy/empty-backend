@@ -1,4 +1,4 @@
-use empty_utils::{diesel::db, errors::ServiceError};
+use empty_utils::{diesel::db, errors::ServiceResult,};
 
 use crate::model::questions::{Question, QuestionReq, QuestionResp};
 

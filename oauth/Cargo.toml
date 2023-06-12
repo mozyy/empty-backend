@@ -1,50 +1,43 @@
 [package]
-name = "empty_backend"
+name = "oauth"
 version = "0.1.0"
 edition = "2021"
-authors = ["yyue <yy@yyue.dev>"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-actix-web = {workspace = true}
 serde = { workspace = true, features = ["derive"] }
 serde_json = {workspace = true}
-env_logger = {workspace = true}
 log = {workspace = true}
-futures = {workspace = true}
-utoipa = {workspace = true, features = ["axum_extras", "yaml"] }
+utoipa = {workspace = true, features = ["axum_extras", "chrono", "uuid"] }
 utoipa-swagger-ui ={workspace = true, features = ["axum"] }
 diesel = { workspace = true, features = ["postgres", "r2d2", "chrono", "uuid"] }
 chrono = {workspace = true, features = ["serde"] }
 uuid= { workspace = true, features = ["serde"] }
+dotenvy = {workspace = true}
 
-axum = { workspace = true, features = ["http2"] }
+
+tonic = { workspace = true }
 tokio = {workspace = true, features = ["macros", "rt-multi-thread"]}
 tracing ={workspace = true}
 tracing-subscriber = { workspace = true, features = ["env-filter"] }
 thiserror = {workspace = true}
-tower-http = { workspace = true, features = ["cors", "trace"] }
+tower-http = { workspace = true, features = ["cors", "trace", "compression-br", "compression-gzip","set-header"] }
 
-tonic = {workspace = true}
+axum = {workspace = true}
+oxide-auth = {workspace = true}
+oxide-auth-async = {workspace = true}
+oxide-auth-axum = {workspace = true}
+axum-macros = {workspace = true}
+url = {workspace = true}
+
+
+empty-utils = { workspace = true }
+# proto = { workspace = true }
+async-trait =  { workspace = true }
+
 prost = {workspace = true}
 prost-types = {workspace = true}
 
-empty-macro = { workspace = true }
-empty-utils = { workspace = true }
-
-oxide-auth = { workspace = true }
-oxide-auth-axum = { workspace = true }
-
 [build-dependencies]
-tonic-build = { workspace = true }
-
-[[bin]]
-name="openapi"
-
-[[bin]]
-name="server"
-
-[[bin]]
-name="server-axum"
-
+tonic-build = {workspace = true}

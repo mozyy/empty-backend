@@ -10,7 +10,7 @@ async fn main() -> Result<(), impl Error> {
 
     println!("starting HTTP server at http://localhost:8080");
     // set up database connection pool
-    let pool = db::DbPool::default();
+    let pool = db::DbPool::new("");
 
     HttpServer::new(move || {
         App::new()

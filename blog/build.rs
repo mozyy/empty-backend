@@ -2,28 +2,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let build_config = tonic_build::configure()
         // .out_dir("../protos")
         .type_attribute(
-            "lottery.Item",
-            "#[derive(::diesel::FromSqlRow, ::diesel::AsExpression)]
-            #[diesel(sql_type = crate::schema::sql_types::Item)]",
-        )
-        .type_attribute(
-            "lottery.Remark",
-            "#[derive(::diesel::FromSqlRow, ::diesel::AsExpression)]
-            #[diesel(sql_type = crate::schema::sql_types::Remark)]",
-        )
-        .type_attribute(
-            "lottery.Lottery",
+            "blog.Blog",
             "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable)]
-            #[diesel(table_name=crate::schema::lotterys)]",
+            #[diesel(table_name=crate::schema::blogs)]",
         )
         .type_attribute(
-            "lottery.NewLottery",
+            "blog.NewBlog",
             "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
-            #[diesel(table_name=crate::schema::lotterys)]",
-        )
-        .field_attribute(
-            "type",
-            "#[diesel(column_name = \"type_\")]",
+            #[diesel(table_name=crate::schema::blogs)]",
         )
         .field_attribute(
             "created_at",
@@ -38,7 +24,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "::empty_utils::tonic::timestamp::Timestamp",
         );
     build_config.compile(
-        &["../proto/proto/lottery/lottery.proto"],
+        &["../proto/proto/blog/blog.proto"],
         &["../proto/proto", "../proto/third_party"],
     )?;
     Ok(())

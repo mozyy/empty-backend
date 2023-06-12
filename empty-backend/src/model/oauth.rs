@@ -5,6 +5,7 @@ use crate::{
 };
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
+use empty_utils::errors::ServiceResult;
 use oxide_auth::{
     endpoint::{Authorizer, Issuer, OwnerConsent, OwnerSolicitor, Scope, Solicitation, WebRequest},
     frontends::simple::endpoint::{Generic, Vacant},

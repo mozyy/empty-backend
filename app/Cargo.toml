@@ -1,0 +1,18 @@
+[package]
+name = "app"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tokio = {workspace = true, features = ["macros", "rt-multi-thread"]}
+log = {workspace = true}
+axum = {workspace = true}
+
+
+blog = { path="../blog" }
+lottery = { path="../lottery" }
+oauth = { path="../oauth" }
+empty-utils = {workspace = true}
+
