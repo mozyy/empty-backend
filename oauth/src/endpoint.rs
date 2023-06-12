@@ -1,4 +1,3 @@
-use empty_utils::diesel::db;
 use oxide_auth::{
     endpoint::Scope,
     primitives::{

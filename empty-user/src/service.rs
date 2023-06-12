@@ -1,5 +1,3 @@
-use std::ops::Add;
-
 use chrono::{Duration, Utc};
 use diesel::Connection;
 use empty_utils::{diesel::db, errors::ServiceError, tonic::Resp};
@@ -11,12 +9,18 @@ use crate::{
     pb::{self, user_server},
 };
 
-#[derive(Clone, Default)]
+#[derive(Clone)]
 pub struct Service {
     db: db::DbPool,
 }
 
-impl Service {}
+impl Default for Service {
+    fn default() -> Self {
+        Self {
+            db: db::DbPool::new("empty_user"),
+        }
+    }
+}
 
 #[tonic::async_trait]
 impl user_server::User for Service {

@@ -1,4 +1,7 @@
-use axum::{Router, routing::{get, post}};
+use axum::{
+    routing::{get, post},
+    Router,
+};
 use state::State;
 
 pub mod endpoint;
@@ -6,10 +9,9 @@ pub mod handler;
 pub mod primitives;
 pub mod state;
 
-
 pub fn new() -> Router {
-Router::new()
-    .route("/authorize", get(handler::authorize_get))
-    .route("/token", post(handler::token))
-    .with_state(State::new())
+    Router::new()
+        .route("/authorize", get(handler::authorize_get))
+        .route("/token", post(handler::token))
+        .with_state(State::new())
 }

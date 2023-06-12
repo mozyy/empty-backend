@@ -1,5 +1,4 @@
 use crate::{
-    errors::ServiceError,
     schema::{clients, redirect_uris},
     utils::timestamp,
 };

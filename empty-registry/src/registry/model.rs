@@ -15,7 +15,9 @@ pub struct RegistryDB {
 }
 impl Default for RegistryDB {
     fn default() -> Self {
-        Self { db_pool: db::DbPool::new("empty_registry") }
+        Self {
+            db_pool: db::DbPool::new("empty_registry"),
+        }
     }
 }
 

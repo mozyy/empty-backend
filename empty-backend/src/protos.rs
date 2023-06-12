@@ -1,6 +1,5 @@
 macro_rules! include_proto {
     ($package: tt) => {
-        use diesel::prelude::*;
         include!(concat!(
             env!("OUT_DIR"),
             // "/workspaces/empty-backend/empty-backend/src/protos",

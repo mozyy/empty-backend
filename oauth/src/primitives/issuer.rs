@@ -1,16 +1,9 @@
-use std::{ops::DerefMut, sync::Arc};
-
 use async_trait::async_trait;
 use oxide_auth::{
     endpoint::Issuer,
-    primitives::{
-        grant::Grant,
-        issuer::{self, RefreshedToken},
-        prelude::{IssuedToken, TagGrant, TokenMap},
-    },
+    primitives::{grant::Grant, issuer::RefreshedToken, prelude::IssuedToken},
 };
 use oxide_auth_async::primitives::Issuer as IssuerAsync;
-use tokio::sync::Mutex;
 
 use super::Guard;
 

@@ -1,12 +1,12 @@
 pub mod pb {
     pub mod blog {
-        tonic::include_proto!("blog.v1");
+        tonic::include_proto!("blog");
     }
     pub mod file {
         tonic::include_proto!("file.v1");
     }
     pub mod lottery {
-        tonic::include_proto!("lottery.v1");
+        tonic::include_proto!("lottery");
     }
 }
 

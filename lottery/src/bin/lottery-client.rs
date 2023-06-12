@@ -13,9 +13,22 @@ async fn main() {
 
     let create = client
         .create(tonic::Request::new(pb::CreateRequest {
-            lottery: Some(pb::NewLottery{ title: String::from("title"), r#type: pb::Type::Percent.into(), 
-            items: vec![pb::Item{name:String::from("item name1"),value: 1}, 
-            pb::Item{name:String::from("item name2"),value: 2}], remark: true, remarks: vec![] })
+            lottery: Some(pb::NewLottery {
+                title: String::from("title"),
+                r#type: pb::Type::Percent.into(),
+                items: vec![
+                    pb::Item {
+                        name: String::from("item name1"),
+                        value: 1,
+                    },
+                    pb::Item {
+                        name: String::from("item name2"),
+                        value: 2,
+                    },
+                ],
+                remark: true,
+                remarks: vec![],
+            }),
         }))
         .await
         .unwrap();

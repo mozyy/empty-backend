@@ -1,17 +1,8 @@
 use std::net::{Ipv4Addr, SocketAddr};
 
 use oauth::{handler, state::State};
-use oxide_auth::{
-    endpoint::Scope,
-    frontends::simple::endpoint::{Generic, Vacant},
-    primitives::{
-        prelude::{AuthMap, RandomGenerator, TokenMap},
-        registrar::ClientMap,
-    },
-};
 
 use axum::{
-    response::Html,
     routing::{get, post},
     Router,
 };

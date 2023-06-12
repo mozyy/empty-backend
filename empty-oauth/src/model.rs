@@ -1,8 +1,8 @@
 use crate::schema::{clients, registered_urls};
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
-use empty_utils::diesel::timestamp;
-use empty_utils::errors::ServiceError;
+use empty_utils::{diesel::timestamp, errors::ServiceResult};
+
 use oxide_auth::{
     endpoint::{Authorizer, Issuer, OwnerConsent, OwnerSolicitor, Solicitation, WebRequest},
     frontends::dev::Url,

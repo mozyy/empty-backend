@@ -1,5 +1,5 @@
 use empty_oauth::pb::oauth_server::OauthServer;
-use empty_oauth::pb::{oauth_client::OauthClient, OauthRequest};
+use empty_oauth::pb::{oauth_client::OauthClient};
 use empty_oauth::Service;
 use std::{future::Future, sync::Arc};
 use tempfile::NamedTempFile;

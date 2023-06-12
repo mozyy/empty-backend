@@ -1,6 +1,6 @@
-use empty_utils::{diesel::db, errors::ServiceError, tonic::Resp};
+use empty_utils::{errors::ServiceError, tonic::Resp};
 use proto::pb::file::{self, file_service_server::FileService};
-use tonic::{Request, Response};
+use tonic::Request;
 
 #[derive(Default)]
 pub struct Service {}
@@ -15,7 +15,7 @@ impl FileService for Service {
     }
     async fn create(&self, request: Request<file::CreateRequest>) -> Resp<file::CreateResponse> {
         let request = request.into_inner();
-        let file = request
+        let _file = request
             .file
             .ok_or_else(|| ServiceError::StatusError(tonic::Status::invalid_argument("no file")))?;
 

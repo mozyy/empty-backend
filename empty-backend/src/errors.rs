@@ -1,10 +1,6 @@
-
-
 // DEFINE ERROR HERE
 
 use axum::{http::StatusCode, response::IntoResponse};
-
-
 
 #[derive(thiserror::Error, Debug)]
 pub enum ServiceError {

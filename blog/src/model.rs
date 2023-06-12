@@ -1,13 +1,7 @@
-use chrono::NaiveDateTime;
 use diesel::{connection::DefaultLoadingMode, prelude::*};
-use empty_utils::{
-    convert::naive_date_time_to_timestamp,
-    errors::{ServiceError, ServiceResult},
-};
-use serde::{Deserialize, Serialize};
-use utoipa::ToSchema;
+use empty_utils::errors::{ServiceError, ServiceResult};
 
-use crate::{schema::blogs, pb};
+use crate::{pb, schema::blogs};
 
 pub async fn query_list(conn: &mut PgConnection) -> ServiceResult<Vec<pb::Blog>> {
     let blogs = blogs::dsl::blogs
@@ -26,7 +20,11 @@ pub async fn insert(conn: &mut PgConnection, blog: pb::NewBlog) -> ServiceResult
     Ok(blog)
 }
 // TODO: patch
-pub async fn update_by_id(conn: &mut PgConnection, id: i32, blog: pb::NewBlog) -> ServiceResult<pb::Blog> {
+pub async fn update_by_id(
+    conn: &mut PgConnection,
+    id: i32,
+    blog: pb::NewBlog,
+) -> ServiceResult<pb::Blog> {
     let blog = diesel::update(blogs::dsl::blogs)
         .filter(blogs::dsl::id.eq(id))
         .set(blog)

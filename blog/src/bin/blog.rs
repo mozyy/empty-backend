@@ -1,7 +1,7 @@
+use blog::pb::blog_service_server::BlogServiceServer;
 use blog::service::Service;
 use empty_utils::{errors::ServiceResult, tonic::server};
-use blog::pb::blog_service_server::BlogServiceServer;
-use tonic::transport::{NamedService, Server};
+use tonic::transport::NamedService;
 
 #[tokio::main]
 async fn main() -> ServiceResult {

@@ -1,6 +1,5 @@
-use std::{time::Duration};
+use std::time::Duration;
 pub mod timestamp;
-
 
 use tonic::transport::Server;
 use tower::{
@@ -10,7 +9,7 @@ use tower::{
 };
 use tower_http::{
     classify::{GrpcErrorsAsFailures, SharedClassifier},
-    trace::{TraceLayer},
+    trace::TraceLayer,
 };
 
 pub type Resp<T> = core::result::Result<tonic::Response<T>, tonic::Status>;

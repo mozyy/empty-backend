@@ -3,7 +3,7 @@ use std::env;
 use diesel::pg::PgConnection;
 use diesel::r2d2::{self, ConnectionManager, PooledConnection};
 
-use crate::errors::{ServiceResult};
+use crate::errors::ServiceResult;
 
 // pub type DbConnection = PooledConnection<PgConnection>;
 

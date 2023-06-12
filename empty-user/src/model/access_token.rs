@@ -1,7 +1,7 @@
 use crate::{pb, schema::access_tokens};
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
-use empty_utils::{convert::naive_date_time_to_timestamp, errors::ServiceError};
+use empty_utils::{convert::naive_date_time_to_timestamp, errors::ServiceResult};
 
 use uuid::Uuid;
 
@@ -107,15 +107,12 @@ pub fn query_by_refresh_token(
     Ok(refresh_token)
 }
 
-pub fn delete_by_access_token(conn: &mut PgConnection, access_token: String) -> ServiceResult<()> {
+pub fn delete_by_access_token(conn: &mut PgConnection, access_token: String) -> ServiceResult {
     diesel::delete(access_tokens::table.find(access_token)).execute(conn)?;
     Ok(())
 }
 
-pub fn delete_by_refresh_token(
-    conn: &mut PgConnection,
-    refresh_token: String,
-) -> ServiceResult<()> {
+pub fn delete_by_refresh_token(conn: &mut PgConnection, refresh_token: String) -> ServiceResult {
     diesel::delete(access_tokens::table.filter(access_tokens::refresh_token.eq(refresh_token)))
         .execute(conn)?;
     Ok(())

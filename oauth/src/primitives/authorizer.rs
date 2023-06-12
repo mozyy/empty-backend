@@ -1,13 +1,5 @@
-use std::{ops::DerefMut, sync::Arc};
-
 use async_trait::async_trait;
-use oxide_auth::{
-    endpoint::Authorizer,
-    primitives::{
-        grant::Grant,
-        prelude::{AuthMap, TagGrant},
-    },
-};
+use oxide_auth::{endpoint::Authorizer, primitives::grant::Grant};
 use oxide_auth_async::primitives::Authorizer as AuthorizerAsync;
 
 use super::Guard;

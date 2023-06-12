@@ -1,15 +1,13 @@
 use std::sync::Arc;
 
 use oxide_auth::{
-    endpoint::{OwnerConsent, Solicitation},
-    frontends::simple::endpoint::{FnSolicitor, Generic, Vacant},
+    frontends::simple::endpoint::Vacant,
     primitives::{
         prelude::{AuthMap, Client, RandomGenerator, TokenMap},
         registrar::ClientMap,
     },
 };
-use oxide_auth_async::endpoint::OwnerSolicitor;
-use oxide_auth_axum::{OAuthRequest, OAuthResponse, WebError};
+
 use tokio::sync::Mutex;
 
 use crate::endpoint::Endpoint;

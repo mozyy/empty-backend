@@ -1,12 +1,9 @@
-use std::{ops::Deref, sync::Arc};
-
 use async_trait::async_trait;
 use oxide_auth::{
     endpoint::{PreGrant, Registrar, Scope},
-    primitives::registrar::{self, BoundClient, ClientMap, ClientUrl, RegistrarError},
+    primitives::registrar::{BoundClient, ClientUrl, RegistrarError},
 };
 use oxide_auth_async::primitives::Registrar as RegistrarAsync;
-use tokio::sync::Mutex;
 
 use super::Guard;
 

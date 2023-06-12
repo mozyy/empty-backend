@@ -10,7 +10,7 @@ use hyper::{client::HttpConnector, Body};
 use std::sync::{Arc, Mutex};
 use tonic::transport::NamedService;
 use tonic_health::{
-    proto::health_server::HealthServer,
+    pb::health_server::HealthServer,
     server::{health_reporter, HealthService},
 };
 

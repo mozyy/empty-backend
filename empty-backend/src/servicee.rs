@@ -1,6 +1,6 @@
 use crate::protos::proto::user::oauth;
 use oauth::o_auth_service_server::{OAuthService, OAuthServiceServer};
-use tonic::{transport::Server, Request, Response, Status};
+use tonic::transport::Server;
 
 #[derive(Default)]
 pub struct MyGreeter {}
@@ -9,13 +9,13 @@ pub struct MyGreeter {}
 impl OAuthService for MyGreeter {
     async fn token(
         &self,
-        request: tonic::Request<oauth::TokenRequest>,
+        _request: tonic::Request<oauth::TokenRequest>,
     ) -> Result<tonic::Response<oauth::TokenResponse>, tonic::Status> {
         todo!();
     }
     async fn valid(
         &self,
-        request: tonic::Request<oauth::ValidRequest>,
+        _request: tonic::Request<oauth::ValidRequest>,
     ) -> Result<tonic::Response<oauth::ValidResponse>, tonic::Status> {
         todo!();
     }

@@ -1,18 +1,11 @@
+use axum::extract::State;
 use axum::response::IntoResponse;
-use axum::{
-    extract::State,
-    http::StatusCode,
-    response::Json,
-    routing::{get, post},
-    Router,
-};
-use empty_utils::{diesel::db, errors::ServiceError, tonic::Resp};
+
 use oxide_auth::endpoint::{OwnerConsent, Solicitation, WebResponse};
 use oxide_auth::frontends::simple::endpoint::FnSolicitor;
 use oxide_auth_async::endpoint::access_token::AccessTokenFlow;
 use oxide_auth_async::endpoint::authorization::AuthorizationFlow;
 use oxide_auth_axum::{OAuthRequest, OAuthResponse, WebError};
-use tonic::{Request, Response};
 
 use crate::state;
 
@@ -30,7 +23,7 @@ pub async fn authorize_get(
             let state = &solicitation.state();
             log::debug!("PreGrant: {:?}, {:?}", pre_g, state);
 
-            let client_id = &solicitation.pre_grant().client_id;
+            let _client_id = &solicitation.pre_grant().client_id;
 
             let mut response = OAuthResponse::default();
             response

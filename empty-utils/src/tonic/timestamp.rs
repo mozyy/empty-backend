@@ -145,7 +145,6 @@ impl From<chrono::NaiveDateTime> for Timestamp {
     }
 }
 
-
 // ------------------------ https://github.com/diesel-rs/diesel/blob/master/diesel/src/pg/types/date_and_time/chrono.rs#L14
 // Postgres timestamps start from January 1st 2000.
 fn pg_epoch() -> NaiveDateTime {

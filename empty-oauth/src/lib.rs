@@ -1,7 +1,10 @@
 use std::str::FromStr;
 
 use chrono::NaiveDateTime;
-use empty_utils::{errors::ServiceError, tonic::Resp};
+use empty_utils::{
+    errors::{ServiceError, ServiceResult},
+    tonic::Resp,
+};
 
 use pb::{
     oauth_server::Oauth as OauthService, oauth_server::OauthServer, PasswordRequest, TokenResponse,
@@ -99,7 +102,7 @@ impl Client {
         let client = auth.parse::<Client>()?;
         Ok(client)
     }
-    pub async fn check(&self, _state: OAuthState) -> ServiceResult<()> {
+    pub async fn check(&self, _state: OAuthState) -> ServiceResult {
         todo!()
     }
 }

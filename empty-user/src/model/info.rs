@@ -4,7 +4,9 @@ use crate::{
 };
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
-use empty_utils::{convert::naive_date_time_to_timestamp, diesel::timestamp, errors::ServiceError};
+use empty_utils::{
+    convert::naive_date_time_to_timestamp, diesel::timestamp, errors::ServiceResult,
+};
 use serde::Serialize;
 
 use uuid::Uuid;
