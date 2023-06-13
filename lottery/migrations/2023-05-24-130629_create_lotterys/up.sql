@@ -1,16 +1,16 @@
 -- Your SQL goes here
 
-CREATE TYPE item AS (
+CREATE TYPE IF NOT EXISTS item AS (
   name TEXT,
   value INTEGER
 );
 
-CREATE TYPE remark AS (
+CREATE TYPE IF NOT EXISTS remark AS (
   name TEXT,
   require BOOLEAN
 );
 
-CREATE TABLE lotterys (
+CREATE TABLE IF NOT EXISTS lotterys (
   id SERIAL PRIMARY KEY,
   title TEXT NOT NULL,
   type INTEGER NOT NULL,

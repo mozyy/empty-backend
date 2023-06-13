@@ -11,7 +11,7 @@ async fn main() -> ServiceResult {
 
     let grpc = tonic::server()
         .add_service(blog::new())
-        .add_service(lottery::new())
+        // .add_service(lottery::new())
         .serve(addr);
     let (_, grpc) = tokio::join!(rest, grpc);
     grpc?;

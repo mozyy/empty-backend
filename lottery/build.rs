@@ -38,8 +38,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "::empty_utils::tonic::timestamp::Timestamp",
         );
     build_config.compile(
-        &["../proto/proto/lottery/lottery.proto"],
-        &["../proto/proto", "../proto/third_party"],
+        &["./proto/proto/lottery.proto"],
+        &["./proto/proto", "../proto/third_party"],
     )?;
     Ok(())
 }

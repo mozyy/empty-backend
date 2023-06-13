@@ -1,0 +1,118 @@
+syntax = "proto3";
+
+package lottery;
+
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "lottery";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  schemes: HTTPS;
+  host: "yyuck.com";
+  base_path: "/lottery.LotteryService";
+};
+
+service LotteryService {
+  rpc List(ListRequest) returns (ListResponse) {
+    option (google.api.http) = {
+      get: "/lotterys"
+    };
+  }
+  rpc Get(GetRequest) returns (GetResponse) {
+    option (google.api.http) = {
+      get: "/lotterys/{id}"
+    };
+  }
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      post: "/lotterys",
+      body: "*"
+    };
+  }
+  rpc Update(UpdateRequest) returns (UpdateResponse) {
+    option (google.api.http) = {
+      patch: "/lotterys/{id}",
+      body: "*"
+    };
+  }
+  rpc Delete(DeleteRequest) returns (DeleteResponse) {
+    option (google.api.http) = {
+      delete: "/lotterys/{id}",
+    };
+  }
+}
+
+// 抽签类型
+enum Type {
+  // 个数
+  NUMBER = 0;
+  // 几率
+  PERCENT = 1;
+}
+
+// Lottery item
+message Item {
+  string name = 1; // lottery title
+  int32 value = 2; // lottery summary
+}
+// Lottery item
+message Remark {
+  string name = 1; // lottery title
+  bool require = 2; // lottery summary
+}
+
+// Lottery item
+message Lottery {
+  int32 id = 1; // id
+  string title = 2; // lottery title
+  Type type = 3; // lottery image
+  repeated Item items = 4;
+  bool remark = 5; // lottery summary
+  repeated Remark remarks = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+message NewLottery {
+  string title = 1; // lottery title
+  Type type = 2; // lottery image
+  repeated Item items = 3; // lottery image
+  bool remark = 4; // lottery summary
+  repeated Remark remarks = 5; // lottery summary
+}
+
+message ListRequest {}
+message ListResponse {
+  repeated Lottery lotterys = 1;
+}
+
+message GetRequest {
+  int32 id = 1;
+}
+message GetResponse {
+  Lottery lottery = 1;
+}
+
+message CreateRequest {
+  NewLottery lottery = 1;
+}
+message CreateResponse {
+  Lottery lottery = 1;
+}
+
+message UpdateRequest {
+  int32 id = 1;
+  NewLottery lottery = 2;
+}
+message UpdateResponse {
+  Lottery lottery = 1;
+}
+
+message DeleteRequest {
+  int32 id = 1;
+}
+message DeleteResponse {
+}

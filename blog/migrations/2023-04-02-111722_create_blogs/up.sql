@@ -1,6 +1,6 @@
 -- Your SQL goes here
 
-CREATE TABLE blogs (
+CREATE TABLE IF NOT EXISTS blogs (
   id SERIAL PRIMARY KEY,
   title TEXT NOT NULL,
   image TEXT NOT NULL,
