@@ -3,11 +3,16 @@ pub mod schema;
 pub mod service;
 pub mod types;
 pub mod pb {
-    tonic::include_proto!("lottery");
+    pub mod lottery {
+        tonic::include_proto!("lottery");
+    }
+    pub mod user {
+        tonic::include_proto!("user");
+    }
 }
 
-pub fn new() -> pb::lottery_service_server::LotteryServiceServer<service::Service> {
-    let service = service::Service::default();
+pub fn new() -> pb::lottery::lottery_service_server::LotteryServiceServer<service::lottery::Service> {
+    let service = service::lottery::Service::default();
 
-    pb::lottery_service_server::LotteryServiceServer::new(service)
+    pb::lottery::lottery_service_server::LotteryServiceServer::new(service)
 }

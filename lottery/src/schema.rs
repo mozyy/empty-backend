@@ -17,6 +17,7 @@ diesel::table! {
 
     lotterys (id) {
         id -> Int4,
+        user_id -> Uuid,
         title -> Text,
         #[sql_name = "type"]
         type_ -> Int4,
@@ -27,3 +28,24 @@ diesel::table! {
         updated_at -> Timestamp,
     }
 }
+
+diesel::table! {
+    users (id) {
+        id -> Uuid,
+        openid -> Text,
+        unionid -> Text,
+        session_key -> Text,
+        name -> Text,
+        avatar -> Nullable<Text>,
+        mobile -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::joinable!(lotterys -> users (user_id));
+
+diesel::allow_tables_to_appear_in_same_query!(
+    lotterys,
+    users,
+);

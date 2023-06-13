@@ -1,11 +1,16 @@
-use crate::pb;
+use crate::pb::lottery as pb;
 use diesel::prelude::*;
 use empty_utils::errors::{ServiceError, ServiceResult};
+use uuid::Uuid;
 
 use crate::schema::lotterys;
 
 pub async fn query_list(conn: &mut PgConnection) -> ServiceResult<Vec<pb::Lottery>> {
     let lotterys = lotterys::table.load::<pb::Lottery>(conn)?;
+    Ok(lotterys)
+}
+pub async fn query_list_by_user_id(conn: &mut PgConnection, user_id:Uuid) -> ServiceResult<Vec<pb::Lottery>> {
+    let lotterys = lotterys::table.filter(lotterys::user_id.eq(user_id)).get_results::<pb::Lottery>(conn)?;
     Ok(lotterys)
 }
 pub async fn query_by_id(conn: &mut PgConnection, id: i32) -> ServiceResult<pb::Lottery> {

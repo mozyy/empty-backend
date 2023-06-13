@@ -7,7 +7,7 @@ import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
-option go_package = "lottery";
+option go_package = "lottery.v1";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   schemes: HTTPS;
@@ -67,13 +67,14 @@ message Remark {
 // Lottery item
 message Lottery {
   int32 id = 1; // id
-  string title = 2; // lottery title
-  Type type = 3; // lottery image
-  repeated Item items = 4;
-  bool remark = 5; // lottery summary
-  repeated Remark remarks = 6;
-  google.protobuf.Timestamp created_at = 7;
-  google.protobuf.Timestamp updated_at = 8;
+  string user_id = 2; // id
+  string title = 3; // lottery title
+  Type type = 4; // lottery image
+  repeated Item items = 5;
+  bool remark = 6; // lottery summary
+  repeated Remark remarks = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
 }
 
 message NewLottery {
@@ -84,7 +85,9 @@ message NewLottery {
   repeated Remark remarks = 5; // lottery summary
 }
 
-message ListRequest {}
+message ListRequest {
+  string user_id = 1;
+}
 message ListResponse {
   repeated Lottery lotterys = 1;
 }

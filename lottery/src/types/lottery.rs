@@ -5,7 +5,7 @@ use diesel::{
     sql_types::{Bool, Integer, Record, Text},
 };
 
-use crate::pb;
+use crate::pb::lottery as pb;
 
 impl ToSql<crate::schema::sql_types::Item, Pg> for pb::Item {
     fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, Pg>) -> serialize::Result {

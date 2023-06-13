@@ -1,8 +1,9 @@
-use crate::pb;
+use crate::pb::lottery as pb;
 use empty_utils::{diesel::db, errors::ServiceError, tonic::Resp};
 use tonic::{Request, Response};
+use uuid::Uuid;
 
-use crate::model;
+use crate::model::lottery as model;
 
 pub struct Service {
     db: db::DbPool,
@@ -18,12 +19,17 @@ impl Default for Service {
 
 #[tonic::async_trait]
 impl pb::lottery_service_server::LotteryService for Service {
-    async fn list(&self, _request: Request<pb::ListRequest>) -> Resp<pb::ListResponse> {
-        log::debug!("request list");
+    async fn list(&self, request: Request<pb::ListRequest>) -> Resp<pb::ListResponse> {
         let mut conn = self.db.get_conn()?;
-        log::debug!("get conn");
-        let lotterys = model::query_list(&mut conn).await?;
-        log::debug!("get blogs");
+        let user_id = request.into_inner().user_id;
+        let lotterys = match user_id {
+            Some(user_id) => {
+                let user_id = Uuid::parse_str(&user_id)
+                    .map_err(|e|tonic::Status::invalid_argument(e.to_string()))?;
+                model::query_list_by_user_id(&mut conn, user_id).await?
+            }
+            None => model::query_list(&mut conn).await?
+        };
         Ok(Response::new(pb::ListResponse { lotterys }))
     }
 

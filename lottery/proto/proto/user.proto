@@ -1,0 +1,102 @@
+syntax = "proto3";
+
+package user;
+
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "user";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  schemes: HTTPS;
+  host: "yyuck.com";
+  base_path: "/user.UserService";
+};
+
+service UserService {
+  rpc List(ListRequest) returns (ListResponse) {
+    option (google.api.http) = {
+      get: "/users"
+    };
+  }
+  rpc Get(GetRequest) returns (GetResponse) {
+    option (google.api.http) = {
+      get: "/users/{id}"
+    };
+  }
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      post: "/users",
+      body: "*"
+    };
+  }
+  rpc Update(UpdateRequest) returns (UpdateResponse) {
+    option (google.api.http) = {
+      patch: "/users/{id}",
+      body: "*"
+    };
+  }
+  rpc Delete(DeleteRequest) returns (DeleteResponse) {
+    option (google.api.http) = {
+      delete: "/users/{id}",
+    };
+  }
+}
+
+
+// Lottery item
+message User {
+  string id = 1; // openid
+  string openid = 2; // openid
+  string unionid = 3; // user title
+  string session_key = 4; // lottery image
+  string name = 5;
+  optional string avatar = 6;
+  optional string mobile = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+message NewUser {
+  string openid = 1; // openid
+  string unionid = 2; // user title
+  string session_key = 3; // lottery image
+  string name = 4;
+  optional string avatar = 5;
+  optional string mobile = 6;
+}
+
+message ListRequest {}
+message ListResponse {
+  repeated User users = 1;
+}
+
+message GetRequest {
+  string id = 1;
+}
+message GetResponse {
+  User user = 1;
+}
+
+message CreateRequest {
+  NewUser user = 1;
+}
+message CreateResponse {
+  User user = 1;
+}
+
+message UpdateRequest {
+  string id = 1;
+  NewUser user = 2;
+}
+message UpdateResponse {
+  User user = 1;
+}
+
+message DeleteRequest {
+  string id = 1;
+}
+message DeleteResponse {
+}

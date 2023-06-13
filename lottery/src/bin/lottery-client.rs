@@ -7,21 +7,21 @@ async fn main() {
     empty_utils::init();
     let base_url = env::var("BASE_URL").unwrap_or_else(|_| String::from("http://0.0.0.0:50051"));
     log::info!("connect:{base_url}");
-    let mut client = pb::lottery_service_client::LotteryServiceClient::connect(base_url.to_owned())
+    let mut client: pb::lottery::lottery_service_client::LotteryServiceClient<tonic::transport::Channel> = pb::lottery::lottery_service_client::LotteryServiceClient::connect(base_url.to_owned())
         .await
         .unwrap();
 
     let create = client
-        .create(tonic::Request::new(pb::CreateRequest {
-            lottery: Some(pb::NewLottery {
+        .create(tonic::Request::new(pb::lottery::CreateRequest {
+            lottery: Some(pb::lottery::NewLottery {
                 title: String::from("title"),
-                r#type: pb::Type::Percent.into(),
+                r#type: pb::lottery::Type::Percent.into(),
                 items: vec![
-                    pb::Item {
+                    pb::lottery::Item {
                         name: String::from("item name1"),
                         value: 1,
                     },
-                    pb::Item {
+                    pb::lottery::Item {
                         name: String::from("item name2"),
                         value: 2,
                     },
@@ -34,7 +34,7 @@ async fn main() {
         .unwrap();
     dbg!(create);
     let blogs = client
-        .list(tonic::Request::new(pb::ListRequest {}))
+        .list(tonic::Request::new(pb::lottery::ListRequest { user_id:None }))
         .await
         .unwrap();
     log::info!("connect success");
