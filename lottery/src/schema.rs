@@ -30,6 +30,18 @@ diesel::table! {
 }
 
 diesel::table! {
+    records (id) {
+        id -> Int4,
+        lottery_id -> Int4,
+        user_id -> Uuid,
+        value -> Text,
+        remarks -> Array<Nullable<Text>>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     users (id) {
         id -> Uuid,
         openid -> Text,
@@ -44,8 +56,11 @@ diesel::table! {
 }
 
 diesel::joinable!(lotterys -> users (user_id));
+diesel::joinable!(records -> lotterys (lottery_id));
+diesel::joinable!(records -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     lotterys,
+    records,
     users,
 );

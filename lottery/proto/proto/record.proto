@@ -1,102 +1,99 @@
 syntax = "proto3";
 
-package user;
+package record;
 
 
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
-option go_package = "user.v1";
+option go_package = "record.v1";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   schemes: HTTPS;
   host: "yyuck.com";
-  base_path: "/user.UserService";
+  base_path: "/record.RecordService";
 };
 
-service UserService {
+service RecordService {
   rpc List(ListRequest) returns (ListResponse) {
     option (google.api.http) = {
-      get: "/users"
+      get: "/records"
     };
   }
   rpc Get(GetRequest) returns (GetResponse) {
     option (google.api.http) = {
-      get: "/users/{id}"
+      get: "/records/{id}"
     };
   }
   rpc Create(CreateRequest) returns (CreateResponse) {
     option (google.api.http) = {
-      post: "/users",
+      post: "/records",
       body: "*"
     };
   }
   rpc Update(UpdateRequest) returns (UpdateResponse) {
     option (google.api.http) = {
-      patch: "/users/{id}",
+      patch: "/records/{id}",
       body: "*"
     };
   }
   rpc Delete(DeleteRequest) returns (DeleteResponse) {
     option (google.api.http) = {
-      delete: "/users/{id}",
+      delete: "/records/{id}",
     };
   }
 }
 
-
 // Lottery item
-message User {
-  string id = 1; // openid
-  string openid = 2; // openid
-  string unionid = 3; // user title
-  string session_key = 4; // lottery image
-  string name = 5;
-  optional string avatar = 6;
-  optional string mobile = 7;
-  google.protobuf.Timestamp created_at = 8;
-  google.protobuf.Timestamp updated_at = 9;
+message Record {
+  int32 id = 1; // id
+  int32 lottery_id = 2; // id
+  string user_id = 3; // id
+  string value = 4; // lottery image
+  repeated string remarks = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
 }
 
-message NewUser {
-  string openid = 1; // openid
-  string unionid = 2; // user title
-  string session_key = 3; // lottery image
-  string name = 4;
-  optional string avatar = 5;
-  optional string mobile = 6;
+message NewRecord {
+  int32 lottery_id = 1; // id
+  string user_id = 2; // id
+  string value = 3; // lottery image
+  repeated string remarks = 4;
 }
 
-message ListRequest {}
+message ListRequest {
+  Record record = 1;
+}
 message ListResponse {
-  repeated User users = 1;
+  repeated Record records = 1;
 }
 
 message GetRequest {
-  string id = 1;
+  int32 id = 1;
 }
 message GetResponse {
-  User user = 1;
+  Record record = 1;
 }
 
 message CreateRequest {
-  NewUser user = 1;
+  NewRecord record = 1;
 }
 message CreateResponse {
-  User user = 1;
+  Record record = 1;
 }
 
 message UpdateRequest {
-  string id = 1;
-  NewUser user = 2;
+  int32 id = 1;
+  NewRecord record = 2;
 }
 message UpdateResponse {
-  User user = 1;
+  Record record = 1;
 }
 
 message DeleteRequest {
-  string id = 1;
+  int32 id = 1;
 }
 message DeleteResponse {
 }

@@ -35,7 +35,7 @@ impl Authorizer for Auth {
     }
 }
 
-#[derive(Queryable, Identifiable, Serialize, ToSchema, Associations)]
+#[derive(Queryable, Identifiable, Serialize, ToSchema, Associations, AsChangeset)]
 #[diesel(belongs_to(RegisteredUrl, foreign_key = redirect_uri_id))]
 pub struct Client {
     pub id: Uuid,

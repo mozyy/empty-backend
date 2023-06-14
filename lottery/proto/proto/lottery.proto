@@ -6,6 +6,7 @@ package lottery;
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
+import "paginate.proto";
 
 option go_package = "lottery.v1";
 
@@ -78,18 +79,21 @@ message Lottery {
 }
 
 message NewLottery {
-  string title = 1; // lottery title
-  Type type = 2; // lottery image
-  repeated Item items = 3; // lottery image
-  bool remark = 4; // lottery summary
-  repeated Remark remarks = 5; // lottery summary
+  string user_id = 1; // id
+  string title = 2; // lottery title
+  Type type = 3; // lottery image
+  repeated Item items = 4; // lottery image
+  bool remark = 5; // lottery summary
+  repeated Remark remarks = 6; // lottery summary
 }
 
 message ListRequest {
-  string user_id = 1;
+  Lottery lottery = 1;
+  paginate.Paginate paginate = 2;
 }
 message ListResponse {
   repeated Lottery lotterys = 1;
+  paginate.Paginated paginated = 2;
 }
 
 message GetRequest {

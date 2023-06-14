@@ -37,3 +37,15 @@ CREATE TABLE IF NOT EXISTS lotterys (
 );
 
 SELECT diesel_manage_updated_at('lotterys');
+
+CREATE TABLE IF NOT EXISTS records (
+  id SERIAL PRIMARY KEY,
+  lottery_id INTEGER NOT NULL REFERENCES lotterys(id),
+  user_id UUID NOT NULL REFERENCES users(id),
+  value TEXT NOT NULL,
+  remarks TEXT[] NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+SELECT diesel_manage_updated_at('records');

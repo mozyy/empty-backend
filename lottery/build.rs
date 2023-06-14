@@ -23,9 +23,26 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .type_attribute(
             "lottery.NewLottery",
-            "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
-            #[diesel(table_name=crate::schema::lotterys)]",
+            "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset, ::diesel::prelude::Associations)]
+            #[diesel(table_name=crate::schema::lotterys, belongs_to(crate::pb::user::User))]",
         )
+        .field_attribute(
+            "lottery.NewLottery.user_id",
+            "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid, serialize_as = ::empty_utils::tonic::uuid::Uuid)]",
+        )
+
+        // record
+        .type_attribute(
+            "record.Record",
+            "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable)]
+            #[diesel(table_name=crate::schema::records)]",
+        )
+        .type_attribute(
+            "user.NewRecord",
+            "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
+            #[diesel(table_name=crate::schema::records)]",
+        )
+        
         // user
         .type_attribute(
             "user.User",
@@ -58,8 +75,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     build_config.compile(
         &[
             "./proto/proto/lottery.proto",
+            "./proto/proto/record.proto",
             "./proto/proto/user.proto",
-            ],
+        ],
         &["./proto/proto", "../proto/third_party"],
     )?;
     Ok(())

@@ -30,3 +30,9 @@ chmod +x /usr/local/bin/protoc-gen-openapiv2
 sudo curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/${PROTOC_ZIP} \
     && sudo unzip $PROTOC_ZIP -d /home/vscode/.local \
     && sudo rm -f $PROTOC_ZIP
+
+
+protoc -I./proto/proto \
+  -I../proto/third_party \
+  --openapiv2_out=./proto \
+  ./proto/proto/record.proto

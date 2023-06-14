@@ -21,16 +21,9 @@ impl Default for Service {
 impl pb::lottery_service_server::LotteryService for Service {
     async fn list(&self, request: Request<pb::ListRequest>) -> Resp<pb::ListResponse> {
         let mut conn = self.db.get_conn()?;
-        let user_id = request.into_inner().user_id;
-        let lotterys = match user_id {
-            Some(user_id) => {
-                let user_id = Uuid::parse_str(&user_id)
-                    .map_err(|e|tonic::Status::invalid_argument(e.to_string()))?;
-                model::query_list_by_user_id(&mut conn, user_id).await?
-            }
-            None => model::query_list(&mut conn).await?
-        };
-        Ok(Response::new(pb::ListResponse { lotterys }))
+        let request = request.into_inner();
+        let (lotterys, paginated) = model::query_list(&mut conn, request).await?;
+        Ok(Response::new(pb::ListResponse { lotterys, paginated }))
     }
 
     async fn get(&self, request: Request<pb::GetRequest>) -> Resp<pb::GetResponse> {
