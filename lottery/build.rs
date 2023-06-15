@@ -1,7 +1,15 @@
+use tonic_build::Builder;
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    build_lottery()?;
+    build_record()?;
+    build_user()?;
+    build_wx()?;
+    Ok(())
+}
+
+fn build_lottery() -> Result<(), Box<dyn std::error::Error>> {
     let build_config = tonic_build::configure()
-        // .out_dir("../protos")
-        // lottery
         .type_attribute(
             "lottery.Item",
             "#[derive(::diesel::FromSqlRow, ::diesel::AsExpression)]
@@ -30,8 +38,27 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "lottery.NewLottery.user_id",
             "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid, serialize_as = ::empty_utils::tonic::uuid::Uuid)]",
         )
+        .field_attribute(
+            "type",
+            "#[diesel(column_name = \"type_\")]",
+        )
+        .field_attribute(
+            "created_at",
+            "#[diesel(deserialize_as = ::empty_utils::diesel::timestamp::Timestamp)]",
+        )
+        .field_attribute(
+            "updated_at",
+            "#[diesel(deserialize_as = ::empty_utils::diesel::timestamp::Timestamp)]",
+        );
+    build_config.compile(
+        &["./proto/lottery.proto"],
+        &["./proto", "../proto/third_party"],
+    )?;
+    Ok(())
+}
 
-        // record
+fn build_record() -> Result<(), Box<dyn std::error::Error>> {
+    let build_config = tonic_build::configure()
         .type_attribute(
             "record.Record",
             "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable)]
@@ -42,8 +69,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
             #[diesel(table_name=crate::schema::records)]",
         )
-        
-        // user
+        .field_attribute(
+            "created_at",
+            "#[diesel(deserialize_as = ::empty_utils::diesel::timestamp::Timestamp)]",
+        )
+        .field_attribute(
+            "updated_at",
+            "#[diesel(deserialize_as = ::empty_utils::diesel::timestamp::Timestamp)]",
+        );
+    build_config.compile(
+        &["./proto/record.proto"],
+        &["./proto", "../proto/third_party"],
+    )?;
+    Ok(())
+}
+
+fn build_user() -> Result<(), Box<dyn std::error::Error>> {
+    let build_config = tonic_build::configure()
         .type_attribute(
             "user.User",
             "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable)]
@@ -58,12 +100,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "user.User.id",
             "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
         )
-
-        // common
-        .field_attribute(
-            "type",
-            "#[diesel(column_name = \"type_\")]",
-        )
         .field_attribute(
             "created_at",
             "#[diesel(deserialize_as = ::empty_utils::diesel::timestamp::Timestamp)]",
@@ -73,12 +109,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "#[diesel(deserialize_as = ::empty_utils::diesel::timestamp::Timestamp)]",
         );
     build_config.compile(
-        &[
-            "./proto/proto/lottery.proto",
-            "./proto/proto/record.proto",
-            "./proto/proto/user.proto",
-        ],
-        &["./proto/proto", "../proto/third_party"],
+        &["./proto/user.proto"],
+        &["./proto", "../proto/third_party"],
     )?;
+    Ok(())
+}
+fn build_wx() -> Result<(), Box<dyn std::error::Error>> {
+    let build_config = tonic_build::configure()
+        .type_attribute(
+            "wx.SnsJscode2sessionRequest",
+            "#[derive(::serde::Serialize)]",
+        )
+        .type_attribute(
+            "wx.SnsJscode2sessionResponse",
+            "#[derive(::serde::Deserialize)]",
+        );
+    build_config.compile(&["./proto/wx.proto"], &["./proto", "../proto/third_party"])?;
     Ok(())
 }

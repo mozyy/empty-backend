@@ -59,8 +59,4 @@ diesel::joinable!(lotterys -> users (user_id));
 diesel::joinable!(records -> lotterys (lottery_id));
 diesel::joinable!(records -> users (user_id));
 
-diesel::allow_tables_to_appear_in_same_query!(
-    lotterys,
-    records,
-    users,
-);
+diesel::allow_tables_to_appear_in_same_query!(lotterys, records, users,);

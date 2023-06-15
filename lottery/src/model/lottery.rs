@@ -25,7 +25,9 @@ pub async fn query_list_by_user_id(
     Ok(lotterys)
 }
 pub async fn query_by_id(conn: &mut PgConnection, id: i32) -> ServiceResult<pb::lottery::Lottery> {
-    let lottery = lotterys::table.find(id).first::<pb::lottery::Lottery>(conn)?;
+    let lottery = lotterys::table
+        .find(id)
+        .first::<pb::lottery::Lottery>(conn)?;
     Ok(lottery)
 }
 pub async fn insert(

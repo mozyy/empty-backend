@@ -13,10 +13,7 @@ pub async fn query_by_id(conn: &mut PgConnection, id: Uuid) -> ServiceResult<pb:
     let user = users::table.find(id).first::<pb::User>(conn)?;
     Ok(user)
 }
-pub async fn insert(
-    conn: &mut PgConnection,
-    user: pb::NewUser,
-) -> ServiceResult<pb::User> {
+pub async fn insert(conn: &mut PgConnection, user: pb::NewUser) -> ServiceResult<pb::User> {
     let user = diesel::insert_into(users::table)
         .values(user)
         .get_result::<pb::User>(conn)?;

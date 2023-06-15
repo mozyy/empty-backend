@@ -13,35 +13,34 @@ option go_package = "lottery.v1";
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   schemes: HTTPS;
   host: "yyuck.com";
-  base_path: "/lottery.LotteryService";
 };
 
 service LotteryService {
   rpc List(ListRequest) returns (ListResponse) {
     option (google.api.http) = {
-      get: "/lotterys"
+      get: "/lottery.LotteryService/lotterys"
     };
   }
   rpc Get(GetRequest) returns (GetResponse) {
     option (google.api.http) = {
-      get: "/lotterys/{id}"
+      get: "/lottery.LotteryService/lotterys/{id}"
     };
   }
   rpc Create(CreateRequest) returns (CreateResponse) {
     option (google.api.http) = {
-      post: "/lotterys",
+      post: "/lottery.LotteryService/lotterys",
       body: "*"
     };
   }
   rpc Update(UpdateRequest) returns (UpdateResponse) {
     option (google.api.http) = {
-      patch: "/lotterys/{id}",
+      patch: "/lottery.LotteryService/lotterys/{id}",
       body: "*"
     };
   }
   rpc Delete(DeleteRequest) returns (DeleteResponse) {
     option (google.api.http) = {
-      delete: "/lotterys/{id}",
+      delete: "/lottery.LotteryService/lotterys/{id}",
     };
   }
 }

@@ -23,7 +23,10 @@ impl pb::lottery_service_server::LotteryService for Service {
         let mut conn = self.db.get_conn()?;
         let request = request.into_inner();
         let (lotterys, paginated) = model::query_list(&mut conn, request).await?;
-        Ok(Response::new(pb::ListResponse { lotterys, paginated }))
+        Ok(Response::new(pb::ListResponse {
+            lotterys,
+            paginated,
+        }))
     }
 
     async fn get(&self, request: Request<pb::GetRequest>) -> Resp<pb::GetResponse> {

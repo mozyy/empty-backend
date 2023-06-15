@@ -7,16 +7,30 @@ protoc -I./proto/proto \
   --include_source_info \
   --descriptor_set_out=./proto/proto/blog/blog.pb \
   --openapiv2_out=../empty-frontend/src/openapi/docs \
-  ./proto/proto/blog/blog.proto && \
+  ./proto/proto/blog/blog.proto \
   ./proto/proto/lottery/lottery.proto
 
-sudo docker run --name envoy -it --rm --network="host" \
-  -v "$(pwd)/proto/proto:/proto:ro" \
-  -v "$(pwd)/envoy.yaml:/etc/envoy/envoy.yaml:ro" \
-  envoyproxy/envoy:v1.25-latest
+
+protoc \
+  -I./lottery/proto \
+  -I./proto/third_party \
+  --include_imports \
+  --include_source_info \
+  --descriptor_set_out=./lottery.pb \
+  ./lottery/proto/lottery.proto \
+  ./lottery/proto/record.proto \
+  ./lottery/proto/user.proto \
+  ./lottery/proto/wx.proto
+
+protoc \
+  -I./lottery/proto \
+  -I./proto/third_party \
+  --openapiv2_out=./ \
+  ./lottery/proto/lottery.proto
 
 docker run --name envoy -it --rm \
   -v "vsc-remote-containers-empty:/workspaces:ro" \
+  -p 51051:51051 \
   envoyproxy/envoy:v1.25-latest -c /workspaces/empty-backend/envoy.yaml
 
 
