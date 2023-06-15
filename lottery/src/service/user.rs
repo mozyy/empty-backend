@@ -75,19 +75,11 @@ impl pb::user_service_server::UserService for Service {
         let resp = client
             .sns_jscode2session(crate::pb::wx::SnsJscode2sessionRequest::new(code))
             .await?;
-        dbg!(resp);
-        // let resp = service::wx::Wx::sns_jscode2session(
-        //     crate::model::wx::SnsJscode2sessionRequest::new(code),
-        // )
-        // .await?;
-        // let mut conn = self.db.get_conn()?;
-        // let user = request
-        //     .into_inner()
-        //     .user
-        //     .ok_or_else(|| ServiceError::StatusError(tonic::Status::data_loss("no blog")))?;
-        // let user = model::insert(&mut conn, user).await?;
-        // Ok(Response::new(pb::CreateResponse { user: Some(user) }));
-        todo!();
+        let resp = resp.into_inner();
+        let mut conn = self.db.get_conn()?;
+        let user = pb::NewUser{openid: resp.openid, unionid: resp.unionid,session_key: resp.session_key,name: String::from("user name"),avatar: None,mobile:None}; 
+        let user = model::insert(&mut conn, user).await?;
+        todo!()
     }
     async fn info(&self, request: Request<pb::InfoRequest>) -> Resp<pb::InfoResponse> {
         todo!();
