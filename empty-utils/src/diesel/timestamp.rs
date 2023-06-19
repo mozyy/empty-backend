@@ -1,6 +1,5 @@
 use chrono::{NaiveDateTime, Timelike};
 use diesel::{
-    data_types::PgTimestamp,
     deserialize::{self, FromSql},
     pg::{Pg, PgValue},
     serialize::{self, Output, ToSql},

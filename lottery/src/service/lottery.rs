@@ -1,7 +1,6 @@
 use crate::pb::lottery as pb;
 use empty_utils::{diesel::db, errors::ServiceError, tonic::Resp};
 use tonic::{Request, Response};
-use uuid::Uuid;
 
 use crate::model::lottery as model;
 

@@ -21,7 +21,7 @@ impl WebResponse for OAuthResponse {
         todo!()
     }
 
-    fn redirect(&mut self, url: Url) -> Result<(), Self::Error> {
+    fn redirect(&mut self, _url: Url) -> Result<(), Self::Error> {
         todo!()
     }
 
@@ -29,15 +29,15 @@ impl WebResponse for OAuthResponse {
         todo!()
     }
 
-    fn unauthorized(&mut self, header_value: &str) -> Result<(), Self::Error> {
+    fn unauthorized(&mut self, _header_value: &str) -> Result<(), Self::Error> {
         todo!()
     }
 
-    fn body_text(&mut self, text: &str) -> Result<(), Self::Error> {
+    fn body_text(&mut self, _text: &str) -> Result<(), Self::Error> {
         todo!()
     }
 
-    fn body_json(&mut self, data: &str) -> Result<(), Self::Error> {
+    fn body_json(&mut self, _data: &str) -> Result<(), Self::Error> {
         todo!()
     }
 }

@@ -8,8 +8,7 @@ use empty_utils::{errors::ServiceResult, tonic::server};
 use lottery::{
     configs::ADDR,
     pb::{
-        self, lottery::lottery_service_server::LotteryServiceServer,
-        record::record_service_server::RecordServiceServer,
+        lottery::lottery_service_server::LotteryServiceServer,
         user::user_service_server::UserServiceServer, wx::wx_service_server::WxServiceServer,
     },
     service::{

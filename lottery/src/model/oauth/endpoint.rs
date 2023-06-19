@@ -6,7 +6,6 @@ use oxide_auth::{
     },
 };
 use oxide_auth_async::endpoint;
-use oxide_auth_axum::{OAuthRequest, OAuthResponse, WebError};
 
 use super::primitives::Guard;
 
@@ -93,7 +92,7 @@ where
 
     fn response(
         &mut self,
-        request: &mut Request,
+        _request: &mut Request,
         kind: oxide_auth::endpoint::Template,
     ) -> Result<Request::Response, Self::Error> {
         log::info!("response");

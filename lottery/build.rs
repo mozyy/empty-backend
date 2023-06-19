@@ -1,5 +1,3 @@
-use tonic_build::Builder;
-
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     build_lottery()?;
     build_oauth()?;

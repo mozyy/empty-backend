@@ -47,7 +47,7 @@ impl pb::o_auth_service_server::OAuthService for State {
             },
         ));
 
-        let p = AuthorizationFlow::prepare(endpoint)
+        let _p = AuthorizationFlow::prepare(endpoint)
             .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?
             .execute(request.into())
             .await
@@ -57,7 +57,7 @@ impl pb::o_auth_service_server::OAuthService for State {
         }))
     }
     async fn token(&self, request: Request<pb::TokenRequest>) -> Resp<pb::TokenResponse> {
-        let p =
+        let _p =
             AccessTokenFlow::<Endpoint<'_, Vacant>, OAuthRequest>::prepare(self.endpoint().await)
                 .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?
                 .execute(OAuthRequest::from(request))
@@ -66,19 +66,19 @@ impl pb::o_auth_service_server::OAuthService for State {
         todo!();
     }
     async fn resource(&self, request: Request<pb::ResourceRequest>) -> Resp<pb::ResourceResponse> {
-        let pb::ResourceRequest { uri, auth } = request.into_inner();
+        let pb::ResourceRequest { uri: _, auth } = request.into_inner();
         let res =
             ResourceFlow::<Endpoint<'_, Vacant>, OAuthRequest>::prepare(self.endpoint().await)
                 .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?
                 .execute(OAuthRequest::with_auth(auth))
-                .await;                ;
-        let res = match res{
+                .await;
+        let res = match res {
             Ok(r) => r,
             Err(e) => match e {
                 Ok(r) => {
-                    log::warn!("{:?}",r); 
-                    return Err(tonic::Status::unauthenticated("r.into()"))
-                },
+                    log::warn!("{:?}", r);
+                    return Err(tonic::Status::unauthenticated("r.into()"));
+                }
                 Err(e) => return Err(tonic::Status::unauthenticated(e.0.to_string())),
             },
         };

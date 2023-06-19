@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use empty_utils::{errors::ServiceResult, tonic::Resp};
+use empty_utils::tonic::Resp;
 use tonic::{Request, Response};
 
 use crate::pb::wx as pb;

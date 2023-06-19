@@ -1,6 +1,3 @@
-use std::error;
-use std::error::Error;
-
 use diesel::pg::Pg;
 use diesel::prelude::*;
 use diesel::query_builder::*;

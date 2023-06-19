@@ -1,4 +1,4 @@
-use crate::{configs::ADDR, pb::user as pb, service};
+use crate::{configs::ADDR, pb::user as pb};
 use async_trait::async_trait;
 use empty_utils::{diesel::db, errors::ServiceError, tonic::Resp};
 use tonic::{Request, Response};
@@ -85,10 +85,10 @@ impl pb::user_service_server::UserService for Service {
             avatar: None,
             mobile: None,
         };
-        let user = model::insert(&mut conn, user).await?;
+        let _user = model::insert(&mut conn, user).await?;
         todo!()
     }
-    async fn info(&self, request: Request<pb::InfoRequest>) -> Resp<pb::InfoResponse> {
+    async fn info(&self, _request: Request<pb::InfoRequest>) -> Resp<pb::InfoResponse> {
         todo!();
     }
 }
