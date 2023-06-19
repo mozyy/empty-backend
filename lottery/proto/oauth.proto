@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package oauth;
+
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "oauth.v1";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  schemes: HTTPS;
+  host: "yyuck.com";
+};
+
+service OAuthService {
+  rpc Authorize(AuthorizeRequest) returns (AuthorizeResponse) {
+    option (google.api.http) = {
+      get: "/oauth.OAuthService/authorize"
+    };
+  }
+  rpc Token(TokenRequest) returns (TokenResponse) {
+    option (google.api.http) = {
+      post: "/oauth.OAuthService/token",
+      body: "*"
+    };
+  }
+  rpc Resource(ResourceRequest) returns (ResourceResponse) {}
+}
+
+message AuthorizeRequest {
+  string client_id = 1;
+  string response_type = 2;
+  optional string redirect_uri = 3;
+}
+message AuthorizeResponse {
+  string code = 1;
+}
+message TokenRequest {
+  string code = 1;
+}
+message TokenResponse {
+  string access_token = 1;
+  string token_type = 2;
+  int32 expires_in = 3;
+  string refresh_token = 4;
+  string scope = 5;
+}
+message ResourceRequest {
+  string auth = 1;
+  string uri = 2;
+}
+message ResourceResponse {
+  string owner_id = 1;
+  string client_id = 2;
+  string scope = 3;
+  string redirect_uri = 4;
+  google.protobuf.Timestamp until = 5;
+  map<string,string> extensions = 6;
+}

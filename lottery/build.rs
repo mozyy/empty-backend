@@ -2,6 +2,7 @@ use tonic_build::Builder;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     build_lottery()?;
+    build_oauth()?;
     build_record()?;
     build_user()?;
     build_wx()?;
@@ -52,6 +53,14 @@ fn build_lottery() -> Result<(), Box<dyn std::error::Error>> {
         );
     build_config.compile(
         &["./proto/lottery.proto"],
+        &["./proto", "../proto/third_party"],
+    )?;
+    Ok(())
+}
+fn build_oauth() -> Result<(), Box<dyn std::error::Error>> {
+    let build_config = tonic_build::configure();
+    build_config.compile(
+        &["./proto/oauth.proto"],
         &["./proto", "../proto/third_party"],
     )?;
     Ok(())

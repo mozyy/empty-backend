@@ -1,5 +1,4 @@
 use chrono::{NaiveDateTime, Timelike};
-use serde::{Deserialize, Deserializer, Serializer};
 use diesel::{
     data_types::PgTimestamp,
     deserialize::{self, FromSql},
@@ -7,6 +6,7 @@ use diesel::{
     serialize::{self, Output, ToSql},
     sql_types, AsExpression, FromSqlRow,
 };
+use serde::{Deserialize, Deserializer, Serializer};
 // The signature of a serialize_with function must follow the pattern:
 //
 //    fn serialize<S>(&T, S) -> Result<S::Ok, S::Error>
@@ -37,9 +37,6 @@ where
         .ok_or_else(|| serde::de::Error::custom(format!("deserial timestamp error: {}", value)))
 }
 
-
-
-
 // time
 #[derive(Clone, Debug, AsExpression, FromSqlRow)]
 #[diesel(sql_type = sql_types::Timestamp)]
@@ -47,7 +44,7 @@ pub struct Timestamp(prost_types::Timestamp);
 
 impl From<NaiveDateTime> for Timestamp {
     fn from(value: NaiveDateTime) -> Self {
-        Self( prost_types::Timestamp{
+        Self(prost_types::Timestamp {
             seconds: value.timestamp(),
             nanos: value.nanosecond() as i32,
         })
@@ -56,7 +53,6 @@ impl From<NaiveDateTime> for Timestamp {
 impl From<Timestamp> for NaiveDateTime {
     fn from(value: Timestamp) -> Self {
         Self::from_timestamp_opt(value.0.seconds, value.0.nanos as u32).unwrap()
-        
     }
 }
 
@@ -65,7 +61,6 @@ impl From<Timestamp> for Option<prost_types::Timestamp> {
         Some(value.0)
     }
 }
-
 
 impl FromSql<sql_types::Timestamp, Pg> for Timestamp {
     fn from_sql(bytes: PgValue<'_>) -> deserialize::Result<Self> {
@@ -77,6 +72,9 @@ impl FromSql<sql_types::Timestamp, Pg> for Timestamp {
 
 impl ToSql<sql_types::Timestamp, Pg> for Timestamp {
     fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, Pg>) -> serialize::Result {
-        ToSql::<sql_types::Timestamp, Pg>::to_sql(&NaiveDateTime::from(self.to_owned()), &mut out.reborrow())
+        ToSql::<sql_types::Timestamp, Pg>::to_sql(
+            &NaiveDateTime::from(self.to_owned()),
+            &mut out.reborrow(),
+        )
     }
 }

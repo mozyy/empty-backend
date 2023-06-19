@@ -77,7 +77,14 @@ impl pb::user_service_server::UserService for Service {
             .await?;
         let resp = resp.into_inner();
         let mut conn = self.db.get_conn()?;
-        let user = pb::NewUser{openid: resp.openid, unionid: resp.unionid,session_key: resp.session_key,name: String::from("user name"),avatar: None,mobile:None}; 
+        let user = pb::NewUser {
+            openid: resp.openid,
+            unionid: resp.unionid,
+            session_key: resp.session_key,
+            name: String::from("user name"),
+            avatar: None,
+            mobile: None,
+        };
         let user = model::insert(&mut conn, user).await?;
         todo!()
     }

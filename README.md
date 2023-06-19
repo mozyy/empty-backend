@@ -17,16 +17,11 @@ protoc \
   --include_imports \
   --include_source_info \
   --descriptor_set_out=./lottery.pb \
+  --openapiv2_out=./ \
   ./lottery/proto/lottery.proto \
   ./lottery/proto/record.proto \
   ./lottery/proto/user.proto \
   ./lottery/proto/wx.proto
-
-protoc \
-  -I./lottery/proto \
-  -I./proto/third_party \
-  --openapiv2_out=./ \
-  ./lottery/proto/lottery.proto
 
 docker run --name envoy -it --rm \
   -v "vsc-remote-containers-empty:/workspaces:ro" \

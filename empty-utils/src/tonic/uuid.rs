@@ -20,12 +20,11 @@ impl From<Uuid> for String {
     }
 }
 
-
 impl FromSql<sql_types::Uuid, Pg> for Uuid {
     fn from_sql(bytes: PgValue<'_>) -> deserialize::Result<Self> {
         let value: deserialize::Result<uuid::Uuid> =
             FromSql::<sql_types::Uuid, Pg>::from_sql(bytes);
-            value.map(Self)
+        value.map(Self)
     }
 }
 
@@ -34,4 +33,3 @@ impl ToSql<sql_types::Uuid, Pg> for Uuid {
         ToSql::<sql_types::Uuid, Pg>::to_sql(&self.0, out)
     }
 }
-

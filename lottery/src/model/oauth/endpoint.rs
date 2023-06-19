@@ -1,5 +1,5 @@
 use oxide_auth::{
-    endpoint::Scope,
+    endpoint::{OAuthError, Scope, WebRequest},
     primitives::{
         prelude::{AuthMap, RandomGenerator, TokenMap},
         registrar::ClientMap,
@@ -33,10 +33,7 @@ pub struct Endpoint<'a, Solicitor> {
     // response: Vacant,
 }
 
-impl<'a, Solicitor> Endpoint<'a, Solicitor>
-where
-    Solicitor: endpoint::OwnerSolicitor<OAuthRequest> + Send + Sync,
-{
+impl<'a, Solicitor> Endpoint<'a, Solicitor> {
     pub fn with_scopes(self, scopes: Vec<Scope>) -> Endpoint<'a, Solicitor> {
         Endpoint {
             registrar: self.registrar,
@@ -46,9 +43,12 @@ where
             scopes,
         }
     }
-    pub fn with_solicitor<S>(self, solicitor: S) -> Endpoint<'a, S>
+    pub fn with_solicitor<Request, S>(self, solicitor: S) -> Endpoint<'a, S>
     where
-        S: endpoint::OwnerSolicitor<OAuthRequest>,
+        Request: WebRequest,
+        Request::Response: Default,
+        Request::Error: From<OAuthError>,
+        S: endpoint::OwnerSolicitor<Request>,
     {
         Endpoint {
             registrar: self.registrar,
@@ -60,11 +60,14 @@ where
     }
 }
 
-impl<'a, Solicitor> endpoint::Endpoint<OAuthRequest> for Endpoint<'a, Solicitor>
+impl<'a, Request, Solicitor> endpoint::Endpoint<Request> for Endpoint<'a, Solicitor>
 where
-    Solicitor: endpoint::OwnerSolicitor<OAuthRequest> + Send,
+    Request: WebRequest,
+    Request::Response: Default,
+    Request::Error: From<OAuthError>,
+    Solicitor: endpoint::OwnerSolicitor<Request> + Send,
 {
-    type Error = WebError;
+    type Error = Request::Error;
 
     fn registrar(&self) -> Option<&(dyn oxide_auth_async::primitives::Registrar + Sync)> {
         Some(&self.registrar)
@@ -80,25 +83,22 @@ where
         Some(&mut self.issuer)
     }
 
-    fn owner_solicitor(
-        &mut self,
-    ) -> Option<&mut (dyn endpoint::OwnerSolicitor<OAuthRequest> + Send)> {
+    fn owner_solicitor(&mut self) -> Option<&mut (dyn endpoint::OwnerSolicitor<Request> + Send)> {
         Some(&mut self.solicitor)
     }
 
-    fn scopes(&mut self) -> Option<&mut dyn oxide_auth::endpoint::Scopes<OAuthRequest>> {
+    fn scopes(&mut self) -> Option<&mut dyn oxide_auth::endpoint::Scopes<Request>> {
         Some(&mut self.scopes)
     }
 
     fn response(
         &mut self,
-        request: &mut OAuthRequest,
+        request: &mut Request,
         kind: oxide_auth::endpoint::Template,
-    ) -> Result<<OAuthRequest as oxide_auth::endpoint::WebRequest>::Response, Self::Error> {
+    ) -> Result<Request::Response, Self::Error> {
         log::info!("response");
-        dbg!(request);
         dbg!(kind);
-        Ok(OAuthResponse::default())
+        Ok(Default::default())
     }
 
     fn error(&mut self, err: oxide_auth::endpoint::OAuthError) -> Self::Error {
@@ -107,10 +107,7 @@ where
         err.into()
     }
 
-    fn web_error(
-        &mut self,
-        err: <OAuthRequest as oxide_auth::endpoint::WebRequest>::Error,
-    ) -> Self::Error {
+    fn web_error(&mut self, err: Request::Error) -> Self::Error {
         log::info!("web_error");
         err
     }

@@ -1,5 +1,5 @@
 use std::time::Duration;
-pub mod timestamp;
+// pub mod timestamp;
 pub mod uuid;
 
 use tonic::transport::Server;

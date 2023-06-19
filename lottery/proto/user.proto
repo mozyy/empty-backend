@@ -25,7 +25,6 @@ service UserService {
       get: "/user.UserService/users/{id}"
     };
   }
-  // TODO: login: wx.login wx.getOpenid
   rpc Create(CreateRequest) returns (CreateResponse) {
     option (google.api.http) = {
       post: "/user.UserService/users",

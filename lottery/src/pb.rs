@@ -1,6 +1,10 @@
 pub mod lottery {
     tonic::include_proto!("lottery");
 }
+
+pub mod oauth {
+    tonic::include_proto!("oauth");
+}
 pub mod paginate {
     tonic::include_proto!("paginate");
 }
@@ -10,6 +14,7 @@ pub mod record {
 pub mod user {
     tonic::include_proto!("user");
 }
+
 pub mod wx {
     tonic::include_proto!("wx");
 }

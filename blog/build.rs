@@ -13,15 +13,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .field_attribute(
             "created_at",
-            "#[diesel(deserialize_as = ::empty_utils::tonic::timestamp::Timestamp)]",
+            "#[diesel(deserialize_as = ::empty_utils::diesel::timestamp::Timestamp)]",
         )
         .field_attribute(
             "updated_at",
-            "#[diesel(deserialize_as = ::empty_utils::tonic::timestamp::Timestamp)]",
-        )
-        .extern_path(
-            ".google.protobuf.Timestamp",
-            "::empty_utils::tonic::timestamp::Timestamp",
+            "#[diesel(deserialize_as = ::empty_utils::diesel::timestamp::Timestamp)]",
         );
     build_config.compile(
         &["../proto/proto/blog/blog.proto"],

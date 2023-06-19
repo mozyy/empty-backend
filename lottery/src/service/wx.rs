@@ -21,6 +21,7 @@ impl pb::wx_service_server::WxService for Service {
             .json()
             .await
             .map_err(|e| tonic::Status::resource_exhausted(e.to_string()))?;
+        log::info!("{:?}", res);
         Ok(Response::new(res))
     }
 }
