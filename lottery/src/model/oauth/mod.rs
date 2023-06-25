@@ -1,3 +1,4 @@
+pub mod diesel;
 pub mod endpoint;
 pub mod grpc;
 pub mod primitives;

@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct OAuthError(pub tonic::Status);
 
 impl From<oxide_auth::endpoint::OAuthError> for OAuthError {

@@ -17,6 +17,7 @@ chrono = {workspace = true, features = ["serde"] }
 uuid= { workspace = true, features = ["serde"] }
 dotenvy = {workspace = true}
 async-trait =  { workspace = true }
+http =  { workspace = true }
 
 
 tonic = { workspace = true }

@@ -38,7 +38,7 @@ static_resources:
           - name: envoy.filters.http.grpc_json_transcoder
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.filters.http.grpc_json_transcoder.v3.GrpcJsonTranscoder
-              proto_descriptor: "/workspaces/empty-backend/lottery.pb"
+              proto_descriptor: "/workspaces/empty-backend/target/lottery.pb"
               services: 
               - lottery.LotteryService
               - record.RecordService

@@ -23,11 +23,22 @@ service OAuthService {
   rpc Token(TokenRequest) returns (TokenResponse) {
     option (google.api.http) = {
       post: "/oauth.OAuthService/token",
-      body: "*"
+      body: "token"
     };
   }
   rpc Resource(ResourceRequest) returns (ResourceResponse) {}
+  rpc Login(LoginRequest) returns (LoginResponse) {}
+  rpc Register(RegisterRequest) returns (RegisterResponse) {}
 }
+
+message Token {
+  string access_token = 1;
+  string token_type = 2;
+  int32 expires_in = 3;
+  string refresh_token = 4;
+  string scope = 5;
+}
+
 
 message AuthorizeRequest {
   string client_id = 1;
@@ -41,11 +52,7 @@ message TokenRequest {
   string code = 1;
 }
 message TokenResponse {
-  string access_token = 1;
-  string token_type = 2;
-  int32 expires_in = 3;
-  string refresh_token = 4;
-  string scope = 5;
+  Token token = 1;
 }
 message ResourceRequest {
   string auth = 1;
@@ -58,4 +65,25 @@ message ResourceResponse {
   string redirect_uri = 4;
   google.protobuf.Timestamp until = 5;
   map<string,string> extensions = 6;
+}
+
+message User {
+  string id = 1; // id11
+  google.protobuf.Timestamp created_at = 2;
+  google.protobuf.Timestamp updated_at = 3;
+}
+
+message LoginRequest {
+  string user_id = 1;
+}
+message LoginResponse {
+  User user = 1;
+  Token token = 2;
+}
+
+message RegisterRequest {
+}
+message RegisterResponse {
+  User user = 1;
+  Token token = 2;
 }

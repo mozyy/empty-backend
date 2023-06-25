@@ -13,6 +13,12 @@ pub async fn query_by_id(conn: &mut PgConnection, id: Uuid) -> ServiceResult<pb:
     let user = users::table.find(id).first::<pb::User>(conn)?;
     Ok(user)
 }
+pub async fn query_by_openid(conn: &mut PgConnection, openid: String) -> ServiceResult<pb::User> {
+    let user = users::table
+        .filter(users::openid.eq(openid))
+        .first::<pb::User>(conn)?;
+    Ok(user)
+}
 pub async fn insert(conn: &mut PgConnection, user: pb::NewUser) -> ServiceResult<pb::User> {
     let user = diesel::insert_into(users::table)
         .values(user)

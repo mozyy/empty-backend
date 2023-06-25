@@ -6,7 +6,8 @@ use crate::pb::oauth as pb;
 
 use super::{error::OAuthError, response::OAuthResponse};
 
-struct Auth(Option<String>);
+#[derive(Default)]
+pub(super) struct Auth(Option<String>);
 
 impl<T> From<&tonic::Request<T>> for Auth {
     fn from(value: &tonic::Request<T>) -> Self {
@@ -18,10 +19,11 @@ impl<T> From<&tonic::Request<T>> for Auth {
     }
 }
 
+#[derive(Default)]
 pub struct OAuthRequest {
-    auth: Auth,
-    query: HashMap<String, String>,
-    body: HashMap<String, String>,
+    pub(super) auth: Auth,
+    pub(super) query: HashMap<String, String>,
+    pub(super) body: HashMap<String, String>,
 }
 
 impl WebRequest for OAuthRequest {
@@ -80,11 +82,20 @@ impl From<tonic::Request<pb::TokenRequest>> for OAuthRequest {
     }
 }
 impl OAuthRequest {
-    pub fn with_auth(auth: String) -> Self {
+    pub fn with_auth(&self, auth: String) -> Self {
         Self {
             auth: Auth(Some(auth)),
-            query: Default::default(),
-            body: Default::default(),
+            query: self.query.clone(),
+            body: self.body.clone(),
         }
+    }
+    pub fn default_authorize() -> Self {
+        let mut state = Self::default();
+        let mut query = HashMap::new();
+        query.insert(String::from("client_id"), "zuoyin".into());
+        query.insert(String::from("response_type"), "code".into());
+        // query.insert(String::from("redirect_uri"), "req.client_id".into());
+        state.query = query;
+        state
     }
 }

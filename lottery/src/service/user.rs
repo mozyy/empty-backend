@@ -77,15 +77,17 @@ impl pb::user_service_server::UserService for Service {
             .await?;
         let resp = resp.into_inner();
         let mut conn = self.db.get_conn()?;
-        let user = pb::NewUser {
-            openid: resp.openid,
-            unionid: resp.unionid,
-            session_key: resp.session_key,
-            name: String::from("user name"),
-            avatar: None,
-            mobile: None,
-        };
-        let _user = model::insert(&mut conn, user).await?;
+        let user = model::query_by_openid(&mut conn, resp.openid).await?;
+        dbg!(user);
+        // let user = pb::NewUser {
+        //     openid: resp.openid,
+        //     unionid: resp.unionid,
+        //     session_key: resp.session_key,
+        //     name: String::from("user name"),
+        //     avatar: None,
+        //     mobile: None,
+        // };
+        // let _user = model::insert(&mut conn, user).await?;
         todo!()
     }
     async fn info(&self, _request: Request<pb::InfoRequest>) -> Resp<pb::InfoResponse> {

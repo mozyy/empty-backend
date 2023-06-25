@@ -16,8 +16,8 @@ protoc \
   -I./proto/third_party \
   --include_imports \
   --include_source_info \
-  --descriptor_set_out=./lottery.pb \
-  --openapiv2_out=./ \
+  --descriptor_set_out=./target/lottery.pb \
+  --openapiv2_out=../empty-frontend/src/openapi/docs/lottery/ \
   ./lottery/proto/lottery.proto \
   ./lottery/proto/record.proto \
   ./lottery/proto/user.proto \

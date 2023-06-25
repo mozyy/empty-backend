@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use empty_utils::diesel::db;
 use oxide_auth::{
     frontends::simple::endpoint::Vacant,
     primitives::{
@@ -14,6 +15,7 @@ use crate::model::oauth::endpoint::Endpoint;
 
 #[derive(Clone)]
 pub struct State {
+    pub db: db::DbPool,
     client_map: Arc<Mutex<ClientMap>>,
     auth_map: Arc<Mutex<AuthMap<RandomGenerator>>>,
     token_map: Arc<Mutex<TokenMap<RandomGenerator>>>,
@@ -23,6 +25,7 @@ pub struct State {
 impl State {
     pub fn new() -> Self {
         Self {
+            db: db::DbPool::new("lottery"),
             client_map: Arc::new(Mutex::new(
                 vec![
                     Client::confidential(
