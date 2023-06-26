@@ -44,6 +44,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable)]
     #[diesel(table_name=crate::schema::oauth_users)]",
     )
+    .type_attribute(
+        "oauth.Token",
+        "#[derive(::serde::Deserialize)]",
+    )
     .field_attribute(
         "oauth.User.id",
         "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
@@ -92,6 +96,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     )
     .type_attribute(
         "wx.SnsJscode2sessionResponse",
+        "#[derive(::serde::Deserialize)]",
+    )
+    .type_attribute(
+        "wx.Error",
         "#[derive(::serde::Deserialize)]",
     )
 

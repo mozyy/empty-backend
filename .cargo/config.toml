@@ -1,4 +1,4 @@
 [env]
 # Set ENV_VAR_NAME=value for any process run by Cargo
 REGISTRY_ADDR = "127.0.0.1:50051"
-RUST_LOG = "debug,h2=info"  # trace debug info wran error
+RUST_LOG = "debug,h2=info,hyper::client=info,hyper::proto=info"  # trace debug info wran error

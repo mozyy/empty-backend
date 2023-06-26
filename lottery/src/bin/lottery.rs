@@ -9,7 +9,7 @@ use lottery::{
     configs::ADDR,
     pb::{
         lottery::lottery_service_server::LotteryServiceServer,
-        user::user_service_server::UserServiceServer, wx::wx_service_server::WxServiceServer,
+        user::user_service_server::UserServiceServer, wx::wx_service_server::WxServiceServer, oauth::o_auth_service_server::OAuthServiceServer,
     },
     service::{
         self,
@@ -28,17 +28,17 @@ async fn main() -> ServiceResult {
 
     let addr = SocketAddr::from((Ipv4Addr::LOCALHOST, 3000));
     axum::Server::bind(&addr)
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+        .serve(app.into_make_service());
 
     let url = ADDR.parse().unwrap();
     let lottery = LotteryServiceServer::new(service::lottery::Service::default());
+    let oauth = OAuthServiceServer::new(service::oauth::Service::default());
     // let record = RecordServiceServer::new(service::record::Service::default());
     let user = UserServiceServer::new(service::user::Service::default());
     let wx = WxServiceServer::new(service::wx::Service::default());
     server()
         .add_service(lottery)
+        .add_service(oauth)
         // .add_service(record)
         .add_service(user)
         .add_service(wx)

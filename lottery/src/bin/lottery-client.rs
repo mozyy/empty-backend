@@ -15,8 +15,9 @@ async fn main() {
     let create = client_user
         .create(pb::user::CreateRequest {
             user: Some(pb::user::NewUser {
+                oauth_user_id: Uuid::new_v4().to_string(),
                 openid: Uuid::new_v4().to_string(),
-                unionid: Uuid::new_v4().to_string(),
+                unionid: Some(Uuid::new_v4().to_string()),
                 session_key: Uuid::new_v4().to_string(),
                 name: String::from("yyue"),
                 avatar: None,

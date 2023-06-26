@@ -52,8 +52,9 @@ diesel::table! {
 diesel::table! {
     users (id) {
         id -> Uuid,
+        oauth_user_id -> Text,
         openid -> Text,
-        unionid -> Text,
+        unionid -> Nullable<Text>,
         session_key -> Text,
         name -> Text,
         avatar -> Nullable<Text>,

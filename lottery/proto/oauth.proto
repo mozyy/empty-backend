@@ -23,7 +23,7 @@ service OAuthService {
   rpc Token(TokenRequest) returns (TokenResponse) {
     option (google.api.http) = {
       post: "/oauth.OAuthService/token",
-      body: "token"
+      body: "*"
     };
   }
   rpc Resource(ResourceRequest) returns (ResourceResponse) {}

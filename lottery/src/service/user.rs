@@ -1,4 +1,4 @@
-use crate::{configs::ADDR, pb::user as pb};
+use crate::{configs::{ADDR, ADDR_CLIENT}, pb::user as pb};
 use async_trait::async_trait;
 use empty_utils::{diesel::db, errors::ServiceError, tonic::Resp};
 use tonic::{Request, Response};
@@ -69,26 +69,40 @@ impl pb::user_service_server::UserService for Service {
     }
     async fn login(&self, request: Request<pb::LoginRequest>) -> Resp<pb::LoginResponse> {
         let code = request.into_inner().code;
-        let mut client = crate::pb::wx::wx_service_client::WxServiceClient::connect(ADDR)
+        let mut client = crate::pb::wx::wx_service_client::WxServiceClient::connect(ADDR_CLIENT)
             .await
             .unwrap();
+        log::warn!("code: {code}");
         let resp = client
             .sns_jscode2session(crate::pb::wx::SnsJscode2sessionRequest::new(code))
             .await?;
         let resp = resp.into_inner();
-        let mut conn = self.db.get_conn()?;
-        let user = model::query_by_openid(&mut conn, resp.openid).await?;
-        dbg!(user);
-        // let user = pb::NewUser {
-        //     openid: resp.openid,
-        //     unionid: resp.unionid,
-        //     session_key: resp.session_key,
-        //     name: String::from("user name"),
-        //     avatar: None,
-        //     mobile: None,
-        // };
-        // let _user = model::insert(&mut conn, user).await?;
-        todo!()
+        let mut conn = self.db.get_conn()?; 
+        let mut client = crate::pb::oauth::o_auth_service_client::OAuthServiceClient::connect(ADDR_CLIENT).await.unwrap();
+        let token = match model::query_by_openid(&mut conn, resp.openid.clone()).await {
+             Ok(user) => {
+                let resp = client.login(crate::pb::oauth::LoginRequest{user_id: user.oauth_user_id}).await?;
+                resp.into_inner().token
+             },
+             Err(e) => {
+                log::info!("query_by_openid error: {}",e.to_string());
+                let res = client.register(crate::pb::oauth::RegisterRequest{}).await?;
+                let res = res.into_inner();
+                let user = pb::NewUser {
+                    oauth_user_id: res.user.unwrap().id,
+                    openid: resp.openid,
+                    unionid: resp.unionid,
+                    session_key: resp.session_key,
+                    name: String::from("user name"),
+                    avatar: None,
+                    mobile: None,
+                };
+                let user = model::insert(&mut conn, user).await?;
+                res.token
+            }
+        };
+        dbg!(&token);
+        Ok(Response::new(pb::LoginResponse{token}))
     }
     async fn info(&self, _request: Request<pb::InfoRequest>) -> Resp<pb::InfoResponse> {
         todo!();

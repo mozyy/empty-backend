@@ -1,4 +1,7 @@
+use std::collections::HashMap;
+
 use async_trait::async_trait;
+use ::diesel::expression::is_aggregate::No;
 use empty_utils::{errors::ServiceResult, tonic::Resp};
 use oxide_auth::{
     endpoint::{OwnerConsent, Solicitation, WebResponse},
@@ -14,7 +17,7 @@ use crate::{
     model::oauth::{
         diesel,
         endpoint::Endpoint,
-        grpc::{error::OAuthError, request::OAuthRequest, response::OAuthResponse},
+        grpc::{error::OAuthError, request::{OAuthRequest, Auth}, response::{OAuthResponse, ResponseStatus}},
     },
     pb::oauth as pb,
 };
@@ -89,10 +92,13 @@ impl pb::o_auth_service_server::OAuthService for State {
         let user = diesel::query_list_by_id(&mut conn, id).await?;
         let req = OAuthRequest::default_authorize();
         let req = self.authorize_by_id(id, req).await?;
-        dbg!(req);
+
+        let token = req.body.map(|body|{
+            serde_json::from_str(body.as_str()).unwrap()
+        }) ;
         Ok(Response::new(pb::LoginResponse {
             user: Some(user),
-            token: None,
+            token,
         }))
     }
     async fn register(&self, _request: Request<pb::RegisterRequest>) -> Resp<pb::RegisterResponse> {
@@ -101,10 +107,14 @@ impl pb::o_auth_service_server::OAuthService for State {
         let id = user.id.parse().unwrap();
         let req = OAuthRequest::default_authorize();
         let req = self.authorize_by_id(id, req).await?;
-        dbg!(req);
+
+        let token = req.body.map(|body|{
+            serde_json::from_str(body.as_str()).unwrap()
+        }) ;
+        
         Ok(Response::new(pb::RegisterResponse {
             user: Some(user),
-            token: None,
+            token,
         }))
     }
 }
@@ -126,6 +136,29 @@ impl State {
             .execute(request)
             .await
             .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?;
-        Ok(resp)
+        let mut code = if let ResponseStatus::REDIRECT(url) = resp.status{
+             url.query().map(|v| {
+                url::form_urlencoded::parse(v.as_bytes())
+                    .into_owned()
+                    .collect()
+            })
+            .unwrap_or_else(HashMap::new)
+        } else {
+            HashMap::new()
+        };
+        code.insert("grant_type".into(), "authorization_code".into());
+        // TODO: from query
+        code.insert("client_id".into(), "zuoyin".into());
+        code.insert("redirect_uri".into(), "http://localhost:8021/endpoint".into());
+        let res =
+            AccessTokenFlow::<Endpoint<'_, Vacant>, OAuthRequest>::prepare(self.endpoint().await)
+                .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?
+                .execute(OAuthRequest{ 
+                    auth: Auth(None),  
+                    query: code.clone(), 
+                    body: code })
+                .await
+                .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?;
+            Ok(res)
     }
 }

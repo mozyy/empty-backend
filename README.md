@@ -19,6 +19,7 @@ protoc \
   --descriptor_set_out=./target/lottery.pb \
   --openapiv2_out=../empty-frontend/src/openapi/docs/lottery/ \
   ./lottery/proto/lottery.proto \
+  ./lottery/proto/oauth.proto \
   ./lottery/proto/record.proto \
   ./lottery/proto/user.proto \
   ./lottery/proto/wx.proto

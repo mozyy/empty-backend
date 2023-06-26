@@ -6,7 +6,7 @@ use url::Url;
 use super::error::OAuthError;
 
 #[derive(Debug)]
-enum ResponseStatus {
+pub enum ResponseStatus {
     OK,
     REDIRECT(Url),
     BAD_REQUEST,
@@ -14,8 +14,8 @@ enum ResponseStatus {
 }
 #[derive(Debug)]
 pub struct OAuthResponse {
-    status: ResponseStatus,
-    body: Option<String>,
+    pub status: ResponseStatus,
+    pub body: Option<String>,
 }
 impl Default for OAuthResponse {
     fn default() -> Self {

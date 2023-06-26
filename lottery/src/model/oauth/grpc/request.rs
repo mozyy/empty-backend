@@ -7,7 +7,7 @@ use crate::pb::oauth as pb;
 use super::{error::OAuthError, response::OAuthResponse};
 
 #[derive(Default)]
-pub(super) struct Auth(Option<String>);
+pub struct Auth(pub Option<String>);
 
 impl<T> From<&tonic::Request<T>> for Auth {
     fn from(value: &tonic::Request<T>) -> Self {
@@ -21,9 +21,9 @@ impl<T> From<&tonic::Request<T>> for Auth {
 
 #[derive(Default)]
 pub struct OAuthRequest {
-    pub(super) auth: Auth,
-    pub(super) query: HashMap<String, String>,
-    pub(super) body: HashMap<String, String>,
+    pub auth: Auth,
+    pub query: HashMap<String, String>,
+    pub body: HashMap<String, String>,
 }
 
 impl WebRequest for OAuthRequest {
@@ -94,7 +94,7 @@ impl OAuthRequest {
         let mut query = HashMap::new();
         query.insert(String::from("client_id"), "zuoyin".into());
         query.insert(String::from("response_type"), "code".into());
-        // query.insert(String::from("redirect_uri"), "req.client_id".into());
+        // query.insert(String::from("redirect_uri"), "http://localhost:8021/endpoint".into());
         state.query = query;
         state
     }

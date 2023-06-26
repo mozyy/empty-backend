@@ -28,6 +28,11 @@ message SnsJscode2sessionResponse {
  string session_key = 1; // 会话密钥
  // 用户在开放平台的唯一标识符，若当前小程序已绑定到微信开放平台帐号下会返回，详见
  // [UnionID 机制说明](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/union-id.html)。
- string unionid = 2;
+ optional string unionid = 2;
  string openid = 3;  // 用户唯一标识
+}
+
+message Error {
+  int32 errcode = 1;
+  string errmsg = 2;
 }

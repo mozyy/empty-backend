@@ -62,23 +62,25 @@ service UserService {
 // Lottery item
 message User {
   string id = 1; // openid
+  string oauth_user_id = 2; // openid
+  string openid = 3; // openid
+  optional string unionid = 4; // user title
+  string session_key = 5; // lottery image
+  string name = 6;
+  optional string avatar = 7;
+  optional string mobile = 8;
+  google.protobuf.Timestamp created_at = 9;
+  google.protobuf.Timestamp updated_at = 10;
+}
+
+message NewUser {
+  string oauth_user_id = 1; // openid
   string openid = 2; // openid
-  string unionid = 3; // user title
+  optional string unionid = 3; // user title
   string session_key = 4; // lottery image
   string name = 5;
   optional string avatar = 6;
   optional string mobile = 7;
-  google.protobuf.Timestamp created_at = 8;
-  google.protobuf.Timestamp updated_at = 9;
-}
-
-message NewUser {
-  string openid = 1; // openid
-  string unionid = 2; // user title
-  string session_key = 3; // lottery image
-  string name = 4;
-  optional string avatar = 5;
-  optional string mobile = 6;
 }
 
 message ListRequest {}
