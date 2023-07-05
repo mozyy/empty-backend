@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use async_trait::async_trait;
 use ::diesel::expression::is_aggregate::No;
+use async_trait::async_trait;
 use empty_utils::{errors::ServiceResult, tonic::Resp};
 use oxide_auth::{
     endpoint::{OwnerConsent, Solicitation, WebResponse},
@@ -17,7 +17,11 @@ use crate::{
     model::oauth::{
         diesel,
         endpoint::Endpoint,
-        grpc::{error::OAuthError, request::{OAuthRequest, Auth}, response::{OAuthResponse, ResponseStatus}},
+        grpc::{
+            error::OAuthError,
+            request::{Auth, OAuthRequest},
+            response::{OAuthResponse, ResponseStatus},
+        },
     },
     pb::oauth as pb,
 };
@@ -93,9 +97,9 @@ impl pb::o_auth_service_server::OAuthService for State {
         let req = OAuthRequest::default_authorize();
         let req = self.authorize_by_id(id, req).await?;
 
-        let token = req.body.map(|body|{
-            serde_json::from_str(body.as_str()).unwrap()
-        }) ;
+        let token = req
+            .body
+            .map(|body| serde_json::from_str(body.as_str()).unwrap());
         Ok(Response::new(pb::LoginResponse {
             user: Some(user),
             token,
@@ -108,10 +112,10 @@ impl pb::o_auth_service_server::OAuthService for State {
         let req = OAuthRequest::default_authorize();
         let req = self.authorize_by_id(id, req).await?;
 
-        let token = req.body.map(|body|{
-            serde_json::from_str(body.as_str()).unwrap()
-        }) ;
-        
+        let token = req
+            .body
+            .map(|body| serde_json::from_str(body.as_str()).unwrap());
+
         Ok(Response::new(pb::RegisterResponse {
             user: Some(user),
             token,
@@ -136,29 +140,56 @@ impl State {
             .execute(request)
             .await
             .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?;
-        let mut code = if let ResponseStatus::REDIRECT(url) = resp.status{
-             url.query().map(|v| {
-                url::form_urlencoded::parse(v.as_bytes())
-                    .into_owned()
-                    .collect()
-            })
-            .unwrap_or_else(HashMap::new)
+        let mut code = if let ResponseStatus::REDIRECT(url) = resp.status {
+            url.query()
+                .map(|v| {
+                    url::form_urlencoded::parse(v.as_bytes())
+                        .into_owned()
+                        .collect()
+                })
+                .unwrap_or_else(HashMap::new)
         } else {
             HashMap::new()
         };
         code.insert("grant_type".into(), "authorization_code".into());
         // TODO: from query
         code.insert("client_id".into(), "zuoyin".into());
-        code.insert("redirect_uri".into(), "http://localhost:8021/endpoint".into());
+        code.insert(
+            "redirect_uri".into(),
+            "http://localhost:8021/endpoint".into(),
+        );
         let res =
             AccessTokenFlow::<Endpoint<'_, Vacant>, OAuthRequest>::prepare(self.endpoint().await)
                 .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?
-                .execute(OAuthRequest{ 
-                    auth: Auth(None),  
-                    query: code.clone(), 
-                    body: code })
+                .execute(OAuthRequest {
+                    auth: Auth(None),
+                    query: code.clone(),
+                    body: code,
+                })
                 .await
                 .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?;
-            Ok(res)
+        Ok(res)
+    }
+    pub async fn check_resource(
+        &mut self,
+        request: pb::ResourceRequest,
+    ) -> Resp<pb::ResourceResponse> {
+        let pb::ResourceRequest { uri: _, auth } = request;
+        let res =
+            ResourceFlow::<Endpoint<'_, Vacant>, OAuthRequest>::prepare(self.endpoint().await)
+                .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?
+                .execute(OAuthRequest::default().with_auth(auth))
+                .await;
+        let res = match res {
+            Ok(r) => r,
+            Err(e) => match e {
+                Ok(r) => {
+                    log::warn!("{:?}", r);
+                    return Err(tonic::Status::unauthenticated("r.into()"));
+                }
+                Err(e) => return Err(tonic::Status::unauthenticated(e.0.to_string())),
+            },
+        };
+        Ok(Response::new(res.into()))
     }
 }

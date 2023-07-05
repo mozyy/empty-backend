@@ -1,4 +1,7 @@
-use crate::{configs::{ADDR, ADDR_CLIENT}, pb::user as pb};
+use crate::{
+    configs::{ADDR, ADDR_CLIENT},
+    pb::user as pb,
+};
 use async_trait::async_trait;
 use empty_utils::{diesel::db, errors::ServiceError, tonic::Resp};
 use tonic::{Request, Response};
@@ -77,16 +80,25 @@ impl pb::user_service_server::UserService for Service {
             .sns_jscode2session(crate::pb::wx::SnsJscode2sessionRequest::new(code))
             .await?;
         let resp = resp.into_inner();
-        let mut conn = self.db.get_conn()?; 
-        let mut client = crate::pb::oauth::o_auth_service_client::OAuthServiceClient::connect(ADDR_CLIENT).await.unwrap();
+        let mut conn = self.db.get_conn()?;
+        let mut client =
+            crate::pb::oauth::o_auth_service_client::OAuthServiceClient::connect(ADDR_CLIENT)
+                .await
+                .unwrap();
         let token = match model::query_by_openid(&mut conn, resp.openid.clone()).await {
-             Ok(user) => {
-                let resp = client.login(crate::pb::oauth::LoginRequest{user_id: user.oauth_user_id}).await?;
+            Ok(user) => {
+                let resp = client
+                    .login(crate::pb::oauth::LoginRequest {
+                        user_id: user.oauth_user_id,
+                    })
+                    .await?;
                 resp.into_inner().token
-             },
-             Err(e) => {
-                log::info!("query_by_openid error: {}",e.to_string());
-                let res = client.register(crate::pb::oauth::RegisterRequest{}).await?;
+            }
+            Err(e) => {
+                log::info!("query_by_openid error: {}", e.to_string());
+                let res = client
+                    .register(crate::pb::oauth::RegisterRequest {})
+                    .await?;
                 let res = res.into_inner();
                 let user = pb::NewUser {
                     oauth_user_id: res.user.unwrap().id,
@@ -102,7 +114,7 @@ impl pb::user_service_server::UserService for Service {
             }
         };
         dbg!(&token);
-        Ok(Response::new(pb::LoginResponse{token}))
+        Ok(Response::new(pb::LoginResponse { token }))
     }
     async fn info(&self, _request: Request<pb::InfoRequest>) -> Resp<pb::InfoResponse> {
         todo!();

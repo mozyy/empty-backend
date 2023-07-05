@@ -1,4 +1,7 @@
-use lottery::{configs::ADDR, pb};
+use lottery::{
+    configs::{ADDR, ADDR_CLIENT},
+    pb,
+};
 use uuid::Uuid;
 
 #[tokio::main]
@@ -6,10 +9,10 @@ async fn main() {
     empty_utils::init();
     let mut client: pb::lottery::lottery_service_client::LotteryServiceClient<
         tonic::transport::Channel,
-    > = pb::lottery::lottery_service_client::LotteryServiceClient::connect(ADDR)
+    > = pb::lottery::lottery_service_client::LotteryServiceClient::connect(ADDR_CLIENT)
         .await
         .unwrap();
-    let mut client_user = pb::user::user_service_client::UserServiceClient::connect(ADDR)
+    let mut client_user = pb::user::user_service_client::UserServiceClient::connect(ADDR_CLIENT)
         .await
         .unwrap();
     let create = client_user
@@ -51,13 +54,13 @@ async fn main() {
         .await
         .unwrap();
     dbg!(create);
-    let blogs = client
-        .list(tonic::Request::new(pb::lottery::ListRequest {
-            lottery: None,
-            paginate: None,
-        }))
-        .await
-        .unwrap();
+    let mut req = tonic::Request::new(pb::lottery::ListRequest {
+        lottery: None,
+        paginate: None,
+    });
+    req.metadata_mut()
+        .append("authorization", "Bearer aaaaa".parse().unwrap());
+    let blogs = client.list(req).await.unwrap();
     log::info!("connect success");
     dbg!(blogs);
 }

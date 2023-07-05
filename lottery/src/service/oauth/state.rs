@@ -11,7 +11,10 @@ use oxide_auth::{
 
 use tokio::sync::Mutex;
 
-use crate::model::oauth::endpoint::Endpoint;
+use crate::{
+    model::oauth::{endpoint::Endpoint, UserId},
+    pb,
+};
 
 #[derive(Clone)]
 pub struct State {
@@ -67,5 +70,59 @@ impl State {
 impl Default for State {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+use futures_util::future::BoxFuture;
+use http::{header::AUTHORIZATION, StatusCode};
+use hyper::{Body, Error, Request, Response};
+use tonic::{body::BoxBody, codegen::empty_body};
+use tower::{service_fn, Service, ServiceBuilder, ServiceExt};
+use tower_http::auth::{self, AsyncAuthorizeRequest};
+
+impl<B> AsyncAuthorizeRequest<B> for State
+where
+    B: Send + Sync + 'static,
+{
+    type RequestBody = B;
+    type ResponseBody = BoxBody;
+    type Future = BoxFuture<'static, Result<Request<B>, Response<Self::ResponseBody>>>;
+
+    fn authorize(&mut self, mut request: Request<B>) -> Self::Future {
+        let mut that = self.clone();
+        Box::pin(async move {
+            let authorized = request
+                .headers()
+                .get(http::header::AUTHORIZATION)
+                .and_then(|it| it.to_str().ok())
+                .and_then(|it| it.strip_prefix("Bearer "));
+            if let Some(auth) = authorized {
+                let auth = auth.to_owned();
+                let res = that
+                    .check_resource(pb::oauth::ResourceRequest {
+                        auth,
+                        uri: "".into(),
+                    })
+                    .await;
+                match res {
+                    Ok(res) => {
+                        request
+                            .extensions_mut()
+                            .insert(UserId(res.into_inner().owner_id));
+                        Ok(request)
+                    }
+                    Err(err) => {
+                        log::warn!("check resource: {}", err);
+                        let unauthorized_response = Response::builder()
+                            .status(StatusCode::UNAUTHORIZED)
+                            .body(empty_body())
+                            .unwrap();
+                        Err(unauthorized_response)
+                    }
+                }
+            } else {
+                Ok(request)
+            }
+        })
     }
 }

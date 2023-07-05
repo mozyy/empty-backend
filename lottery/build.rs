@@ -119,7 +119,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "./proto/record.proto",
             "./proto/user.proto",
             "./proto/wx.proto",
-            ],
+        ],
         &["./proto", "../proto/third_party"],
     )?;
     Ok(())
