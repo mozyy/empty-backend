@@ -10,9 +10,35 @@ import "paginate.proto";
 
 option go_package = "lottery.v1";
 
+// https://github.com/grpc-ecosystem/grpc-gateway/blob/main/examples/internal/proto/examplepb/a_bit_of_everything.proto#L19C99
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   schemes: HTTPS;
   host: "yyuck.com";
+  security_definitions: {
+    security: {
+      key: "OAuth2";
+      value: {
+        type: TYPE_OAUTH2;
+        flow: FLOW_ACCESS_CODE;
+        authorization_url: "https://example.com/oauth/authorize";
+        token_url: "https://example.com/oauth/token";
+        scopes: {
+          scope: {
+            key: "read";
+            value: "Grants read access";
+          }
+          scope: {
+            key: "write";
+            value: "Grants write access";
+          }
+          scope: {
+            key: "admin";
+            value: "Grants read and write access to administrative information";
+          }
+        }
+      }
+    }
+  }
 };
 
 service LotteryService {
@@ -25,11 +51,31 @@ service LotteryService {
     option (google.api.http) = {
       get: "/lottery.LotteryService/lotterys/{id}"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      security: {
+        security_requirement: {
+          key: "OAuth2";
+          value: {
+            scope: "read";
+          }
+        }
+      }
+    };
   }
   rpc Create(CreateRequest) returns (CreateResponse) {
     option (google.api.http) = {
       post: "/lottery.LotteryService/lotterys",
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      security: {
+        security_requirement: {
+          key: "OAuth2";
+          value: {
+            scope: "write";
+          }
+        }
+      }
     };
   }
   rpc Update(UpdateRequest) returns (UpdateResponse) {

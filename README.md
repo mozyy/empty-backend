@@ -2,6 +2,10 @@
 empty backend
 
 
+## openapi
+https://github.com/grpc-ecosystem/grpc-gateway/blob/main/examples/internal/proto/examplepb/a_bit_of_everything.proto#L19C99
+
+
 protoc -I./proto/proto \
   -I./proto/third_party --include_imports \
   --include_source_info \
