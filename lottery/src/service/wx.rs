@@ -1,4 +1,4 @@
-use std::{fmt::format, str};
+use std::{str};
 
 use async_trait::async_trait;
 use empty_utils::tonic::Resp;
@@ -30,11 +30,11 @@ impl pb::wx_service_server::WxService for Service {
         })?;
         let res = match serde_json::from_slice::<pb::SnsJscode2sessionResponse>(&res) {
             Ok(res) => res,
-            Err(e) => match serde_json::from_slice::<pb::Error>(&res) {
+            Err(_e) => match serde_json::from_slice::<pb::Error>(&res) {
                 Ok(res) => {
                     return Err(tonic::Status::resource_exhausted(format!("code:{:?}", res)))
                 }
-                Err(e) => {
+                Err(_e) => {
                     return Err(tonic::Status::resource_exhausted(
                         str::from_utf8(&res).unwrap(),
                     ))

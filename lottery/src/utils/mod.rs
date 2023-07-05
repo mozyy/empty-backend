@@ -1,4 +1,4 @@
-use http::status;
+
 use std::future::Future;
 use tonic::body::BoxBody;
 use tower::{Layer, Service};
@@ -43,7 +43,7 @@ where
         self.inner.poll_ready(cx)
     }
 
-    fn call(&mut self, req: http::Request<ReqBody>) -> Self::Future {
+    fn call(&mut self, _req: http::Request<ReqBody>) -> Self::Future {
         AuthFuture {
             service: self.inner.clone(),
         }
@@ -59,7 +59,7 @@ impl<S> Future for AuthFuture<S> {
 
     fn poll(
         self: std::pin::Pin<&mut Self>,
-        cx: &mut std::task::Context<'_>,
+        _cx: &mut std::task::Context<'_>,
     ) -> std::task::Poll<Self::Output> {
         todo!()
     }

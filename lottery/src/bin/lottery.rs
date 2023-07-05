@@ -8,7 +8,7 @@ use empty_utils::{errors::ServiceResult, tonic::server};
 use lottery::{
     configs::ADDR,
     pb::{
-        self, lottery::lottery_service_server::LotteryServiceServer,
+        lottery::lottery_service_server::LotteryServiceServer,
         oauth::o_auth_service_server::OAuthServiceServer,
         user::user_service_server::UserServiceServer, wx::wx_service_server::WxServiceServer,
     },
@@ -16,7 +16,6 @@ use lottery::{
         self,
         oauth::{handler, state::State},
     },
-    utils::AuthLayer,
 };
 use tonic::{body::BoxBody, codegen::empty_body};
 use tower_http::auth::AsyncRequireAuthorizationLayer;
@@ -40,8 +39,8 @@ async fn main() -> ServiceResult {
     // let record = RecordServiceServer::new(service::record::Service::default());
     let user = UserServiceServer::new(service::user::Service::default());
     let wx = WxServiceServer::new(service::wx::Service::default());
-    let mut oauthState2 = oauthState.clone();
-    let mut handler = |mut request: hyper::Request<hyper::Body>| async move {
+    let _oauthState2 = oauthState.clone();
+    let handler = |mut request: hyper::Request<hyper::Body>| async move {
         let authorized = request
             .headers()
             .get(http::header::AUTHORIZATION)
@@ -79,9 +78,9 @@ async fn main() -> ServiceResult {
 }
 
 use futures_util::future::BoxFuture;
-use http::{header::AUTHORIZATION, StatusCode};
+use http::{StatusCode};
 use hyper::{Body, Error, Request, Response};
-use tower::{service_fn, Service, ServiceBuilder, ServiceExt};
+use tower::{ServiceExt};
 use tower_http::auth::AsyncAuthorizeRequest;
 
 #[derive(Clone)]
@@ -102,7 +101,7 @@ where
                 // Set `user_id` as a request extension so it can be accessed by other
                 // services down the stack.
                 request.extensions_mut().insert(user_id);
-                let s = that;
+                let _s = that;
                 Ok(request)
             } else {
                 let unauthorized_response = Response::builder()
@@ -116,7 +115,7 @@ where
     }
 }
 
-async fn check_auth<B>(request: &Request<B>) -> Option<UserId> {
+async fn check_auth<B>(_request: &Request<B>) -> Option<UserId> {
     // ...
     todo!()
 }

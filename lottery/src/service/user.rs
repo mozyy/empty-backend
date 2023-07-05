@@ -1,5 +1,5 @@
 use crate::{
-    configs::{ADDR, ADDR_CLIENT},
+    configs::{ADDR_CLIENT},
     pb::user as pb,
 };
 use async_trait::async_trait;
@@ -109,7 +109,7 @@ impl pb::user_service_server::UserService for Service {
                     avatar: None,
                     mobile: None,
                 };
-                let user = model::insert(&mut conn, user).await?;
+                let _user = model::insert(&mut conn, user).await?;
                 res.token
             }
         };

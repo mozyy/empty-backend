@@ -1,5 +1,5 @@
 use lottery::{
-    configs::{ADDR, ADDR_CLIENT},
+    configs::{ADDR_CLIENT},
     pb,
 };
 use uuid::Uuid;

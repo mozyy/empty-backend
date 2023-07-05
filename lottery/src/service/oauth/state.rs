@@ -74,11 +74,11 @@ impl Default for State {
 }
 
 use futures_util::future::BoxFuture;
-use http::{header::AUTHORIZATION, StatusCode};
-use hyper::{Body, Error, Request, Response};
+use http::{StatusCode};
+use hyper::{Request, Response};
 use tonic::{body::BoxBody, codegen::empty_body};
-use tower::{service_fn, Service, ServiceBuilder, ServiceExt};
-use tower_http::auth::{self, AsyncAuthorizeRequest};
+use tower::{ServiceExt};
+use tower_http::auth::{AsyncAuthorizeRequest};
 
 impl<B> AsyncAuthorizeRequest<B> for State
 where

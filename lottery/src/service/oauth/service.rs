@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use ::diesel::expression::is_aggregate::No;
+
 use async_trait::async_trait;
 use empty_utils::{errors::ServiceResult, tonic::Resp};
 use oxide_auth::{
@@ -18,7 +18,6 @@ use crate::{
         diesel,
         endpoint::Endpoint,
         grpc::{
-            error::OAuthError,
             request::{Auth, OAuthRequest},
             response::{OAuthResponse, ResponseStatus},
         },
