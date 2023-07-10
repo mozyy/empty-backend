@@ -1,7 +1,4 @@
-use crate::{
-    configs::{ADDR_CLIENT},
-    pb::user as pb,
-};
+use crate::{configs::ADDR_CLIENT, pb::user as pb};
 use async_trait::async_trait;
 use empty_utils::{diesel::db, errors::ServiceError, tonic::Resp};
 use tonic::{Request, Response};
@@ -14,8 +11,8 @@ pub struct Service {
 }
 
 impl Service {
-    pub fn new_by_db(db:db::DbPool) -> Self {
-        Self { db, }
+    pub fn new_by_db(db: db::DbPool) -> Self {
+        Self { db }
     }
 }
 
@@ -44,7 +41,9 @@ impl pb::user_service_server::UserService for Service {
         let id =
             Uuid::parse_str(&id).map_err(|e| tonic::Status::invalid_argument(e.to_string()))?;
         let wx_user = model::query_by_id(&mut conn, id).await?;
-        Ok(Response::new(pb::GetResponse { wx_user: Some(wx_user) }))
+        Ok(Response::new(pb::GetResponse {
+            wx_user: Some(wx_user),
+        }))
     }
 
     async fn create(&self, request: Request<pb::CreateRequest>) -> Resp<pb::CreateResponse> {
@@ -54,7 +53,9 @@ impl pb::user_service_server::UserService for Service {
             .wx_user
             .ok_or_else(|| ServiceError::StatusError(tonic::Status::data_loss("no wx_user")))?;
         let wx_user = model::insert(&mut conn, wx_user).await?;
-        Ok(Response::new(pb::CreateResponse { wx_user: Some(wx_user) }))
+        Ok(Response::new(pb::CreateResponse {
+            wx_user: Some(wx_user),
+        }))
     }
 
     async fn update(&self, request: Request<pb::UpdateRequest>) -> Resp<pb::UpdateResponse> {
@@ -62,10 +63,12 @@ impl pb::user_service_server::UserService for Service {
         let pb::UpdateRequest { id, wx_user } = request.into_inner();
         let id =
             Uuid::parse_str(&id).map_err(|e| tonic::Status::invalid_argument(e.to_string()))?;
-        let wx_user =
-            wx_user.ok_or_else(|| ServiceError::StatusError(tonic::Status::data_loss("no blog")))?;
+        let wx_user = wx_user
+            .ok_or_else(|| ServiceError::StatusError(tonic::Status::data_loss("no blog")))?;
         let wx_user = model::update_by_id(&mut conn, id, wx_user).await?;
-        Ok(Response::new(pb::UpdateResponse { wx_user: Some(wx_user) }))
+        Ok(Response::new(pb::UpdateResponse {
+            wx_user: Some(wx_user),
+        }))
     }
 
     async fn delete(&self, request: Request<pb::DeleteRequest>) -> Resp<pb::DeleteResponse> {

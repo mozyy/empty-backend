@@ -39,8 +39,9 @@ impl State {
             scopes: vec!["default-scope".parse().unwrap()],
         }
     }
-        pub fn new_by_db(db:db::DbPool) -> Self {
-            Self { db,
+    pub fn new_by_db(db: db::DbPool) -> Self {
+        Self {
+            db,
             client_map: Arc::new(Mutex::new(
                 vec![
                     Client::confidential(
@@ -65,8 +66,9 @@ impl State {
                 .collect(),
             )),
             auth_map: Arc::new(Mutex::new(AuthMap::new(RandomGenerator::new(16)))),
-            token_map: Arc::new(Mutex::new(TokenMap::new(RandomGenerator::new(16)))),}
+            token_map: Arc::new(Mutex::new(TokenMap::new(RandomGenerator::new(16)))),
         }
+    }
 }
 impl Default for State {
     fn default() -> Self {
@@ -75,11 +77,11 @@ impl Default for State {
 }
 
 use futures_util::future::BoxFuture;
-use http::{StatusCode};
+use http::StatusCode;
 use hyper::{Request, Response};
 use tonic::{body::BoxBody, codegen::empty_body};
-use tower::{ServiceExt};
-use tower_http::auth::{AsyncAuthorizeRequest};
+use tower::ServiceExt;
+use tower_http::auth::AsyncAuthorizeRequest;
 
 impl<B> AsyncAuthorizeRequest<B> for State
 where

@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-
 use async_trait::async_trait;
 use empty_utils::{errors::ServiceResult, tonic::Resp};
 use oxide_auth::{

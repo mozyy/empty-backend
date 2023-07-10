@@ -4,9 +4,10 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use empty_utils::{errors::ServiceResult, tonic::server, diesel::db};
+use empty_utils::{diesel::db, errors::ServiceResult, tonic::server};
 use lottery::{
     configs::ADDR,
+    model::oauth::UserId,
     pb::{
         lottery::lottery_service_server::LotteryServiceServer,
         oauth::o_auth_service_server::OAuthServiceServer,
@@ -15,7 +16,7 @@ use lottery::{
     service::{
         self,
         oauth::{handler, state::State},
-    }, model::oauth::UserId,
+    },
 };
 use tonic::{body::BoxBody, codegen::empty_body};
 use tower_http::auth::AsyncRequireAuthorizationLayer;
@@ -42,7 +43,7 @@ async fn main() -> ServiceResult {
     // let record = RecordServiceServer::new(service::record::Service::new_by_db(db));
     let user = UserServiceServer::new(service::user::Service::new_by_db(db.clone()));
     let wx = WxServiceServer::new(service::wx::Service::default());
-    
+
     server()
         .layer(AsyncRequireAuthorizationLayer::new(oauth_state))
         // .layer(AuthLayer {})
@@ -58,9 +59,9 @@ async fn main() -> ServiceResult {
 }
 
 use futures_util::future::BoxFuture;
-use http::{StatusCode};
+use http::StatusCode;
 use hyper::{Body, Error, Request, Response};
-use tower::{ServiceExt};
+use tower::ServiceExt;
 use tower_http::auth::AsyncAuthorizeRequest;
 
 #[derive(Clone)]
@@ -99,7 +100,6 @@ async fn check_auth<B>(_request: &Request<B>) -> Option<UserId> {
     // ...
     todo!()
 }
-
 
 async fn handle(request: Request<Body>) -> Result<Response<Body>, Error> {
     // Access the `UserId` that was set in `on_authorized`. If `handle` gets called

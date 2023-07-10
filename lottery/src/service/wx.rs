@@ -1,4 +1,4 @@
-use std::{str};
+use std::str;
 
 use async_trait::async_trait;
 use empty_utils::tonic::Resp;
@@ -8,7 +8,6 @@ use crate::pb::wx as pb;
 
 #[derive(Default)]
 pub struct Service {}
-
 
 #[async_trait]
 impl pb::wx_service_server::WxService for Service {

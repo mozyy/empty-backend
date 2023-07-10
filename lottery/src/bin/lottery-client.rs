@@ -1,7 +1,4 @@
-use lottery::{
-    configs::{ADDR_CLIENT},
-    pb,
-};
+use lottery::{configs::ADDR_CLIENT, pb};
 use uuid::Uuid;
 
 #[tokio::main]

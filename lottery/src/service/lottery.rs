@@ -9,8 +9,8 @@ pub struct Service {
 }
 
 impl Service {
-    pub fn new_by_db(db:db::DbPool) -> Self {
-        Self { db, }
+    pub fn new_by_db(db: db::DbPool) -> Self {
+        Self { db }
     }
 }
 
@@ -49,7 +49,7 @@ impl pb::lottery_service_server::LotteryService for Service {
             .lottery
             .ok_or_else(|| ServiceError::StatusError(tonic::Status::data_loss("no blog")))?;
         lottery.user_id = user_id.clone();
-        log::info!("user:{}, {:?}",user_id, lottery);
+        log::info!("user:{}, {:?}", user_id, lottery);
         let mut conn = self.db.get_conn()?;
         let lottery = model::insert(&mut conn, lottery).await?;
         Ok(Response::new(pb::CreateResponse {
