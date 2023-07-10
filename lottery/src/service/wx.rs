@@ -9,6 +9,7 @@ use crate::pb::wx as pb;
 #[derive(Default)]
 pub struct Service {}
 
+
 #[async_trait]
 impl pb::wx_service_server::WxService for Service {
     async fn sns_jscode2session(

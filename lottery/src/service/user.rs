@@ -13,6 +13,12 @@ pub struct Service {
     db: db::DbPool,
 }
 
+impl Service {
+    pub fn new_by_db(db:db::DbPool) -> Self {
+        Self { db, }
+    }
+}
+
 impl Default for Service {
     fn default() -> Self {
         Self {
@@ -27,9 +33,9 @@ impl pb::user_service_server::UserService for Service {
         log::debug!("request list");
         let mut conn = self.db.get_conn()?;
         log::debug!("get conn");
-        let users = model::query_list(&mut conn).await?;
+        let wx_users = model::query_list(&mut conn).await?;
         log::debug!("get blogs");
-        Ok(Response::new(pb::ListResponse { users }))
+        Ok(Response::new(pb::ListResponse { wx_users }))
     }
 
     async fn get(&self, request: Request<pb::GetRequest>) -> Resp<pb::GetResponse> {
@@ -37,29 +43,29 @@ impl pb::user_service_server::UserService for Service {
         let id = request.into_inner().id;
         let id =
             Uuid::parse_str(&id).map_err(|e| tonic::Status::invalid_argument(e.to_string()))?;
-        let user = model::query_by_id(&mut conn, id).await?;
-        Ok(Response::new(pb::GetResponse { user: Some(user) }))
+        let wx_user = model::query_by_id(&mut conn, id).await?;
+        Ok(Response::new(pb::GetResponse { wx_user: Some(wx_user) }))
     }
 
     async fn create(&self, request: Request<pb::CreateRequest>) -> Resp<pb::CreateResponse> {
         let mut conn = self.db.get_conn()?;
-        let user = request
+        let wx_user = request
             .into_inner()
-            .user
-            .ok_or_else(|| ServiceError::StatusError(tonic::Status::data_loss("no user")))?;
-        let user = model::insert(&mut conn, user).await?;
-        Ok(Response::new(pb::CreateResponse { user: Some(user) }))
+            .wx_user
+            .ok_or_else(|| ServiceError::StatusError(tonic::Status::data_loss("no wx_user")))?;
+        let wx_user = model::insert(&mut conn, wx_user).await?;
+        Ok(Response::new(pb::CreateResponse { wx_user: Some(wx_user) }))
     }
 
     async fn update(&self, request: Request<pb::UpdateRequest>) -> Resp<pb::UpdateResponse> {
         let mut conn = self.db.get_conn()?;
-        let pb::UpdateRequest { id, user } = request.into_inner();
+        let pb::UpdateRequest { id, wx_user } = request.into_inner();
         let id =
             Uuid::parse_str(&id).map_err(|e| tonic::Status::invalid_argument(e.to_string()))?;
-        let user =
-            user.ok_or_else(|| ServiceError::StatusError(tonic::Status::data_loss("no blog")))?;
-        let user = model::update_by_id(&mut conn, id, user).await?;
-        Ok(Response::new(pb::UpdateResponse { user: Some(user) }))
+        let wx_user =
+            wx_user.ok_or_else(|| ServiceError::StatusError(tonic::Status::data_loss("no blog")))?;
+        let wx_user = model::update_by_id(&mut conn, id, wx_user).await?;
+        Ok(Response::new(pb::UpdateResponse { wx_user: Some(wx_user) }))
     }
 
     async fn delete(&self, request: Request<pb::DeleteRequest>) -> Resp<pb::DeleteResponse> {
@@ -89,7 +95,7 @@ impl pb::user_service_server::UserService for Service {
             Ok(user) => {
                 let resp = client
                     .login(crate::pb::oauth::LoginRequest {
-                        user_id: user.oauth_user_id,
+                        user_id: user.user_id,
                     })
                     .await?;
                 resp.into_inner().token
@@ -100,8 +106,8 @@ impl pb::user_service_server::UserService for Service {
                     .register(crate::pb::oauth::RegisterRequest {})
                     .await?;
                 let res = res.into_inner();
-                let user = pb::NewUser {
-                    oauth_user_id: res.user.unwrap().id,
+                let user = pb::NewWxUser {
+                    user_id: res.user.unwrap().id,
                     openid: resp.openid,
                     unionid: resp.unionid,
                     session_key: resp.session_key,

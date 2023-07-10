@@ -1,8 +1,17 @@
 -- Your SQL goes here
 
+
 CREATE TABLE IF NOT EXISTS users (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  oauth_user_id text NOT NULL,
+  created_at timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_at timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+SELECT diesel_manage_updated_at('users');
+
+CREATE TABLE IF NOT EXISTS wx_users (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES users(id),
   openid text NOT NULL,
   unionid text,
   session_key text NOT NULL,
@@ -13,7 +22,7 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
-SELECT diesel_manage_updated_at('users');
+SELECT diesel_manage_updated_at('wx_users');
 
 CREATE TYPE item AS (
   name text,
@@ -51,13 +60,6 @@ CREATE TABLE IF NOT EXISTS records (
 
 SELECT diesel_manage_updated_at('records');
 
-CREATE TABLE IF NOT EXISTS oauth_users (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  created_at timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  updated_at timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL
-);
-
-SELECT diesel_manage_updated_at('oauth_users');
 
 
 -- data

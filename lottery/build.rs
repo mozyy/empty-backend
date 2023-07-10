@@ -14,7 +14,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     .type_attribute(
         "lottery.Lottery",
         "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable, ::diesel::prelude::Associations)]
-        #[diesel(table_name=crate::schema::lotterys, belongs_to(crate::pb::user::User))]",
+        #[diesel(table_name=crate::schema::lotterys, belongs_to(crate::pb::oauth::User))]",
     )
     .field_attribute(
         "lottery.Lottery.user_id",
@@ -23,11 +23,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     .type_attribute(
         "lottery.NewLottery",
         "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset, ::diesel::prelude::Associations)]
-        #[diesel(table_name=crate::schema::lotterys, belongs_to(crate::pb::user::User))]",
+        #[diesel(table_name=crate::schema::lotterys, belongs_to(crate::pb::oauth::User))]",
     )
     .field_attribute(
         "lottery.NewLottery.user_id",
-        "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid, serialize_as = ::empty_utils::tonic::uuid::Uuid)]",
+        "#[diesel(serialize_as = ::empty_utils::tonic::uuid::Uuid)]",
     )
     .field_attribute(
         "lottery.Lottery.type",
@@ -42,7 +42,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     .type_attribute(
         "oauth.User",
         "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable)]
-    #[diesel(table_name=crate::schema::oauth_users)]",
+    #[diesel(table_name=crate::schema::users)]",
     )
     .type_attribute(
         "oauth.Token",
@@ -56,37 +56,45 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // record
     .type_attribute(
         "record.Record",
-        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable)]
-        #[diesel(table_name=crate::schema::records)]",
+        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable, ::diesel::prelude::Associations)]
+        #[diesel(table_name=crate::schema::records, belongs_to(crate::pb::oauth::User))]",
     )
     .type_attribute(
         "record.NewRecord",
-        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
-        #[diesel(table_name=crate::schema::records)]",
+        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset, ::diesel::prelude::Associations)]
+        #[diesel(table_name=crate::schema::records, belongs_to(crate::pb::oauth::User))]",
     )
     .field_attribute(
         "record.Record.user_id",
-        "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid, serialize_as = ::empty_utils::tonic::uuid::Uuid)]",
+        "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
     )
     .field_attribute(
         "record.NewRecord.user_id",
-        "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid, serialize_as = ::empty_utils::tonic::uuid::Uuid)]",
+        "#[diesel(serialize_as = ::empty_utils::tonic::uuid::Uuid)]",
     )
 
     // user
     .type_attribute(
-        "user.User",
-        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable)]
-        #[diesel(table_name=crate::schema::users)]",
+        "user.WxUser",
+        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable, ::diesel::prelude::Associations)]
+        #[diesel(table_name=crate::schema::wx_users, belongs_to(crate::pb::oauth::User))]",
     )
     .type_attribute(
-        "user.NewUser",
-        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
-        #[diesel(table_name=crate::schema::users)]",
+        "user.NewWxUser",
+        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset, ::diesel::prelude::Associations)]
+        #[diesel(table_name=crate::schema::wx_users, belongs_to(crate::pb::oauth::User))]",
     )
     .field_attribute(
-        "user.User.id",
+        "user.WxUser.id",
         "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
+    )
+    .field_attribute(
+        "user.WxUser.user_id",
+        "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
+    )
+    .field_attribute(
+        "user.NewWxUser.user_id",
+        "#[diesel(serialize_as = ::empty_utils::tonic::uuid::Uuid)]",
     )
 
     // wx

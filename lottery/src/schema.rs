@@ -30,14 +30,6 @@ diesel::table! {
 }
 
 diesel::table! {
-    oauth_users (id) {
-        id -> Uuid,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
-    }
-}
-
-diesel::table! {
     records (id) {
         id -> Int4,
         lottery_id -> Int4,
@@ -52,7 +44,15 @@ diesel::table! {
 diesel::table! {
     users (id) {
         id -> Uuid,
-        oauth_user_id -> Text,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    wx_users (id) {
+        id -> Uuid,
+        user_id -> Uuid,
         openid -> Text,
         unionid -> Nullable<Text>,
         session_key -> Text,
@@ -67,5 +67,11 @@ diesel::table! {
 diesel::joinable!(lotterys -> users (user_id));
 diesel::joinable!(records -> lotterys (lottery_id));
 diesel::joinable!(records -> users (user_id));
+diesel::joinable!(wx_users -> users (user_id));
 
-diesel::allow_tables_to_appear_in_same_query!(lotterys, oauth_users, records, users,);
+diesel::allow_tables_to_appear_in_same_query!(
+    lotterys,
+    records,
+    users,
+    wx_users,
+);

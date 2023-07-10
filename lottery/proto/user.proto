@@ -60,9 +60,9 @@ service UserService {
 
 
 // Lottery item
-message User {
+message WxUser {
   string id = 1; // openid
-  string oauth_user_id = 2; // openid
+  string user_id = 2; // openid
   string openid = 3; // openid
   optional string unionid = 4; // user title
   string session_key = 5; // lottery image
@@ -73,8 +73,8 @@ message User {
   google.protobuf.Timestamp updated_at = 10;
 }
 
-message NewUser {
-  string oauth_user_id = 1; // openid
+message NewWxUser {
+  string user_id = 1; // openid
   string openid = 2; // openid
   optional string unionid = 3; // user title
   string session_key = 4; // lottery image
@@ -85,29 +85,29 @@ message NewUser {
 
 message ListRequest {}
 message ListResponse {
-  repeated User users = 1;
+  repeated WxUser wx_users = 1;
 }
 
 message GetRequest {
   string id = 1;
 }
 message GetResponse {
-  User user = 1;
+  WxUser wx_user = 1;
 }
 
 message CreateRequest {
-  NewUser user = 1;
+  NewWxUser wx_user = 1;
 }
 message CreateResponse {
-  User user = 1;
+  WxUser wx_user = 1;
 }
 
 message UpdateRequest {
   string id = 1;
-  NewUser user = 2;
+  NewWxUser wx_user = 2;
 }
 message UpdateResponse {
-  User user = 1;
+  WxUser wx_user = 1;
 }
 
 message DeleteRequest {
@@ -124,5 +124,5 @@ message LoginResponse {
 message InfoRequest {
 }
 message InfoResponse {
-  User user = 1;
+  WxUser wx_user = 1;
 }

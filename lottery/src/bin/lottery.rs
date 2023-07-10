@@ -4,7 +4,7 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use empty_utils::{errors::ServiceResult, tonic::server};
+use empty_utils::{errors::ServiceResult, tonic::server, diesel::db};
 use lottery::{
     configs::ADDR,
     pb::{
@@ -15,7 +15,7 @@ use lottery::{
     service::{
         self,
         oauth::{handler, state::State},
-    },
+    }, model::oauth::UserId,
 };
 use tonic::{body::BoxBody, codegen::empty_body};
 use tower_http::auth::AsyncRequireAuthorizationLayer;
@@ -24,47 +24,27 @@ use tower_http::auth::AsyncRequireAuthorizationLayer;
 async fn main() -> ServiceResult {
     empty_utils::init();
 
+    let db = db::DbPool::new("lottery");
+
     let app = Router::new()
         .route("/authorize", get(handler::authorize_get))
         .route("/token", post(handler::token))
-        .with_state(State::new());
+        .with_state(State::new_by_db(db.clone()));
 
     let addr = SocketAddr::from((Ipv4Addr::LOCALHOST, 3000));
     axum::Server::bind(&addr).serve(app.into_make_service());
 
     let url = ADDR.parse().unwrap();
-    let oauthState = service::oauth::Service::default();
-    let lottery = LotteryServiceServer::new(service::lottery::Service::default());
-    let oauth = OAuthServiceServer::new(oauthState.clone());
-    // let record = RecordServiceServer::new(service::record::Service::default());
-    let user = UserServiceServer::new(service::user::Service::default());
+
+    let oauth_state = service::oauth::Service::new_by_db(db.clone());
+    let lottery = LotteryServiceServer::new(service::lottery::Service::new_by_db(db.clone()));
+    let oauth = OAuthServiceServer::new(oauth_state.clone());
+    // let record = RecordServiceServer::new(service::record::Service::new_by_db(db));
+    let user = UserServiceServer::new(service::user::Service::new_by_db(db.clone()));
     let wx = WxServiceServer::new(service::wx::Service::default());
-    let _oauthState2 = oauthState.clone();
-    let handler = |mut request: hyper::Request<hyper::Body>| async move {
-        let authorized = request
-            .headers()
-            .get(http::header::AUTHORIZATION)
-            .and_then(|it| it.to_str().ok())
-            .and_then(|it| it.strip_prefix("Bearer "))
-            .unwrap_or("test");
-        let authorized = authorized.to_owned();
-        request.extensions_mut().insert(authorized);
-        // request.extensions_mut().insert(12345);
-        Ok(request)
-        // let resp = oauthState
-        //     .clone()
-        //     .check_resource(pb::oauth::ResourceRequest {
-        //         auth,
-        //         uri: "".into(),
-        //     })
-        //     .await;
-        // match resp {
-        //     Ok(resp) => todo!(),
-        //     Err(err) => Err(err.to_owned().to_http()),
-        // }
-    };
+    
     server()
-        .layer(AsyncRequireAuthorizationLayer::new(handler))
+        .layer(AsyncRequireAuthorizationLayer::new(oauth_state))
         // .layer(AuthLayer {})
         .add_service(lottery)
         .add_service(oauth)
@@ -120,8 +100,6 @@ async fn check_auth<B>(_request: &Request<B>) -> Option<UserId> {
     todo!()
 }
 
-#[derive(Debug)]
-struct UserId(String);
 
 async fn handle(request: Request<Body>) -> Result<Response<Body>, Error> {
     // Access the `UserId` that was set in `on_authorized`. If `handle` gets called
@@ -131,7 +109,7 @@ async fn handle(request: Request<Body>) -> Result<Response<Body>, Error> {
         .get::<UserId>()
         .expect("UserId will be there if request was authorized");
 
-    println!("request from {:?}", user_id);
+    // println!("request from {:?}", user_id);
 
     Ok(Response::new(Body::empty()))
 }

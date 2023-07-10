@@ -27,8 +27,20 @@ pub struct State {
 
 impl State {
     pub fn new() -> Self {
-        Self {
-            db: db::DbPool::new("lottery"),
+        Self::new_by_db(db::DbPool::new("lottery"))
+    }
+
+    pub async fn endpoint(&self) -> Endpoint<'_, Vacant> {
+        Endpoint {
+            registrar: self.client_map.lock().await.into(),
+            authorizer: self.auth_map.lock().await.into(),
+            issuer: self.token_map.lock().await.into(),
+            solicitor: Vacant,
+            scopes: vec!["default-scope".parse().unwrap()],
+        }
+    }
+        pub fn new_by_db(db:db::DbPool) -> Self {
+            Self { db,
             client_map: Arc::new(Mutex::new(
                 vec![
                     Client::confidential(
@@ -53,19 +65,8 @@ impl State {
                 .collect(),
             )),
             auth_map: Arc::new(Mutex::new(AuthMap::new(RandomGenerator::new(16)))),
-            token_map: Arc::new(Mutex::new(TokenMap::new(RandomGenerator::new(16)))),
+            token_map: Arc::new(Mutex::new(TokenMap::new(RandomGenerator::new(16)))),}
         }
-    }
-
-    pub async fn endpoint(&self) -> Endpoint<'_, Vacant> {
-        Endpoint {
-            registrar: self.client_map.lock().await.into(),
-            authorizer: self.auth_map.lock().await.into(),
-            issuer: self.token_map.lock().await.into(),
-            solicitor: Vacant,
-            scopes: vec![],
-        }
-    }
 }
 impl Default for State {
     fn default() -> Self {
@@ -94,8 +95,7 @@ where
             let authorized = request
                 .headers()
                 .get(http::header::AUTHORIZATION)
-                .and_then(|it| it.to_str().ok())
-                .and_then(|it| it.strip_prefix("Bearer "));
+                .and_then(|it| it.to_str().ok());
             if let Some(auth) = authorized {
                 let auth = auth.to_owned();
                 let res = that
@@ -106,6 +106,7 @@ where
                     .await;
                 match res {
                     Ok(res) => {
+                        log::info!("oauth res: {:?}", res);
                         request
                             .extensions_mut()
                             .insert(UserId(res.into_inner().owner_id));

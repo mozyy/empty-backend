@@ -17,8 +17,8 @@ async fn main() {
         .unwrap();
     let create = client_user
         .create(pb::user::CreateRequest {
-            user: Some(pb::user::NewUser {
-                oauth_user_id: Uuid::new_v4().to_string(),
+            wx_user: Some(pb::user::NewWxUser {
+                user_id: Uuid::new_v4().to_string(),
                 openid: Uuid::new_v4().to_string(),
                 unionid: Some(Uuid::new_v4().to_string()),
                 session_key: Uuid::new_v4().to_string(),
@@ -35,7 +35,7 @@ async fn main() {
         .create(tonic::Request::new(pb::lottery::CreateRequest {
             lottery: Some(pb::lottery::NewLottery {
                 title: String::from("title"),
-                user_id: create.into_inner().user.unwrap().id,
+                user_id: create.into_inner().wx_user.unwrap().id,
                 r#type: pb::lottery::Type::Percent.into(),
                 items: vec![
                     pb::lottery::Item {
