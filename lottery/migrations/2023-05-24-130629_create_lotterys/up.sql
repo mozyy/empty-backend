@@ -61,6 +61,25 @@ CREATE TABLE IF NOT EXISTS records (
 SELECT diesel_manage_updated_at('records');
 
 
+CREATE TYPE oauth_pattern AS (
+  type integer,
+  value text 
+);
+
+CREATE TABLE IF NOT EXISTS oauth_clients (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  redirect_uri text NOT NULL,
+  default_scope text NOT NULL,
+  passdata text
+);
+
+CREATE TABLE IF NOT EXISTS oauth_configs (
+  id serial PRIMARY KEY,
+  pattern oauth_pattern,
+  scope text
+);
+
 
 -- data
 

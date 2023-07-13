@@ -22,7 +22,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     )
     .type_attribute(
         "lottery.NewLottery",
-        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset, ::diesel::prelude::Associations)]
+        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset, ::diesel::prelude::Associations)]
         #[diesel(table_name=crate::schema::lotterys, belongs_to(crate::pb::oauth::User))]",
     )
     .field_attribute(
@@ -44,14 +44,44 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable)]
     #[diesel(table_name=crate::schema::users)]",
     )
-    .type_attribute(
-        "oauth.Token",
-        "#[derive(::serde::Deserialize)]",
-    )
     .field_attribute(
         "oauth.User.id",
         "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
     )
+    .type_attribute(
+        "oauth.Token",
+        "#[derive(::serde::Deserialize)]",
+    )
+    .type_attribute(
+        "oauth.Client",
+        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable)]
+        #[diesel(table_name=crate::schema::oauth_clients)]",
+    )
+    .field_attribute(
+        "oauth.Client.id",
+        "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
+    )
+    .type_attribute(
+        "oauth.NewClient",
+        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
+        #[diesel(table_name=crate::schema::oauth_clients)]",
+    )
+    .type_attribute(
+        "oauth.Config",
+        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
+        #[diesel(table_name=crate::schema::oauth_configs)]",
+    )
+    .type_attribute(
+        "oauth.NewConfig",
+        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
+        #[diesel(table_name=crate::schema::oauth_configs)]",
+    )
+    .type_attribute(
+        "oauth.Pattern",
+        "#[derive(::diesel::FromSqlRow, ::diesel::AsExpression)]
+        #[diesel(sql_type = crate::schema::sql_types::OauthPattern)]",
+    )
+
 
     // record
     .type_attribute(

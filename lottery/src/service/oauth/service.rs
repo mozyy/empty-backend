@@ -32,7 +32,7 @@ impl pb::o_auth_service_server::OAuthService for State {
         &self,
         request: Request<pb::AuthorizeRequest>,
     ) -> Resp<pb::AuthorizeResponse> {
-        let endpoint = self.endpoint().await;
+        let endpoint = self.endpoint_state.endpoint().await;
         let endpoint = endpoint.with_solicitor(FnSolicitor(
             |_: &mut OAuthRequest, solicitation: Solicitation| {
                 let pre_g = &solicitation.pre_grant();
@@ -60,21 +60,23 @@ impl pb::o_auth_service_server::OAuthService for State {
         }))
     }
     async fn token(&self, request: Request<pb::TokenRequest>) -> Resp<pb::TokenResponse> {
-        let _p =
-            AccessTokenFlow::<Endpoint<'_, Vacant>, OAuthRequest>::prepare(self.endpoint().await)
-                .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?
-                .execute(OAuthRequest::from(request))
-                .await
-                .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?;
+        let _p = AccessTokenFlow::<Endpoint<'_, Vacant>, OAuthRequest>::prepare(
+            self.endpoint_state.endpoint().await,
+        )
+        .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?
+        .execute(OAuthRequest::from(request))
+        .await
+        .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?;
         todo!();
     }
     async fn resource(&self, request: Request<pb::ResourceRequest>) -> Resp<pb::ResourceResponse> {
         let pb::ResourceRequest { uri: _, auth } = request.into_inner();
-        let res =
-            ResourceFlow::<Endpoint<'_, Vacant>, OAuthRequest>::prepare(self.endpoint().await)
-                .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?
-                .execute(OAuthRequest::default().with_auth(auth))
-                .await;
+        let res = ResourceFlow::<Endpoint<'_, Vacant>, OAuthRequest>::prepare(
+            self.endpoint_state.endpoint().await,
+        )
+        .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?
+        .execute(OAuthRequest::default().with_auth(auth))
+        .await;
         let res = match res {
             Ok(r) => r,
             Err(e) => match e {
@@ -91,9 +93,10 @@ impl pb::o_auth_service_server::OAuthService for State {
         let mut conn = self.db.get_conn()?;
         let id = request.into_inner().user_id;
         let id = id.parse().unwrap();
-        let user = diesel::query_list_by_id(&mut conn, id).await?;
-        let req = OAuthRequest::default_authorize();
-        let req = self.authorize_by_id(id, req).await?;
+        let user = diesel::user_query_by_id(&mut conn, id).await?;
+        let client = diesel::client_query_by_name(&mut conn, "zuoyinyun".into()).await?;
+        let req = OAuthRequest::default_with_client(&client);
+        let req = self.endpoint_state.authorize_by_id(id, req,client).await?;
 
         let token = req
             .body
@@ -105,10 +108,11 @@ impl pb::o_auth_service_server::OAuthService for State {
     }
     async fn register(&self, _request: Request<pb::RegisterRequest>) -> Resp<pb::RegisterResponse> {
         let mut conn = self.db.get_conn()?;
-        let user = diesel::insert(&mut conn).await?;
+        let user = diesel::user_insert(&mut conn).await?;
         let id = user.id.parse().unwrap();
-        let req = OAuthRequest::default_authorize();
-        let req = self.authorize_by_id(id, req).await?;
+        let client = diesel::client_query_by_name(&mut conn, "zuoyinyun".into()).await?;
+        let req = OAuthRequest::default_with_client(&client);
+        let req = self.endpoint_state.authorize_by_id(id, req,client).await?;
 
         let token = req
             .body
@@ -119,75 +123,42 @@ impl pb::o_auth_service_server::OAuthService for State {
             token,
         }))
     }
-}
-
-impl State {
-    async fn authorize_by_id(
+    async fn client_list(
         &self,
-        user_id: Uuid,
-        request: OAuthRequest,
-    ) -> ServiceResult<OAuthResponse> {
-        let endpoint = self.endpoint().await;
-        let endpoint =
-            endpoint.with_solicitor(FnSolicitor(|_: &mut OAuthRequest, _: Solicitation| {
-                OwnerConsent::Authorized(user_id.to_string())
-            }));
-
-        let resp = AuthorizationFlow::prepare(endpoint)
-            .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?
-            .execute(request)
-            .await
-            .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?;
-        let mut code = if let ResponseStatus::REDIRECT(url) = resp.status {
-            url.query()
-                .map(|v| {
-                    url::form_urlencoded::parse(v.as_bytes())
-                        .into_owned()
-                        .collect()
-                })
-                .unwrap_or_else(HashMap::new)
-        } else {
-            HashMap::new()
-        };
-        code.insert("grant_type".into(), "authorization_code".into());
-        // TODO: from query
-        code.insert("client_id".into(), "zuoyin".into());
-        code.insert(
-            "redirect_uri".into(),
-            "http://localhost:8021/endpoint".into(),
-        );
-        let res =
-            AccessTokenFlow::<Endpoint<'_, Vacant>, OAuthRequest>::prepare(self.endpoint().await)
-                .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?
-                .execute(OAuthRequest {
-                    auth: Auth(None),
-                    query: code.clone(),
-                    body: code,
-                })
-                .await
-                .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?;
-        Ok(res)
+        request: Request<pb::ClientListRequest>,
+    ) -> Resp<pb::ClientListResponse> {
+        let mut conn = self.db.get_conn()?;
+        let clients = diesel::client_query_all(&mut conn).await?;
+        Ok(Response::new(pb::ClientListResponse { clients }))
     }
-    pub async fn check_resource(
-        &mut self,
-        request: pb::ResourceRequest,
-    ) -> Resp<pb::ResourceResponse> {
-        let pb::ResourceRequest { uri: _, auth } = request;
-        let res =
-            ResourceFlow::<Endpoint<'_, Vacant>, OAuthRequest>::prepare(self.endpoint().await)
-                .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?
-                .execute(OAuthRequest::default().with_auth(auth))
-                .await;
-        let res = match res {
-            Ok(r) => r,
-            Err(e) => match e {
-                Ok(r) => {
-                    log::warn!("{:?}", r);
-                    return Err(tonic::Status::unauthenticated("r.into()"));
-                }
-                Err(e) => return Err(tonic::Status::unauthenticated(e.0.to_string())),
-            },
-        };
-        Ok(Response::new(res.into()))
+    async fn client_create(
+        &self,
+        request: Request<pb::ClientCreateRequest>,
+    ) -> Resp<pb::ClientCreateResponse> {
+        let client = request.into_inner().client.unwrap();
+        let mut conn = self.db.get_conn()?;
+        let client = diesel::client_insert(&mut conn, client).await?;
+        Ok(Response::new(pb::ClientCreateResponse {
+            client: Some(client),
+        }))
+    }
+    async fn config_list(
+        &self,
+        request: Request<pb::ConfigListRequest>,
+    ) -> Resp<pb::ConfigListResponse> {
+        let mut conn = self.db.get_conn()?;
+        let configs = diesel::config_query_all(&mut conn).await?;
+        Ok(Response::new(pb::ConfigListResponse { configs }))
+    }
+    async fn config_create(
+        &self,
+        request: Request<pb::ConfigCreateRequest>,
+    ) -> Resp<pb::ConfigCreateResponse> {
+        let config = request.into_inner().config.unwrap();
+        let mut conn = self.db.get_conn()?;
+        let config = diesel::config_insert(&mut conn, config).await?;
+        Ok(Response::new(pb::ConfigCreateResponse {
+            config: Some(config),
+        }))
     }
 }

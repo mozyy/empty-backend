@@ -98,4 +98,13 @@ impl OAuthRequest {
         state.query = query;
         state
     }
+    pub fn default_with_client(client: &pb::Client) -> Self {
+        let mut state = Self::default();
+        let mut query = HashMap::new();
+        query.insert(String::from("client_id"), client.id.to_owned());
+        query.insert(String::from("response_type"), "code".into());
+        // query.insert(String::from("redirect_uri"), "http://localhost:8021/endpoint".into());
+        state.query = query;
+        state
+    }
 }

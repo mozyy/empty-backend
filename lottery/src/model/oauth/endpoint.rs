@@ -1,16 +1,147 @@
+use super::{diesel::client_query_all, primitives::Guard};
+use futures_util::future::BoxFuture;
+use http::StatusCode;
+use hyper::{Request, Response};
 use oxide_auth::{
     endpoint::{OAuthError, Scope, WebRequest},
+    frontends::simple::endpoint::Vacant,
     primitives::{
         prelude::{AuthMap, RandomGenerator, TokenMap},
-        registrar::ClientMap,
+        registrar::{Client, ClientMap},
     },
 };
 use oxide_auth_async::endpoint;
+use std::sync::Arc;
+use tonic::{body::BoxBody, codegen::empty_body};
+use tower::ServiceExt;
+use tower_http::auth::AsyncAuthorizeRequest;
+use url::Url;
 
-use super::primitives::Guard;
+use std::collections::HashMap;
+use tokio::sync::Mutex;
+
+use async_trait::async_trait;
+use empty_utils::{diesel::db, errors::ServiceResult, tonic::Resp};
+use oxide_auth::{
+    endpoint::{OwnerConsent, Solicitation, WebResponse},
+    frontends::simple::endpoint::FnSolicitor,
+};
+use oxide_auth_async::endpoint::{
+    access_token::AccessTokenFlow, authorization::AuthorizationFlow, resource::ResourceFlow,
+};
+use uuid::Uuid;
+
+use crate::{
+    model::oauth::{
+        diesel,
+        grpc::{
+            request::{Auth, OAuthRequest},
+            response::{OAuthResponse, ResponseStatus},
+        },
+        UserId,
+    },
+    pb::oauth as pb,
+    schema::oauth_clients::passdata,
+};
 
 #[derive(Clone)]
-pub struct Vacant;
+pub struct EndpointState {
+    client_map: Arc<Mutex<ClientMap>>,
+    auth_map: Arc<Mutex<AuthMap<RandomGenerator>>>,
+    token_map: Arc<Mutex<TokenMap<RandomGenerator>>>,
+}
+
+impl EndpointState {
+    pub async fn new(db: db::DbPool) -> ServiceResult<Self> {
+        let mut conn = db.get_conn()?;
+        let clients = client_query_all(&mut conn).await?;
+        log::info!("clients: {:?}",clients);
+        let clients = clients
+            .into_iter()
+            .map(|client| {
+                let pb::Client {
+                    id,
+                    redirect_uri,
+                    default_scope,
+                    passdata: passphrase,
+                    ..
+                } = client;
+                let redirect_uri = redirect_uri.parse::<Url>().unwrap().into();
+                let default_scope = default_scope.parse().unwrap();
+                match passphrase {
+                    Some(passphrase) => Client::confidential(
+                        &id,
+                        redirect_uri,
+                        default_scope,
+                        passphrase.as_bytes(),
+                    ),
+                    None => Client::public(&id, redirect_uri, default_scope),
+                }
+            })
+            .collect();
+        Ok(Self {
+            client_map: Arc::new(Mutex::new(clients)),
+            auth_map: Arc::new(Mutex::new(AuthMap::new(RandomGenerator::new(16)))),
+            token_map: Arc::new(Mutex::new(TokenMap::new(RandomGenerator::new(16)))),
+        })
+    }
+    pub async fn endpoint(&self) -> Endpoint<'_, Vacant> {
+        Endpoint {
+            registrar: self.client_map.lock().await.into(),
+            authorizer: self.auth_map.lock().await.into(),
+            issuer: self.token_map.lock().await.into(),
+            solicitor: Vacant,
+            scopes: vec![],
+        }
+    }
+    pub async fn authorize_by_id(
+        &self,
+        user_id: Uuid,
+        request: OAuthRequest,
+        client: pb::Client,
+    ) -> ServiceResult<OAuthResponse> {
+        let endpoint = self.endpoint().await;
+        let endpoint =
+            endpoint.with_solicitor(FnSolicitor(|_: &mut OAuthRequest, _: Solicitation| {
+                OwnerConsent::Authorized(user_id.to_string())
+            }));
+
+        let resp = AuthorizationFlow::prepare(endpoint)
+            .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?
+            .execute(request)
+            .await
+            .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?;
+        let mut code = if let ResponseStatus::REDIRECT(url) = resp.status {
+            url.query()
+                .map(|v| {
+                    url::form_urlencoded::parse(v.as_bytes())
+                        .into_owned()
+                        .collect()
+                })
+                .unwrap_or_else(HashMap::new)
+        } else {
+            HashMap::new()
+        };
+        code.insert("grant_type".into(), "authorization_code".into());
+        // TODO: from query
+        code.insert("client_id".into(), client.id);
+        code.insert(
+            "redirect_uri".into(),
+            client.redirect_uri,
+        );
+        let res =
+            AccessTokenFlow::<Endpoint<'_, Vacant>, OAuthRequest>::prepare(self.endpoint().await)
+                .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?
+                .execute(OAuthRequest {
+                    auth: Auth(None),
+                    query: code.clone(),
+                    body: code,
+                })
+                .await
+                .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?;
+        Ok(res)
+    }
+}
 
 pub struct Endpoint<'a, Solicitor> {
     /// The registrar implementation, or `Vacant` if it is not necesary.
@@ -101,13 +232,12 @@ where
     }
 
     fn error(&mut self, err: oxide_auth::endpoint::OAuthError) -> Self::Error {
-        log::info!("error");
-        dbg!(err);
+        log::error!("error");
         err.into()
     }
 
     fn web_error(&mut self, err: Request::Error) -> Self::Error {
-        log::info!("web_error");
+        log::error!("web_error");
         err
     }
 }

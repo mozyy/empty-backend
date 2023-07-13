@@ -35,6 +35,7 @@ rand = "0.8.4"
 async-trait = "0.1"
 reqwest = { version = "0.11", features = ["json"] }
 http = "0.2"
+regex = "1.8"
 
 # database
 diesel = { version = "2.0.4", features = ["postgres", "r2d2", "chrono", "uuid"] }

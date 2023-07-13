@@ -6,6 +6,10 @@ pub mod sql_types {
     pub struct Item;
 
     #[derive(diesel::sql_types::SqlType)]
+    #[diesel(postgres_type(name = "oauth_pattern"))]
+    pub struct OauthPattern;
+
+    #[derive(diesel::sql_types::SqlType)]
     #[diesel(postgres_type(name = "remark"))]
     pub struct Remark;
 }
@@ -26,6 +30,27 @@ diesel::table! {
         remarks -> Array<Remark>,
         created_at -> Timestamp,
         updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    oauth_clients (id) {
+        id -> Uuid,
+        name -> Text,
+        redirect_uri -> Text,
+        default_scope -> Text,
+        passdata -> Nullable<Text>,
+    }
+}
+
+diesel::table! {
+    use diesel::sql_types::*;
+    use super::sql_types::OauthPattern;
+
+    oauth_configs (id) {
+        id -> Int4,
+        pattern -> Nullable<OauthPattern>,
+        scope -> Nullable<Text>,
     }
 }
 
@@ -71,6 +96,8 @@ diesel::joinable!(wx_users -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     lotterys,
+    oauth_clients,
+    oauth_configs,
     records,
     users,
     wx_users,

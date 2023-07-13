@@ -1,7 +1,12 @@
 use std::sync::Arc;
 
-use empty_utils::diesel::db;
+use empty_utils::{
+    diesel::db,
+    errors::{ServiceError, ServiceResult},
+    tonic::Resp,
+};
 use oxide_auth::{
+    endpoint::Scope,
     frontends::simple::endpoint::Vacant,
     primitives::{
         prelude::{AuthMap, Client, RandomGenerator, TokenMap},
@@ -9,79 +14,122 @@ use oxide_auth::{
     },
 };
 
+use oxide_auth_async::endpoint::resource::ResourceFlow;
 use tokio::sync::Mutex;
 
 use crate::{
-    model::oauth::{endpoint::Endpoint, UserId},
-    pb,
+    model::oauth::{
+        diesel::config_query_all,
+        endpoint::{Endpoint, EndpointState},
+        grpc::request::OAuthRequest,
+    },
+    pb::oauth as pb, configs::ADDR_CLIENT,
+};
+use futures_util::future::BoxFuture;
+use http::StatusCode;
+use hyper::{Request, Response};
+use oxide_auth::endpoint::{OAuthError, WebRequest};
+use oxide_auth_async::endpoint;
+use tonic::{body::BoxBody, codegen::empty_body};
+use tower::ServiceExt;
+use tower_http::auth::AsyncAuthorizeRequest;
+use url::Url;
+
+use std::collections::HashMap;
+
+use async_trait::async_trait;
+use oxide_auth::{
+    endpoint::{OwnerConsent, Solicitation, WebResponse},
+    frontends::simple::endpoint::FnSolicitor,
+};
+use oxide_auth_async::endpoint::{access_token::AccessTokenFlow, authorization::AuthorizationFlow};
+use uuid::Uuid;
+
+use crate::{
+    model::oauth::{
+        diesel,
+        grpc::{
+            request::Auth,
+            response::{OAuthResponse, ResponseStatus},
+        },
+        UserId,
+    },
+    schema::oauth_clients::passdata,
 };
 
 #[derive(Clone)]
 pub struct State {
     pub db: db::DbPool,
-    client_map: Arc<Mutex<ClientMap>>,
-    auth_map: Arc<Mutex<AuthMap<RandomGenerator>>>,
-    token_map: Arc<Mutex<TokenMap<RandomGenerator>>>,
-    // solicitor: Vacant,
+    pub endpoint_state: EndpointState,
+    pub configs: Arc<Mutex<Vec<Config>>>,
 }
 
 impl State {
-    pub fn new() -> Self {
-        Self::new_by_db(db::DbPool::new("lottery"))
+    pub async fn new() -> ServiceResult<Self> {
+        Self::new_by_db(db::DbPool::new("lottery")).await
     }
 
-    pub async fn endpoint(&self) -> Endpoint<'_, Vacant> {
-        Endpoint {
-            registrar: self.client_map.lock().await.into(),
-            authorizer: self.auth_map.lock().await.into(),
-            issuer: self.token_map.lock().await.into(),
-            solicitor: Vacant,
-            scopes: vec!["default-scope".parse().unwrap()],
-        }
+    pub async fn new_by_db(db: db::DbPool) -> ServiceResult<Self> {
+        let mut value = Self {
+            db: db.clone(),
+            endpoint_state: EndpointState::new(db).await?,
+            configs: Arc::new(Mutex::new(vec![])),
+        };
+        value.get_configs().await?;
+        Ok(value)
     }
-    pub fn new_by_db(db: db::DbPool) -> Self {
-        Self {
-            db,
-            client_map: Arc::new(Mutex::new(
-                vec![
-                    Client::confidential(
-                        "zuoyi",
-                        "http://localhost:8021/endpoint"
-                            .parse::<url::Url>()
-                            .unwrap()
-                            .into(),
-                        "default-scope".parse().unwrap(),
-                        "SecretSecret".as_bytes(),
-                    ),
-                    Client::public(
-                        "zuoyin",
-                        "http://localhost:8021/endpoint"
-                            .parse::<url::Url>()
-                            .unwrap()
-                            .into(),
-                        "default-scope".parse().unwrap(),
-                    ),
-                ]
-                .into_iter()
-                .collect(),
-            )),
-            auth_map: Arc::new(Mutex::new(AuthMap::new(RandomGenerator::new(16)))),
-            token_map: Arc::new(Mutex::new(TokenMap::new(RandomGenerator::new(16)))),
-        }
+    pub async fn get_configs(&mut self) -> ServiceResult {
+        let mut conn = self.db.get_conn()?;
+        let configs = config_query_all(&mut conn).await?;
+        log::info!("configs: {:?}", &configs);
+        let configs = configs
+            .into_iter()
+            .rev()
+            .filter_map(|config| {
+                config
+                    .pattern
+                    .and_then(|pattern| pattern.pattern)
+                    .map(|pattern| match pattern {
+                        pb::pattern::Pattern::Equal(value) => Pattern::Equal(value),
+                        pb::pattern::Pattern::Prefix(value) => Pattern::Prefix(value),
+                        pb::pattern::Pattern::Regex(value) => {
+                            Pattern::Regex(value.parse().unwrap())
+                        }
+                    })
+                    .map(|pattern| Config {
+                        pattern,
+                        scope: config.scope.map(|string| string.parse().unwrap()),
+                    })
+            })
+            .collect();
+        let mut value = self.configs.lock().await;
+        log::info!("configs: {:?}", &configs);
+        *value = configs;
+        Ok(())
+    }
+    pub async fn check_resource(&self, auth: String, scope: Scope) -> Resp<pb::ResourceResponse> {
+        let endpoint = self
+            .endpoint_state
+            .endpoint()
+            .await
+            .with_scopes(vec![scope]);
+        let res = ResourceFlow::<Endpoint<'_, Vacant>, OAuthRequest>::prepare(endpoint)
+            .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?
+            .execute(OAuthRequest::default().with_auth(auth))
+            .await;
+        let res = match res {
+            Ok(r) => r,
+            Err(e) => match e {
+                Ok(r) => {
+                    log::warn!("{:?}", r);
+                    return Err(tonic::Status::unauthenticated("r.into()"));
+                }
+                Err(e) => return Err(tonic::Status::unauthenticated(e.0.to_string())),
+            },
+        };
+        Ok(tonic::Response::new(res.into()))
     }
 }
-impl Default for State {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-use futures_util::future::BoxFuture;
-use http::StatusCode;
-use hyper::{Request, Response};
-use tonic::{body::BoxBody, codegen::empty_body};
-use tower::ServiceExt;
-use tower_http::auth::AsyncAuthorizeRequest;
 
 impl<B> AsyncAuthorizeRequest<B> for State
 where
@@ -92,21 +140,30 @@ where
     type Future = BoxFuture<'static, Result<Request<B>, Response<Self::ResponseBody>>>;
 
     fn authorize(&mut self, mut request: Request<B>) -> Self::Future {
-        let mut that = self.clone();
+        let that = self.clone();
         Box::pin(async move {
+            let configs = that.configs.lock().await;
+            let method = request.method();
+            let uri = request.uri().to_string();
+            log::info!("request uri: {:?}, addr:{}", uri, ADDR_CLIENT);
+            let exp = regex::Regex::new("^https?://[^/]+").unwrap();
+            let uri = exp.replace(&uri, "");
+            log::info!("request uri: {:?}", uri);
+            let scope = configs
+                .iter()
+                .find_map(|config| config.get_scope(uri.to_string()));
+            log::info!("request uri: {},scope: {:?}", uri, scope);
+            
+
             let authorized = request
                 .headers()
                 .get(http::header::AUTHORIZATION)
                 .and_then(|it| it.to_str().ok());
             if let Some(auth) = authorized {
                 let auth = auth.to_owned();
-                let res = that
-                    .check_resource(pb::oauth::ResourceRequest {
-                        auth,
-                        uri: "".into(),
-                    })
-                    .await;
-                match res {
+                let scope = scope.unwrap_or_default().unwrap_or("".parse().unwrap());
+                let res = that.check_resource(auth, scope).await;
+                return match res {
                     Ok(res) => {
                         log::info!("oauth res: {:?}", res);
                         request
@@ -123,9 +180,49 @@ where
                         Err(unauthorized_response)
                     }
                 }
-            } else {
-                Ok(request)
             }
+            if scope.is_none() || scope.clone().unwrap().is_none() {
+                return Ok(request);
+            }
+                let unauthorized_response = Response::builder()
+                            .status(StatusCode::UNAUTHORIZED)
+                            .body(empty_body())
+                            .unwrap();
+                        Err(unauthorized_response)
         })
+    }
+}
+
+#[derive(Debug)]
+pub struct Config {
+    pattern: Pattern,
+    scope: Option<Scope>,
+}
+
+impl Config {
+    fn get_scope(&self, url: String) -> Option<Option<Scope>> {
+        let matched = self.pattern.matched(url);
+        if matched {
+            Some(self.scope.to_owned())
+        } else {
+            None
+        }
+    }
+}
+
+#[derive(Debug)]
+enum Pattern {
+    Equal(String),
+    Prefix(String),
+    Regex(regex::Regex),
+}
+
+impl Pattern {
+    fn matched(&self, url: String) -> bool {
+        match self {
+            Pattern::Equal(value) => *value == url,
+            Pattern::Prefix(value) => url.starts_with(value),
+            Pattern::Regex(value) => value.is_match(url.as_str()),
+        }
     }
 }

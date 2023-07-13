@@ -27,17 +27,17 @@ async fn main() -> ServiceResult {
 
     let db = db::DbPool::new("lottery");
 
+    let oauth_state = service::oauth::Service::new_by_db(db.clone()).await?;
     let app = Router::new()
         .route("/authorize", get(handler::authorize_get))
         .route("/token", post(handler::token))
-        .with_state(State::new_by_db(db.clone()));
+        .with_state(oauth_state.clone());
 
     let addr = SocketAddr::from((Ipv4Addr::LOCALHOST, 3000));
     axum::Server::bind(&addr).serve(app.into_make_service());
 
     let url = ADDR.parse().unwrap();
 
-    let oauth_state = service::oauth::Service::new_by_db(db.clone());
     let lottery = LotteryServiceServer::new(service::lottery::Service::new_by_db(db.clone()));
     let oauth = OAuthServiceServer::new(oauth_state.clone());
     // let record = RecordServiceServer::new(service::record::Service::new_by_db(db));

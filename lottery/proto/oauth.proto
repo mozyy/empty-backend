@@ -29,6 +29,11 @@ service OAuthService {
   rpc Resource(ResourceRequest) returns (ResourceResponse) {}
   rpc Login(LoginRequest) returns (LoginResponse) {}
   rpc Register(RegisterRequest) returns (RegisterResponse) {}
+
+  rpc ClientList(ClientListRequest) returns (ClientListResponse) {}
+  rpc ClientCreate(ClientCreateRequest) returns (ClientCreateResponse) {}
+  rpc ConfigList(ConfigListRequest) returns (ConfigListResponse) {}
+  rpc ConfigCreate(ConfigCreateRequest) returns (ConfigCreateResponse) {}
 }
 
 message Token {
@@ -86,4 +91,66 @@ message RegisterRequest {
 message RegisterResponse {
   User user = 1;
   Token token = 2;
+}
+
+
+// client
+message Client {
+  string id = 1;
+  string name = 2;
+  string redirect_uri = 3;
+  string default_scope = 4;
+  optional string passdata = 5;
+}
+message NewClient {
+  string name = 1;
+  string redirect_uri = 2;
+  string default_scope = 3;
+  optional string passdata = 4;
+  // oneof client_type {
+  //   bool public = 3;
+  //   string passdata = 4;
+  // }
+}
+
+message Pattern {
+  oneof pattern {
+    string equal = 1;
+    string prefix = 2;
+    string regex = 3;
+  }
+}
+
+// url scope config
+message Config {
+  int32 id = 1;
+  Pattern pattern = 2;
+  optional string scope = 3;
+}
+message NewConfig {
+  Pattern pattern = 1;
+  optional string scope = 2;
+}
+
+message ClientListRequest {
+}
+message ClientListResponse {
+  repeated Client clients = 1;
+}
+message ClientCreateRequest {
+  NewClient client = 1;
+}
+message ClientCreateResponse {
+  Client client = 1;
+}
+message ConfigListRequest {
+}
+message ConfigListResponse {
+  repeated Config configs = 1;
+}
+message ConfigCreateRequest {
+  NewConfig config = 1;
+}
+message ConfigCreateResponse {
+  Config config = 1;
 }

@@ -51,16 +51,6 @@ service LotteryService {
     option (google.api.http) = {
       get: "/lottery.LotteryService/lotterys/{id}"
     };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      security: {
-        security_requirement: {
-          key: "OAuth2";
-          value: {
-            scope: "read";
-          }
-        }
-      }
-    };
   }
   rpc Create(CreateRequest) returns (CreateResponse) {
     option (google.api.http) = {
