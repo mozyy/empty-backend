@@ -6,6 +6,7 @@ package record;
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
+import "paginate.proto";
 
 option go_package = "record.v1";
 
@@ -64,9 +65,11 @@ message NewRecord {
 
 message ListRequest {
   Record record = 1;
+  paginate.Paginate paginate = 2;
 }
 message ListResponse {
   repeated Record records = 1;
+  paginate.Paginated paginated = 2;
 }
 
 message GetRequest {

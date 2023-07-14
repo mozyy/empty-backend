@@ -21,6 +21,7 @@ members = [
 # common
 tokio = { version = "1.25", features = ["macros", "rt-multi-thread"] }
 thiserror = "1.0"
+anyhow = "1.0"
 lazy_static ="1.4"
 log = "0.4"
 tracing="0.1"

@@ -1,8 +1,8 @@
 diff --git a/lottery/src/schema.rs b/lottery/src/schema.rs
-index 7b55d2a..e18d1e3 100644
+index 2a0f862..7081dcf 100644
 --- a/lottery/src/schema.rs
 +++ b/lottery/src/schema.rs
-@@ -21,9 +21,9 @@ diesel::table! {
+@@ -25,9 +25,9 @@ diesel::table! {
          title -> Text,
          #[sql_name = "type"]
          type_ -> Int4,
@@ -11,6 +11,15 @@ index 7b55d2a..e18d1e3 100644
          remark -> Bool,
 -        remarks -> Array<Nullable<Remark>>,
 +        remarks -> Array<Remark>,
+         created_at -> Timestamp,
+         updated_at -> Timestamp,
+     }
+@@ -60,7 +60,7 @@ diesel::table! {
+         lottery_id -> Int4,
+         user_id -> Uuid,
+         value -> Text,
+-        remarks -> Array<Nullable<Text>>,
++        remarks -> Array<Text>,
          created_at -> Timestamp,
          updated_at -> Timestamp,
      }

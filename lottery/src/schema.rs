@@ -60,7 +60,7 @@ diesel::table! {
         lottery_id -> Int4,
         user_id -> Uuid,
         value -> Text,
-        remarks -> Array<Nullable<Text>>,
+        remarks -> Array<Text>,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }
