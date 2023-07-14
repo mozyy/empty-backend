@@ -1,16 +1,22 @@
 use empty_backend::openapi::{questions, resources};
+use empty_utils::errors::{Error, Result};
 use std::fs;
 use utoipa::OpenApi;
 
-fn main() {
+fn main() -> Result {
     fs::write(
         "openapi/questions.yaml",
-        questions::ApiDoc::openapi().to_yaml().unwrap(),
+        questions::ApiDoc::openapi()
+            .to_yaml()
+            .map_err(Error::other)?,
     )
-    .unwrap();
+    .map_err(Error::other)?;
     fs::write(
         "openapi/resources.yaml",
-        resources::ApiDoc::openapi().to_yaml().unwrap(),
+        resources::ApiDoc::openapi()
+            .to_yaml()
+            .map_err(Error::other)?,
     )
-    .unwrap();
+    .map_err(Error::other)?;
+    Ok(())
 }

@@ -1,4 +1,4 @@
-use empty_utils::{errors::ServiceError, tonic::Resp};
+use empty_utils::{errors::Error, tonic::Resp};
 use proto::pb::file::{self, file_service_server::FileService};
 use tonic::Request;
 
@@ -17,7 +17,7 @@ impl FileService for Service {
         let request = request.into_inner();
         let _file = request
             .file
-            .ok_or_else(|| ServiceError::StatusError(tonic::Status::invalid_argument("no file")))?;
+            .ok_or_else(|| Error::StatusError(tonic::Status::invalid_argument("no file")))?;
 
         todo!()
     }

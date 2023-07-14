@@ -1,61 +1,28 @@
 use std::sync::Arc;
 
-use empty_utils::{
-    diesel::db,
-    errors::{ServiceError, ServiceResult},
-    tonic::Resp,
-};
-use oxide_auth::{
-    endpoint::Scope,
-    frontends::simple::endpoint::Vacant,
-    primitives::{
-        prelude::{AuthMap, Client, RandomGenerator, TokenMap},
-        registrar::ClientMap,
-    },
-};
+use empty_utils::{diesel::db, errors::Result, tonic::Resp};
+use oxide_auth::{endpoint::Scope, frontends::simple::endpoint::Vacant};
 
 use oxide_auth_async::endpoint::resource::ResourceFlow;
 use tokio::sync::Mutex;
 
 use crate::{
+    configs::ADDR_CLIENT,
     model::oauth::{
         diesel::config_query_all,
         endpoint::{Endpoint, EndpointState},
         grpc::request::OAuthRequest,
     },
-    pb::oauth as pb, configs::ADDR_CLIENT,
+    pb::oauth as pb,
 };
 use futures_util::future::BoxFuture;
 use http::StatusCode;
 use hyper::{Request, Response};
-use oxide_auth::endpoint::{OAuthError, WebRequest};
-use oxide_auth_async::endpoint;
+
 use tonic::{body::BoxBody, codegen::empty_body};
-use tower::ServiceExt;
 use tower_http::auth::AsyncAuthorizeRequest;
-use url::Url;
 
-use std::collections::HashMap;
-
-use async_trait::async_trait;
-use oxide_auth::{
-    endpoint::{OwnerConsent, Solicitation, WebResponse},
-    frontends::simple::endpoint::FnSolicitor,
-};
-use oxide_auth_async::endpoint::{access_token::AccessTokenFlow, authorization::AuthorizationFlow};
-use uuid::Uuid;
-
-use crate::{
-    model::oauth::{
-        diesel,
-        grpc::{
-            request::Auth,
-            response::{OAuthResponse, ResponseStatus},
-        },
-        UserId,
-    },
-    schema::oauth_clients::passdata,
-};
+use crate::model::oauth::UserId;
 
 #[derive(Clone)]
 pub struct State {
@@ -65,11 +32,11 @@ pub struct State {
 }
 
 impl State {
-    pub async fn new() -> ServiceResult<Self> {
+    pub async fn new() -> Result<Self> {
         Self::new_by_db(db::DbPool::new("lottery")).await
     }
 
-    pub async fn new_by_db(db: db::DbPool) -> ServiceResult<Self> {
+    pub async fn new_by_db(db: db::DbPool) -> Result<Self> {
         let mut value = Self {
             db: db.clone(),
             endpoint_state: EndpointState::new(db).await?,
@@ -78,7 +45,7 @@ impl State {
         value.get_configs().await?;
         Ok(value)
     }
-    pub async fn get_configs(&mut self) -> ServiceResult {
+    pub async fn get_configs(&mut self) -> Result {
         let mut conn = self.db.get_conn()?;
         let configs = config_query_all(&mut conn).await?;
         log::info!("configs: {:?}", &configs);
@@ -143,7 +110,7 @@ where
         let that = self.clone();
         Box::pin(async move {
             let configs = that.configs.lock().await;
-            let method = request.method();
+            let _method = request.method();
             let uri = request.uri().to_string();
             log::info!("request uri: {:?}, addr:{}", uri, ADDR_CLIENT);
             let exp = regex::Regex::new("^https?://[^/]+").unwrap();
@@ -153,7 +120,6 @@ where
                 .iter()
                 .find_map(|config| config.get_scope(uri.to_string()));
             log::info!("request uri: {},scope: {:?}", uri, scope);
-            
 
             let authorized = request
                 .headers()
@@ -179,16 +145,16 @@ where
                             .unwrap();
                         Err(unauthorized_response)
                     }
-                }
+                };
             }
             if scope.is_none() || scope.clone().unwrap().is_none() {
                 return Ok(request);
             }
-                let unauthorized_response = Response::builder()
-                            .status(StatusCode::UNAUTHORIZED)
-                            .body(empty_body())
-                            .unwrap();
-                        Err(unauthorized_response)
+            let unauthorized_response = Response::builder()
+                .status(StatusCode::UNAUTHORIZED)
+                .body(empty_body())
+                .unwrap();
+            Err(unauthorized_response)
         })
     }
 }

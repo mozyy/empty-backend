@@ -1,7 +1,7 @@
 use crate::schema::{clients, registered_urls};
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
-use empty_utils::{diesel::timestamp, errors::ServiceResult};
+use empty_utils::{diesel::timestamp, errors::Result};
 
 use oxide_auth::{
     endpoint::{Authorizer, Issuer, OwnerConsent, OwnerSolicitor, Solicitation, WebRequest},
@@ -103,7 +103,7 @@ impl From<ClientUrl> for registrar::Client {
         let id = id.as_str();
         let default_scope = default_scope
             .into_iter()
-            .filter_map(|s| s)
+            .flatten()
             .collect::<String>()
             .parse()
             .unwrap();
@@ -124,9 +124,7 @@ impl From<ClientUrl> for registrar::Client {
 }
 impl FromIterator<ClientUrl> for Vec<registrar::Client> {
     fn from_iter<T: IntoIterator<Item = ClientUrl>>(iter: T) -> Self {
-        iter.into_iter()
-            .map(|c| registrar::Client::from(c))
-            .collect()
+        iter.into_iter().map(registrar::Client::from).collect()
     }
 }
 impl From<RegisteredUrl> for registrar::RegisteredUrl {
@@ -143,13 +141,13 @@ impl From<RegisteredUrl> for registrar::RegisteredUrl {
 impl FromIterator<RegisteredUrl> for Vec<registrar::RegisteredUrl> {
     fn from_iter<T: IntoIterator<Item = RegisteredUrl>>(iter: T) -> Self {
         iter.into_iter()
-            .map(|r| registrar::RegisteredUrl::from(r))
+            .map(registrar::RegisteredUrl::from)
             .collect()
     }
 }
 
 impl ClientUrl {
-    pub fn insert(conn: &mut PgConnection, req: NewClientUrl) -> ServiceResult<Uuid> {
+    pub fn insert(conn: &mut PgConnection, req: NewClientUrl) -> Result<Uuid> {
         let client_id = conn.transaction::<_, diesel::result::Error, _>(move |conn| {
             let redirect_uri_id = diesel::insert_into(registered_urls::dsl::registered_urls)
                 .values(req.new_redirect_uris)
@@ -182,7 +180,7 @@ impl ClientUrl {
         })?;
         Ok(client_id)
     }
-    pub fn select_all(conn: &mut PgConnection) -> ServiceResult<Vec<ClientUrl>> {
+    pub fn select_all(conn: &mut PgConnection) -> Result<Vec<ClientUrl>> {
         let clients = clients::table.load::<Client>(conn)?;
         let redirect_uris = registered_urls::table.load::<RegisteredUrl>(conn)?;
 

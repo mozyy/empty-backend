@@ -1,7 +1,5 @@
-use std::collections::HashMap;
-
 use async_trait::async_trait;
-use empty_utils::{errors::ServiceResult, tonic::Resp};
+use empty_utils::{errors::Error, tonic::Resp};
 use oxide_auth::{
     endpoint::{OwnerConsent, Solicitation, WebResponse},
     frontends::simple::endpoint::{FnSolicitor, Vacant},
@@ -10,16 +8,12 @@ use oxide_auth_async::endpoint::{
     access_token::AccessTokenFlow, authorization::AuthorizationFlow, resource::ResourceFlow,
 };
 use tonic::{Request, Response};
-use uuid::Uuid;
 
 use crate::{
     model::oauth::{
         diesel,
         endpoint::Endpoint,
-        grpc::{
-            request::{Auth, OAuthRequest},
-            response::{OAuthResponse, ResponseStatus},
-        },
+        grpc::{request::OAuthRequest, response::OAuthResponse},
     },
     pb::oauth as pb,
 };
@@ -92,11 +86,11 @@ impl pb::o_auth_service_server::OAuthService for State {
     async fn login(&self, request: Request<pb::LoginRequest>) -> Resp<pb::LoginResponse> {
         let mut conn = self.db.get_conn()?;
         let id = request.into_inner().user_id;
-        let id = id.parse().unwrap();
+        let id = id.parse().map_err(Error::other)?;
         let user = diesel::user_query_by_id(&mut conn, id).await?;
         let client = diesel::client_query_by_name(&mut conn, "zuoyinyun".into()).await?;
         let req = OAuthRequest::default_with_client(&client);
-        let req = self.endpoint_state.authorize_by_id(id, req,client).await?;
+        let req = self.endpoint_state.authorize_by_id(id, req, client).await?;
 
         let token = req
             .body
@@ -109,10 +103,10 @@ impl pb::o_auth_service_server::OAuthService for State {
     async fn register(&self, _request: Request<pb::RegisterRequest>) -> Resp<pb::RegisterResponse> {
         let mut conn = self.db.get_conn()?;
         let user = diesel::user_insert(&mut conn).await?;
-        let id = user.id.parse().unwrap();
+        let id = user.id.parse().map_err(Error::other)?;
         let client = diesel::client_query_by_name(&mut conn, "zuoyinyun".into()).await?;
         let req = OAuthRequest::default_with_client(&client);
-        let req = self.endpoint_state.authorize_by_id(id, req,client).await?;
+        let req = self.endpoint_state.authorize_by_id(id, req, client).await?;
 
         let token = req
             .body
@@ -125,7 +119,7 @@ impl pb::o_auth_service_server::OAuthService for State {
     }
     async fn client_list(
         &self,
-        request: Request<pb::ClientListRequest>,
+        _request: Request<pb::ClientListRequest>,
     ) -> Resp<pb::ClientListResponse> {
         let mut conn = self.db.get_conn()?;
         let clients = diesel::client_query_all(&mut conn).await?;
@@ -135,7 +129,7 @@ impl pb::o_auth_service_server::OAuthService for State {
         &self,
         request: Request<pb::ClientCreateRequest>,
     ) -> Resp<pb::ClientCreateResponse> {
-        let client = request.into_inner().client.unwrap();
+        let client = request.into_inner().client.ok_or_else(Error::invalid)?;
         let mut conn = self.db.get_conn()?;
         let client = diesel::client_insert(&mut conn, client).await?;
         Ok(Response::new(pb::ClientCreateResponse {
@@ -144,7 +138,7 @@ impl pb::o_auth_service_server::OAuthService for State {
     }
     async fn config_list(
         &self,
-        request: Request<pb::ConfigListRequest>,
+        _request: Request<pb::ConfigListRequest>,
     ) -> Resp<pb::ConfigListResponse> {
         let mut conn = self.db.get_conn()?;
         let configs = diesel::config_query_all(&mut conn).await?;
@@ -154,7 +148,7 @@ impl pb::o_auth_service_server::OAuthService for State {
         &self,
         request: Request<pb::ConfigCreateRequest>,
     ) -> Resp<pb::ConfigCreateResponse> {
-        let config = request.into_inner().config.unwrap();
+        let config = request.into_inner().config.ok_or_else(Error::invalid)?;
         let mut conn = self.db.get_conn()?;
         let config = diesel::config_insert(&mut conn, config).await?;
         Ok(Response::new(pb::ConfigCreateResponse {

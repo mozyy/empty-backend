@@ -7,10 +7,10 @@ use super::error::OAuthError;
 
 #[derive(Debug)]
 pub enum ResponseStatus {
-    OK,
-    REDIRECT(Url),
-    BAD_REQUEST,
-    UNAUTHORIZED(String),
+    Ok,
+    Redirect(Url),
+    BadRequest,
+    Unauthorized(String),
 }
 #[derive(Debug)]
 pub struct OAuthResponse {
@@ -20,7 +20,7 @@ pub struct OAuthResponse {
 impl Default for OAuthResponse {
     fn default() -> Self {
         Self {
-            status: ResponseStatus::OK,
+            status: ResponseStatus::Ok,
             body: None,
         }
     }
@@ -30,22 +30,22 @@ impl WebResponse for OAuthResponse {
     type Error = OAuthError;
 
     fn ok(&mut self) -> Result<(), Self::Error> {
-        self.status = ResponseStatus::OK;
+        self.status = ResponseStatus::Ok;
         Ok(())
     }
 
     fn redirect(&mut self, url: Url) -> Result<(), Self::Error> {
-        self.status = ResponseStatus::REDIRECT(url);
+        self.status = ResponseStatus::Redirect(url);
         Ok(())
     }
 
     fn client_error(&mut self) -> Result<(), Self::Error> {
-        self.status = ResponseStatus::BAD_REQUEST;
+        self.status = ResponseStatus::BadRequest;
         Ok(())
     }
 
     fn unauthorized(&mut self, header_value: &str) -> Result<(), Self::Error> {
-        self.status = ResponseStatus::UNAUTHORIZED(header_value.to_string());
+        self.status = ResponseStatus::Unauthorized(header_value.to_string());
         Ok(())
     }
 
@@ -66,16 +66,16 @@ where
 {
     fn from(value: OAuthResponse) -> Self {
         match value.status {
-            ResponseStatus::REDIRECT(url) => {
+            ResponseStatus::Redirect(url) => {
                 let mut headers = http::HeaderMap::new();
                 headers.insert(header::LOCATION, url.to_string().parse().unwrap());
                 let meta = tonic::metadata::MetadataMap::from_headers(headers);
                 let status = tonic::Status::with_metadata(tonic::Code::Ok, "redirect", meta);
                 Err(status)
             }
-            ResponseStatus::BAD_REQUEST => Err(tonic::Status::unknown("BAD_REQUEST")),
-            ResponseStatus::UNAUTHORIZED(e) => Err(tonic::Status::unauthenticated(e)),
-            ResponseStatus::OK => Ok(tonic::Response::new(Default::default())),
+            ResponseStatus::BadRequest => Err(tonic::Status::unknown("BAD_REQUEST")),
+            ResponseStatus::Unauthorized(e) => Err(tonic::Status::unauthenticated(e)),
+            ResponseStatus::Ok => Ok(tonic::Response::new(Default::default())),
         }
     }
 }

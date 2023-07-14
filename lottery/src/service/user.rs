@@ -1,6 +1,6 @@
 use crate::{configs::ADDR_CLIENT, pb::user as pb};
 use async_trait::async_trait;
-use empty_utils::{diesel::db, errors::ServiceError, tonic::Resp};
+use empty_utils::{diesel::db, errors::Error, tonic::Resp};
 use tonic::{Request, Response};
 use uuid::Uuid;
 
@@ -51,7 +51,7 @@ impl pb::user_service_server::UserService for Service {
         let wx_user = request
             .into_inner()
             .wx_user
-            .ok_or_else(|| ServiceError::StatusError(tonic::Status::data_loss("no wx_user")))?;
+            .ok_or_else(|| Error::StatusError(tonic::Status::data_loss("no wx_user")))?;
         let wx_user = model::insert(&mut conn, wx_user).await?;
         Ok(Response::new(pb::CreateResponse {
             wx_user: Some(wx_user),
@@ -63,8 +63,8 @@ impl pb::user_service_server::UserService for Service {
         let pb::UpdateRequest { id, wx_user } = request.into_inner();
         let id =
             Uuid::parse_str(&id).map_err(|e| tonic::Status::invalid_argument(e.to_string()))?;
-        let wx_user = wx_user
-            .ok_or_else(|| ServiceError::StatusError(tonic::Status::data_loss("no blog")))?;
+        let wx_user =
+            wx_user.ok_or_else(|| Error::StatusError(tonic::Status::data_loss("no blog")))?;
         let wx_user = model::update_by_id(&mut conn, id, wx_user).await?;
         Ok(Response::new(pb::UpdateResponse {
             wx_user: Some(wx_user),
@@ -83,7 +83,7 @@ impl pb::user_service_server::UserService for Service {
         let code = request.into_inner().code;
         let mut client = crate::pb::wx::wx_service_client::WxServiceClient::connect(ADDR_CLIENT)
             .await
-            .unwrap();
+            .map_err(Error::other)?;
         log::warn!("code: {code}");
         let resp = client
             .sns_jscode2session(crate::pb::wx::SnsJscode2sessionRequest::new(code))
@@ -93,7 +93,7 @@ impl pb::user_service_server::UserService for Service {
         let mut client =
             crate::pb::oauth::o_auth_service_client::OAuthServiceClient::connect(ADDR_CLIENT)
                 .await
-                .unwrap();
+                .map_err(Error::other)?;
         let token = match model::query_by_openid(&mut conn, resp.openid.clone()).await {
             Ok(user) => {
                 let resp = client
@@ -109,8 +109,9 @@ impl pb::user_service_server::UserService for Service {
                     .register(crate::pb::oauth::RegisterRequest {})
                     .await?;
                 let res = res.into_inner();
+                let user_id = res.user.ok_or_else(Error::invalid)?.id;
                 let user = pb::NewWxUser {
-                    user_id: res.user.unwrap().id,
+                    user_id,
                     openid: resp.openid,
                     unionid: resp.unionid,
                     session_key: resp.session_key,

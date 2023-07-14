@@ -2,13 +2,14 @@ use actix_web::http::StatusCode;
 use axum::Router;
 
 use empty_backend::router;
+use empty_utils::errors::{Error, Result};
 use std::net::{Ipv4Addr, SocketAddr};
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result {
     // initialize tracing
     tracing_subscriber::registry()
         .with(
@@ -42,6 +43,7 @@ async fn main() {
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
-        .unwrap();
+        .map_err(Error::other)?;
     tracing::info!("listening on222 {}", addr);
+    Ok(())
 }

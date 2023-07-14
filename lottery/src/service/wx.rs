@@ -1,7 +1,7 @@
 use std::str;
 
 use async_trait::async_trait;
-use empty_utils::tonic::Resp;
+use empty_utils::{errors::Error, tonic::Resp};
 use tonic::{Request, Response};
 
 use crate::pb::wx as pb;
@@ -17,7 +17,7 @@ impl pb::wx_service_server::WxService for Service {
     ) -> Resp<pb::SnsJscode2sessionResponse> {
         let request = request.into_inner();
         log::info!("resave{:?}", request);
-        let query = serde_qs::to_string(&request).unwrap();
+        let query = serde_qs::to_string(&request).map_err(Error::other)?;
         let url = format!("https://api.weixin.qq.com/sns/jscode2session?{query}");
         log::info!("url: {url}");
         let res = reqwest::get(url).await.map_err(|e| {
@@ -36,7 +36,7 @@ impl pb::wx_service_server::WxService for Service {
                 }
                 Err(_e) => {
                     return Err(tonic::Status::resource_exhausted(
-                        str::from_utf8(&res).unwrap(),
+                        str::from_utf8(&res).map_err(Error::other)?,
                     ))
                 }
             },

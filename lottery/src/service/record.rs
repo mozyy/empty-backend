@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use empty_utils::{diesel::db, errors::ServiceError, tonic::Resp};
+use empty_utils::{diesel::db, errors::Error, tonic::Resp};
 use tonic::Response;
 
 use crate::{
@@ -32,16 +32,16 @@ impl pb::record_service_server::RecordService for Service {
         }))
     }
     async fn create(&self, request: tonic::Request<pb::CreateRequest>) -> Resp<pb::CreateResponse> {
-        let user_id = UserId::try_from(&request)?.0;
+        let _user_id = UserId::try_from(&request)?.0;
         let mut conn = self.db.get_conn()?;
         let record = request
             .into_inner()
             .record
             .ok_or_else(|| tonic::Status::data_loss("no new record"))?;
-        let client =
+        let _client =
             crate::pb::lottery::lottery_service_client::LotteryServiceClient::connect(ADDR_CLIENT)
                 .await
-                .unwrap();
+                .map_err(Error::other)?;
         let record = model::insert(&mut conn, record).await?;
         Ok(Response::new(pb::CreateResponse {
             record: Some(record),

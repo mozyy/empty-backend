@@ -4,7 +4,7 @@ use crate::{
 };
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
-use empty_utils::errors::ServiceResult;
+use empty_utils::errors::Result;
 use oxide_auth::{
     endpoint::{Authorizer, Issuer, OwnerConsent, OwnerSolicitor, Scope, Solicitation, WebRequest},
     frontends::simple::endpoint::{Generic, Vacant},
@@ -113,11 +113,11 @@ pub struct NewClientUrl {
 }
 
 impl Client {
-    pub fn insert(conn: &mut PgConnection, _req: NewClientUrl) -> ServiceResult<Uuid> {
+    pub fn insert(conn: &mut PgConnection, _req: NewClientUrl) -> Result<Uuid> {
         let _clients = clients::table.load::<Client>(conn)?;
         todo!();
     }
-    pub fn select_all(conn: &mut PgConnection) -> ServiceResult<Vec<ClientUrl>> {
+    pub fn select_all(conn: &mut PgConnection) -> Result<Vec<ClientUrl>> {
         let clients = clients::table.load::<Client>(conn)?;
         let redirect_uris = redirect_uris::table.load::<RedirectUri>(conn)?;
 

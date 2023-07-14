@@ -1,5 +1,5 @@
 use crate::pb;
-use empty_utils::{diesel::db, errors::ServiceError, tonic::Resp};
+use empty_utils::{diesel::db, errors::Error, tonic::Resp};
 use tonic::{Request, Response};
 
 use crate::model;
@@ -38,7 +38,7 @@ impl pb::blog_service_server::BlogService for Service {
         let blog = request
             .into_inner()
             .blog
-            .ok_or_else(|| ServiceError::StatusError(tonic::Status::data_loss("no blog")))?;
+            .ok_or_else(|| Error::StatusError(tonic::Status::data_loss("no blog")))?;
         let blog = model::insert(&mut conn, blog).await?;
         Ok(Response::new(pb::CreateResponse { blog: Some(blog) }))
     }
@@ -46,8 +46,7 @@ impl pb::blog_service_server::BlogService for Service {
     async fn update(&self, request: Request<pb::UpdateRequest>) -> Resp<pb::UpdateResponse> {
         let mut conn = self.db.get_conn()?;
         let pb::UpdateRequest { id, blog } = request.into_inner();
-        let blog =
-            blog.ok_or_else(|| ServiceError::StatusError(tonic::Status::data_loss("no blog")))?;
+        let blog = blog.ok_or_else(|| Error::StatusError(tonic::Status::data_loss("no blog")))?;
         let blog = model::update_by_id(&mut conn, id, blog).await?;
         Ok(Response::new(pb::UpdateResponse { blog: Some(blog) }))
     }

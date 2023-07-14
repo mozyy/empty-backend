@@ -1,7 +1,5 @@
 use super::{diesel::client_query_all, primitives::Guard};
-use futures_util::future::BoxFuture;
-use http::StatusCode;
-use hyper::{Request, Response};
+
 use oxide_auth::{
     endpoint::{OAuthError, Scope, WebRequest},
     frontends::simple::endpoint::Vacant,
@@ -12,36 +10,26 @@ use oxide_auth::{
 };
 use oxide_auth_async::endpoint;
 use std::sync::Arc;
-use tonic::{body::BoxBody, codegen::empty_body};
-use tower::ServiceExt;
-use tower_http::auth::AsyncAuthorizeRequest;
+
 use url::Url;
 
 use std::collections::HashMap;
 use tokio::sync::Mutex;
 
-use async_trait::async_trait;
-use empty_utils::{diesel::db, errors::ServiceResult, tonic::Resp};
+use empty_utils::{diesel::db, errors::Result};
 use oxide_auth::{
-    endpoint::{OwnerConsent, Solicitation, WebResponse},
+    endpoint::{OwnerConsent, Solicitation},
     frontends::simple::endpoint::FnSolicitor,
 };
-use oxide_auth_async::endpoint::{
-    access_token::AccessTokenFlow, authorization::AuthorizationFlow, resource::ResourceFlow,
-};
+use oxide_auth_async::endpoint::{access_token::AccessTokenFlow, authorization::AuthorizationFlow};
 use uuid::Uuid;
 
 use crate::{
-    model::oauth::{
-        diesel,
-        grpc::{
-            request::{Auth, OAuthRequest},
-            response::{OAuthResponse, ResponseStatus},
-        },
-        UserId,
+    model::oauth::grpc::{
+        request::{Auth, OAuthRequest},
+        response::{OAuthResponse, ResponseStatus},
     },
     pb::oauth as pb,
-    schema::oauth_clients::passdata,
 };
 
 #[derive(Clone)]
@@ -52,10 +40,10 @@ pub struct EndpointState {
 }
 
 impl EndpointState {
-    pub async fn new(db: db::DbPool) -> ServiceResult<Self> {
+    pub async fn new(db: db::DbPool) -> Result<Self> {
         let mut conn = db.get_conn()?;
         let clients = client_query_all(&mut conn).await?;
-        log::info!("clients: {:?}",clients);
+        log::info!("clients: {:?}", clients);
         let clients = clients
             .into_iter()
             .map(|client| {
@@ -99,7 +87,7 @@ impl EndpointState {
         user_id: Uuid,
         request: OAuthRequest,
         client: pb::Client,
-    ) -> ServiceResult<OAuthResponse> {
+    ) -> Result<OAuthResponse> {
         let endpoint = self.endpoint().await;
         let endpoint =
             endpoint.with_solicitor(FnSolicitor(|_: &mut OAuthRequest, _: Solicitation| {
@@ -111,7 +99,7 @@ impl EndpointState {
             .execute(request)
             .await
             .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?;
-        let mut code = if let ResponseStatus::REDIRECT(url) = resp.status {
+        let mut code = if let ResponseStatus::Redirect(url) = resp.status {
             url.query()
                 .map(|v| {
                     url::form_urlencoded::parse(v.as_bytes())
@@ -125,10 +113,7 @@ impl EndpointState {
         code.insert("grant_type".into(), "authorization_code".into());
         // TODO: from query
         code.insert("client_id".into(), client.id);
-        code.insert(
-            "redirect_uri".into(),
-            client.redirect_uri,
-        );
+        code.insert("redirect_uri".into(), client.redirect_uri);
         let res =
             AccessTokenFlow::<Endpoint<'_, Vacant>, OAuthRequest>::prepare(self.endpoint().await)
                 .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?

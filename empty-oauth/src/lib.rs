@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use chrono::NaiveDateTime;
 use empty_utils::{
-    errors::{ServiceError, ServiceResult},
+    errors::{Error, Result},
     tonic::Resp,
 };
 
@@ -55,7 +55,7 @@ struct Client {
     client_screct: Option<String>,
 }
 impl FromStr for Client {
-    type Err = ServiceError;
+    type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut auth = s.split(':');
@@ -91,7 +91,7 @@ impl FromStr for Client {
     }
 }
 impl Client {
-    pub fn parse<T>(request: &tonic::Request<T>) -> ServiceResult<Self> {
+    pub fn parse<T>(request: &tonic::Request<T>) -> Result<Self> {
         let auth = request.metadata().get("Authorization");
         let auth = match auth {
             Some(auth) => auth
@@ -102,7 +102,7 @@ impl Client {
         let client = auth.parse::<Client>()?;
         Ok(client)
     }
-    pub async fn check(&self, _state: OAuthState) -> ServiceResult {
+    pub async fn check(&self, _state: OAuthState) -> Result {
         todo!()
     }
 }

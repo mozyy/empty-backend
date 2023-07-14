@@ -1,6 +1,6 @@
 use std::ops::Deref;
 
-use empty_utils::{errors::ServiceError, tonic::Resp};
+use empty_utils::errors::Error;
 
 pub mod diesel;
 pub mod endpoint;
@@ -12,13 +12,13 @@ pub mod solicitor;
 pub struct UserId(pub String);
 
 impl<T> TryFrom<&tonic::Request<T>> for UserId {
-    type Error = ServiceError;
+    type Error = Error;
 
     fn try_from(value: &tonic::Request<T>) -> Result<Self, Self::Error> {
         let user_id = value
             .extensions()
             .get::<UserId>()
-            .ok_or_else(|| ServiceError::StatusError(tonic::Status::unauthenticated("no auth")))?;
+            .ok_or_else(|| Error::StatusError(tonic::Status::unauthenticated("no auth")))?;
         Ok(user_id.to_owned())
     }
 }

@@ -4,9 +4,7 @@ use crate::{
 };
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
-use empty_utils::{
-    convert::naive_date_time_to_timestamp, diesel::timestamp, errors::ServiceResult,
-};
+use empty_utils::{convert::naive_date_time_to_timestamp, diesel::timestamp, errors::Result};
 use serde::Serialize;
 
 use uuid::Uuid;
@@ -65,7 +63,7 @@ impl NewInfo {
     }
 }
 
-pub fn insert(conn: &mut PgConnection, info: NewInfo) -> ServiceResult<Uuid> {
+pub fn insert(conn: &mut PgConnection, info: NewInfo) -> Result<Uuid> {
     let id = diesel::insert_into(infos::dsl::infos)
         .values(info)
         .returning(infos::id)
@@ -73,12 +71,12 @@ pub fn insert(conn: &mut PgConnection, info: NewInfo) -> ServiceResult<Uuid> {
     Ok(id)
 }
 
-pub fn query_by_id(conn: &mut PgConnection, id: Uuid) -> ServiceResult<Info> {
+pub fn query_by_id(conn: &mut PgConnection, id: Uuid) -> Result<Info> {
     let info = infos::dsl::infos.find(id).first(conn)?;
     Ok(info)
 }
 
-pub fn query_by_mobile(conn: &mut PgConnection, mobile: String) -> ServiceResult<Info> {
+pub fn query_by_mobile(conn: &mut PgConnection, mobile: String) -> Result<Info> {
     let info = infos::dsl::infos
         .filter(infos::mobile.eq(mobile))
         .first(conn)?;

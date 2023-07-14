@@ -1,10 +1,10 @@
 use std::env;
 
 use blog::pb;
-use empty_utils::errors::ServiceResult;
+use empty_utils::errors::Result;
 
 #[tokio::main]
-async fn main() -> ServiceResult {
+async fn main() -> Result {
     empty_utils::init();
     let base_url = env::var("BASE_URL").unwrap_or_else(|_| String::from("127.0.0.1:50051"));
     let mut client =

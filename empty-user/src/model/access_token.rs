@@ -1,7 +1,7 @@
 use crate::{pb, schema::access_tokens};
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
-use empty_utils::{convert::naive_date_time_to_timestamp, errors::ServiceResult};
+use empty_utils::{convert::naive_date_time_to_timestamp, errors::Result};
 
 use uuid::Uuid;
 
@@ -84,17 +84,14 @@ impl NewAccessToken {
     }
 }
 
-pub fn insert(conn: &mut PgConnection, access_token: NewAccessToken) -> ServiceResult<AccessToken> {
+pub fn insert(conn: &mut PgConnection, access_token: NewAccessToken) -> Result<AccessToken> {
     let access_token = diesel::insert_into(access_tokens::dsl::access_tokens)
         .values(access_token)
         .get_result(conn)?;
     Ok(access_token)
 }
 
-pub fn query_by_access_token(
-    conn: &mut PgConnection,
-    access_token: String,
-) -> ServiceResult<AccessToken> {
+pub fn query_by_access_token(conn: &mut PgConnection, access_token: String) -> Result<AccessToken> {
     let access_token = access_tokens::table.find(access_token).first(conn)?;
     Ok(access_token)
 }
@@ -102,17 +99,17 @@ pub fn query_by_access_token(
 pub fn query_by_refresh_token(
     conn: &mut PgConnection,
     refresh_token: String,
-) -> ServiceResult<AccessToken> {
+) -> Result<AccessToken> {
     let refresh_token = access_tokens::table.find(refresh_token).first(conn)?;
     Ok(refresh_token)
 }
 
-pub fn delete_by_access_token(conn: &mut PgConnection, access_token: String) -> ServiceResult {
+pub fn delete_by_access_token(conn: &mut PgConnection, access_token: String) -> Result {
     diesel::delete(access_tokens::table.find(access_token)).execute(conn)?;
     Ok(())
 }
 
-pub fn delete_by_refresh_token(conn: &mut PgConnection, refresh_token: String) -> ServiceResult {
+pub fn delete_by_refresh_token(conn: &mut PgConnection, refresh_token: String) -> Result {
     diesel::delete(access_tokens::table.filter(access_tokens::refresh_token.eq(refresh_token)))
         .execute(conn)?;
     Ok(())

@@ -1,5 +1,6 @@
 use std::net::{Ipv4Addr, SocketAddr};
 
+use empty_utils::errors::{Error, Result};
 use oauth::{handler, state::State};
 
 use axum::{
@@ -7,7 +8,7 @@ use axum::{
     Router,
 };
 #[tokio::main]
-async fn main() {
+async fn main() -> Result {
     empty_utils::init();
     // build our application with a route
     let app = Router::new()
@@ -19,5 +20,6 @@ async fn main() {
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
-        .unwrap();
+        .map_err(Error::other)?;
+    Ok(())
 }

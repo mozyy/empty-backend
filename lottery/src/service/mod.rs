@@ -1,5 +1,3 @@
-use empty_utils::diesel::db;
-
 pub mod lottery;
 pub mod oauth;
 pub mod record;

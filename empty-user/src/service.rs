@@ -1,6 +1,6 @@
 use chrono::{Duration, Utc};
 use diesel::Connection;
-use empty_utils::{diesel::db, errors::ServiceError, tonic::Resp};
+use empty_utils::{diesel::db, errors::Error, tonic::Resp};
 use tonic::{Request, Response};
 use uuid::Uuid;
 
@@ -43,10 +43,9 @@ impl user_server::User for Service {
         let info = model::info::query_by_mobile(&mut conn, mobile)?;
         // TODO: check password
         if password != info.password {
-            return Err(ServiceError::StatusError(tonic::Status::permission_denied(
-                "password error",
-            ))
-            .into());
+            return Err(
+                Error::StatusError(tonic::Status::permission_denied("password error")).into(),
+            );
         }
         let access_token =
             model::access_token::NewAccessToken::new(info.id, String::from("public"));
@@ -59,7 +58,7 @@ impl user_server::User for Service {
     async fn refresh(&self, request: Request<pb::RefreshRequest>) -> Resp<pb::RefreshResponse> {
         let mut conn = self.db.get_conn()?;
         let pb::RefreshRequest { refresh_token } = request.into_inner();
-        let access_token = conn.transaction::<_, ServiceError, _>(|conn| {
+        let access_token = conn.transaction::<_, Error, _>(|conn| {
             let access_token =
                 model::access_token::query_by_refresh_token(conn, refresh_token.clone())?;
             model::access_token::delete_by_refresh_token(conn, refresh_token)?;
@@ -80,14 +79,15 @@ impl user_server::User for Service {
     }
     async fn info(&self, request: Request<pb::InfoRequest>) -> Resp<pb::InfoResponse> {
         let mut conn = self.db.get_conn()?;
-        let user_id = request.metadata().get("user_id").ok_or_else(|| {
-            ServiceError::StatusError(tonic::Status::unauthenticated("no user_id"))
-        })?;
+        let user_id = request
+            .metadata()
+            .get("user_id")
+            .ok_or_else(|| Error::StatusError(tonic::Status::unauthenticated("no user_id")))?;
         let user_id = user_id
             .to_str()
-            .map_err(|e| ServiceError::String(format!("user_id:{e}")))?;
+            .map_err(|e| Error::String(format!("user_id:{e}")))?;
         let user_id = Uuid::parse_str(user_id)
-            .map_err(|e| ServiceError::String(String::from(format!("user_id psrse:{e}"))))?;
+            .map_err(|e| Error::String(String::from(format!("user_id psrse:{e}"))))?;
         let info = model::info::query_by_id(&mut conn, user_id)?;
         let info = pb::Info::from(info);
         Ok(Response::new(pb::InfoResponse { info: Some(info) }))
@@ -104,18 +104,16 @@ impl user_server::User for Service {
         let expires_in = Duration::seconds(access_token.expires_in as i64);
         if duration >= expires_in {
             model::access_token::delete_by_access_token(&mut conn, access_token.access_token)?;
-            return Err(ServiceError::StatusError(tonic::Status::permission_denied(
-                "no permission",
-            ))
-            .into());
+            return Err(
+                Error::StatusError(tonic::Status::permission_denied("no permission")).into(),
+            );
         }
         // TODO: check scope
         log::debug!("verify resource:{resource}");
         if access_token.scope != String::from("public") {
-            return Err(ServiceError::StatusError(tonic::Status::permission_denied(
-                "no permission",
-            ))
-            .into());
+            return Err(
+                Error::StatusError(tonic::Status::permission_denied("no permission")).into(),
+            );
         }
         Ok(Response::new(pb::VerifyResponse {
             id: access_token.info_id.to_string(),

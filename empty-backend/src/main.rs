@@ -1,3 +1,4 @@
+use empty_utils::errors::{Error, Result};
 use oauth::o_auth_service_server::{OAuthService, OAuthServiceServer};
 use protos::proto::user::oauth;
 use tonic::transport::Server;
@@ -24,8 +25,8 @@ impl OAuthService for MyGreeter {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let addr = "[::]:50091".parse().unwrap();
+async fn main() -> Result {
+    let addr = "[::]:50091".parse().map_err(Error::other)?;
     let greeter = MyGreeter::default();
 
     Server::builder()

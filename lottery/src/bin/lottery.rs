@@ -4,7 +4,11 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use empty_utils::{diesel::db, errors::ServiceResult, tonic::server};
+use empty_utils::{
+    diesel::db,
+    errors::{Error, Result},
+    tonic::server,
+};
 use lottery::{
     configs::ADDR,
     model::oauth::UserId,
@@ -13,16 +17,13 @@ use lottery::{
         oauth::o_auth_service_server::OAuthServiceServer,
         user::user_service_server::UserServiceServer, wx::wx_service_server::WxServiceServer,
     },
-    service::{
-        self,
-        oauth::{handler, state::State},
-    },
+    service::{self, oauth::handler},
 };
 use tonic::{body::BoxBody, codegen::empty_body};
 use tower_http::auth::AsyncRequireAuthorizationLayer;
 
 #[tokio::main]
-async fn main() -> ServiceResult {
+async fn main() -> Result {
     empty_utils::init();
 
     let db = db::DbPool::new("lottery");
@@ -36,7 +37,7 @@ async fn main() -> ServiceResult {
     let addr = SocketAddr::from((Ipv4Addr::LOCALHOST, 3000));
     axum::Server::bind(&addr).serve(app.into_make_service());
 
-    let url = ADDR.parse().unwrap();
+    let url = ADDR.parse().map_err(Error::other)?;
 
     let lottery = LotteryServiceServer::new(service::lottery::Service::new_by_db(db.clone()));
     let oauth = OAuthServiceServer::new(oauth_state.clone());
@@ -60,8 +61,7 @@ async fn main() -> ServiceResult {
 
 use futures_util::future::BoxFuture;
 use http::StatusCode;
-use hyper::{Body, Error, Request, Response};
-use tower::ServiceExt;
+use hyper::{Body, Request, Response};
 use tower_http::auth::AsyncAuthorizeRequest;
 
 #[derive(Clone)]
@@ -101,10 +101,10 @@ async fn check_auth<B>(_request: &Request<B>) -> Option<UserId> {
     todo!()
 }
 
-async fn handle(request: Request<Body>) -> Result<Response<Body>, Error> {
+async fn handle(request: Request<Body>) -> Result<Response<Body>, hyper::Error> {
     // Access the `UserId` that was set in `on_authorized`. If `handle` gets called
     // request was authorized and `UserId` will be present.
-    let user_id = request
+    let _user_id = request
         .extensions()
         .get::<UserId>()
         .expect("UserId will be there if request was authorized");

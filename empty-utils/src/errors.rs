@@ -3,7 +3,7 @@
 use axum::{http::StatusCode, response::IntoResponse};
 
 #[derive(thiserror::Error, Debug)]
-pub enum ServiceError {
+pub enum Error {
     #[error("[axum] error:{1}")]
     AxumStatus(StatusCode, String),
     #[error("[diesel pool] error")]
@@ -25,44 +25,50 @@ pub enum ServiceError {
     Other(#[from] anyhow::Error),
 }
 
-impl ServiceError {
-    pub fn params_loss() -> Self {
+impl Error {
+    pub fn invalid() -> Self {
         Self::StatusError(tonic::Status::invalid_argument("invalid_argument"))
+    }
+    pub fn other<E>(e: E) -> Self
+    where
+        E: std::error::Error + Send + Sync + 'static,
+    {
+        Self::Other(anyhow::Error::from(e))
     }
 }
 
-impl IntoResponse for ServiceError {
+impl IntoResponse for Error {
     fn into_response(self) -> axum::response::Response {
         let message = match self {
-            ServiceError::AxumStatus(code, message) => return (code, message).into_response(),
-            ServiceError::PoolError(e) => e.to_string(),
-            ServiceError::DieselError(e) => e.to_string(),
-            ServiceError::AuthError(e) => e.to_string(),
-            ServiceError::StatusError(e) => e.to_string(),
-            ServiceError::String(e) => e,
-            ServiceError::TransportError(e) => e.to_string(),
-            ServiceError::Unknown => "unknown".to_string(),
-            ServiceError::Other(e) => e.to_string(),
+            Error::AxumStatus(code, message) => return (code, message).into_response(),
+            Error::PoolError(e) => e.to_string(),
+            Error::DieselError(e) => e.to_string(),
+            Error::AuthError(e) => e.to_string(),
+            Error::StatusError(e) => e.to_string(),
+            Error::String(e) => e,
+            Error::TransportError(e) => e.to_string(),
+            Error::Unknown => "unknown".to_string(),
+            Error::Other(e) => e.to_string(),
         };
         (StatusCode::INTERNAL_SERVER_ERROR, message).into_response()
     }
 }
 
-impl From<ServiceError> for tonic::Status {
-    fn from(value: ServiceError) -> Self {
+impl From<Error> for tonic::Status {
+    fn from(value: Error) -> Self {
         let message = match value {
-            ServiceError::AxumStatus(_, message) => message,
-            ServiceError::PoolError(e) => e.to_string(),
-            ServiceError::DieselError(e) => e.to_string(),
-            ServiceError::AuthError(e) => e.to_string(),
-            ServiceError::StatusError(e) => return e,
-            ServiceError::String(e) => e,
-            ServiceError::TransportError(e) => e.to_string(),
-            ServiceError::Unknown => "unknown".to_string(),
-            ServiceError::Other(e) => e.to_string(),
+            Error::AxumStatus(_, message) => message,
+            Error::PoolError(e) => e.to_string(),
+            Error::DieselError(e) => e.to_string(),
+            Error::AuthError(e) => e.to_string(),
+            Error::StatusError(e) => return e,
+            Error::String(e) => e,
+            Error::TransportError(e) => e.to_string(),
+            Error::Unknown => "unknown".to_string(),
+            Error::Other(e) => e.to_string(),
         };
         tonic::Status::unknown(message)
     }
 }
 
-pub type ServiceResult<T = ()> = Result<T, ServiceError>;
+pub type Result<T = (), E = Error> = core::result::Result<T, E>;
