@@ -13,7 +13,7 @@ pub struct Service {
 }
 impl Service {
     pub fn new_by_db(db: db::DbPool) -> Self {
-        Self { db: db }
+        Self { db }
     }
 }
 
@@ -34,10 +34,7 @@ impl pb::record_service_server::RecordService for Service {
     async fn create(&self, request: tonic::Request<pb::CreateRequest>) -> Resp<pb::CreateResponse> {
         let _user_id = UserId::try_from(&request)?.0;
         let mut conn = self.db.get_conn()?;
-        let record = request
-            .into_inner()
-            .record
-            .ok_or_else(|| tonic::Status::data_loss("no new record"))?;
+        let record = request.into_inner().record.ok_or_else(Error::invalid)?;
         let _client =
             crate::pb::lottery::lottery_service_client::LotteryServiceClient::connect(ADDR_CLIENT)
                 .await
@@ -50,7 +47,7 @@ impl pb::record_service_server::RecordService for Service {
     async fn update(&self, request: tonic::Request<pb::UpdateRequest>) -> Resp<pb::UpdateResponse> {
         let mut conn = self.db.get_conn()?;
         let pb::UpdateRequest { id, record } = request.into_inner();
-        let record = record.ok_or_else(|| tonic::Status::data_loss("no new record"))?;
+        let record = record.ok_or_else(Error::invalid)?;
         let record = model::update_by_id(&mut conn, id, record).await?;
         Ok(Response::new(pb::UpdateResponse {
             record: Some(record),

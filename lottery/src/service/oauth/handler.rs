@@ -20,10 +20,6 @@ pub async fn authorize_get(
             .await
             .with_solicitor(FnSolicitor(
                 |_: &mut OAuthRequest, solicitation: Solicitation| {
-                    fn map_err<E: std::error::Error>(err: E) -> OwnerConsent<OAuthResponse> {
-                        OwnerConsent::Error(WebError::InternalError(Some(err.to_string())))
-                    }
-
                     let pre_g = &solicitation.pre_grant();
                     let state = &solicitation.state();
                     log::debug!("PreGrant: {:?}, {:?}", pre_g, state);

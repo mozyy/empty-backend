@@ -44,10 +44,7 @@ impl pb::lottery_service_server::LotteryService for Service {
 
     async fn create(&self, request: Request<pb::CreateRequest>) -> Resp<pb::CreateResponse> {
         let user_id = UserId::try_from(&request)?.0;
-        let mut lottery = request
-            .into_inner()
-            .lottery
-            .ok_or_else(|| Error::StatusError(tonic::Status::data_loss("no blog")))?;
+        let mut lottery = request.into_inner().lottery.ok_or_else(Error::invalid)?;
         lottery.user_id = user_id.clone();
         log::info!("user:{}, {:?}", user_id, lottery);
         let mut conn = self.db.get_conn()?;
@@ -60,8 +57,7 @@ impl pb::lottery_service_server::LotteryService for Service {
     async fn update(&self, request: Request<pb::UpdateRequest>) -> Resp<pb::UpdateResponse> {
         let user_id = UserId::try_from(&request)?.0;
         let pb::UpdateRequest { id, lottery } = request.into_inner();
-        let mut lottery =
-            lottery.ok_or_else(|| Error::StatusError(tonic::Status::data_loss("no blog")))?;
+        let mut lottery = lottery.ok_or_else(Error::invalid)?;
         lottery.user_id = user_id;
         let mut conn = self.db.get_conn()?;
         let lottery = model::update_by_id(&mut conn, id, lottery).await?;

@@ -94,11 +94,9 @@ impl EndpointState {
                 OwnerConsent::Authorized(user_id.to_string())
             }));
 
-        let resp = AuthorizationFlow::prepare(endpoint)
-            .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?
+        let resp = AuthorizationFlow::prepare(endpoint)?
             .execute(request)
-            .await
-            .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?;
+            .await?;
         let mut code = if let ResponseStatus::Redirect(url) = resp.status {
             url.query()
                 .map(|v| {
@@ -115,15 +113,13 @@ impl EndpointState {
         code.insert("client_id".into(), client.id);
         code.insert("redirect_uri".into(), client.redirect_uri);
         let res =
-            AccessTokenFlow::<Endpoint<'_, Vacant>, OAuthRequest>::prepare(self.endpoint().await)
-                .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?
+            AccessTokenFlow::<Endpoint<'_, Vacant>, OAuthRequest>::prepare(self.endpoint().await)?
                 .execute(OAuthRequest {
                     auth: Auth(None),
                     query: code.clone(),
                     body: code,
                 })
-                .await
-                .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?;
+                .await?;
         Ok(res)
     }
 }

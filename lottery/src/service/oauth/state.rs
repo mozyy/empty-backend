@@ -80,8 +80,7 @@ impl State {
             .endpoint()
             .await
             .with_scopes(vec![scope]);
-        let res = ResourceFlow::<Endpoint<'_, Vacant>, OAuthRequest>::prepare(endpoint)
-            .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?
+        let res = ResourceFlow::<Endpoint<'_, Vacant>, OAuthRequest>::prepare(endpoint)?
             .execute(OAuthRequest::default().with_auth(auth))
             .await;
         let res = match res {
@@ -91,7 +90,7 @@ impl State {
                     log::warn!("{:?}", r);
                     return Err(tonic::Status::unauthenticated("r.into()"));
                 }
-                Err(e) => return Err(tonic::Status::unauthenticated(e.0.to_string())),
+                Err(e) => return Err(e.into()),
             },
         };
         Ok(tonic::Response::new(res.into()))

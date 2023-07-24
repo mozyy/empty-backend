@@ -48,10 +48,7 @@ impl pb::user_service_server::UserService for Service {
 
     async fn create(&self, request: Request<pb::CreateRequest>) -> Resp<pb::CreateResponse> {
         let mut conn = self.db.get_conn()?;
-        let wx_user = request
-            .into_inner()
-            .wx_user
-            .ok_or_else(|| Error::StatusError(tonic::Status::data_loss("no wx_user")))?;
+        let wx_user = request.into_inner().wx_user.ok_or_else(Error::invalid)?;
         let wx_user = model::insert(&mut conn, wx_user).await?;
         Ok(Response::new(pb::CreateResponse {
             wx_user: Some(wx_user),
@@ -63,8 +60,7 @@ impl pb::user_service_server::UserService for Service {
         let pb::UpdateRequest { id, wx_user } = request.into_inner();
         let id =
             Uuid::parse_str(&id).map_err(|e| tonic::Status::invalid_argument(e.to_string()))?;
-        let wx_user =
-            wx_user.ok_or_else(|| Error::StatusError(tonic::Status::data_loss("no blog")))?;
+        let wx_user = wx_user.ok_or_else(Error::invalid)?;
         let wx_user = model::update_by_id(&mut conn, id, wx_user).await?;
         Ok(Response::new(pb::UpdateResponse {
             wx_user: Some(wx_user),

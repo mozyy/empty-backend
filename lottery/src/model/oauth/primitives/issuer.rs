@@ -21,10 +21,10 @@ where
     }
 
     async fn recover_token(&mut self, token: &str) -> Result<Option<Grant>, ()> {
-        Issuer::recover_token(&mut **self, token)
+        Issuer::recover_token(&**self, token)
     }
 
     async fn recover_refresh(&mut self, token: &str) -> Result<Option<Grant>, ()> {
-        Issuer::recover_refresh(&mut **self, token)
+        Issuer::recover_refresh(&**self, token)
     }
 }

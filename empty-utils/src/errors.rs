@@ -29,6 +29,12 @@ impl Error {
     pub fn invalid() -> Self {
         Self::StatusError(tonic::Status::invalid_argument("invalid_argument"))
     }
+    pub fn invalid_error<E>(e: E) -> Self
+    where
+        E: std::error::Error,
+    {
+        Self::StatusError(tonic::Status::invalid_argument(e.to_string()))
+    }
     pub fn other<E>(e: E) -> Self
     where
         E: std::error::Error + Send + Sync + 'static,

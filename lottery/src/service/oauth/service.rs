@@ -44,11 +44,9 @@ impl pb::o_auth_service_server::OAuthService for State {
             },
         ));
 
-        let _p = AuthorizationFlow::prepare(endpoint)
-            .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?
+        let _p = AuthorizationFlow::prepare(endpoint)?
             .execute(request.into())
-            .await
-            .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?;
+            .await?;
         Ok(Response::new(pb::AuthorizeResponse {
             code: "todo".into(),
         }))
@@ -56,19 +54,16 @@ impl pb::o_auth_service_server::OAuthService for State {
     async fn token(&self, request: Request<pb::TokenRequest>) -> Resp<pb::TokenResponse> {
         let _p = AccessTokenFlow::<Endpoint<'_, Vacant>, OAuthRequest>::prepare(
             self.endpoint_state.endpoint().await,
-        )
-        .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?
+        )?
         .execute(OAuthRequest::from(request))
-        .await
-        .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?;
+        .await?;
         todo!();
     }
     async fn resource(&self, request: Request<pb::ResourceRequest>) -> Resp<pb::ResourceResponse> {
         let pb::ResourceRequest { uri: _, auth } = request.into_inner();
         let res = ResourceFlow::<Endpoint<'_, Vacant>, OAuthRequest>::prepare(
             self.endpoint_state.endpoint().await,
-        )
-        .map_err(|e| tonic::Status::unauthenticated(e.0.to_string()))?
+        )?
         .execute(OAuthRequest::default().with_auth(auth))
         .await;
         let res = match res {
@@ -78,7 +73,7 @@ impl pb::o_auth_service_server::OAuthService for State {
                     log::warn!("{:?}", r);
                     return Err(tonic::Status::unauthenticated("r.into()"));
                 }
-                Err(e) => return Err(tonic::Status::unauthenticated(e.0.to_string())),
+                Err(e) => return Err(e.into()),
             },
         };
         Ok(Response::new(res.into()))

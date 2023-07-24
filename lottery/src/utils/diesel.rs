@@ -4,15 +4,15 @@ use diesel::query_builder::*;
 use diesel::query_dsl::methods::LoadQuery;
 use diesel::sql_types::BigInt;
 
-use crate::pb;
+use crate::pb::paginate as pb;
 
 pub trait Paginate: Sized {
-    fn paginate(self, paginate: Option<pb::paginate::Paginate>) -> Paginated<Self>;
+    fn paginate(self, paginate: Option<pb::Paginate>) -> Paginated<Self>;
 }
 
 impl<T> Paginate for T {
-    fn paginate(self, paginate: Option<pb::paginate::Paginate>) -> Paginated<Self> {
-        let paginate = paginate.unwrap_or(pb::paginate::Paginate {
+    fn paginate(self, paginate: Option<pb::Paginate>) -> Paginated<Self> {
+        let paginate = paginate.unwrap_or(pb::Paginate {
             page: 1,
             per_page: 10,
         });
@@ -28,7 +28,7 @@ impl<T> Paginate for T {
 #[derive(Debug, Clone, QueryId)]
 pub struct Paginated<T> {
     query: T,
-    paginate: pb::paginate::Paginate,
+    paginate: pb::Paginate,
     offset: i64,
 }
 
@@ -36,18 +36,18 @@ impl<T> Paginated<T> {
     pub fn load_and_paginated<'a, U>(
         self,
         conn: &mut PgConnection,
-    ) -> QueryResult<(Vec<U>, Option<pb::paginate::Paginated>)>
+    ) -> QueryResult<(Vec<U>, Option<pb::Paginated>)>
     where
         Self: LoadQuery<'a, PgConnection, (U, i64)>,
     {
-        let pb::paginate::Paginate { page, per_page } = self.paginate;
+        let pb::Paginate { page, per_page } = self.paginate;
         let results = self.load::<(U, i64)>(conn)?;
         let total = results.get(0).map(|x| x.1).unwrap_or(0);
         let records = results.into_iter().map(|x| x.0).collect();
         let total_pages = (total as f64 / per_page as f64).ceil() as i64;
         Ok((
             records,
-            Some(pb::paginate::Paginated {
+            Some(pb::Paginated {
                 page,
                 per_page,
                 total,
