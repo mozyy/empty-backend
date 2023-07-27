@@ -28,6 +28,7 @@ cache:
     - .cargo
 
 before_script:
+  - cp $CI_PROJECT_DIR/cargo.config ~/.cargo/config
   - rustc --version
   - cargo --version
 
