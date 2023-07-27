@@ -46,25 +46,54 @@ service RecordService {
 }
 
 // Lottery item
-message Record {
+message RecordRemark {
+  int32 id = 1; // id
+  int32 record_id = 2;
+  int32 remark_id = 3; // id
+  string value = 4; // lottery image
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+// Lottery item
+message NewRecordRemark {
+  int32 record_id = 1;
+  int32 remark_id = 2; // id
+  string value = 3; // lottery image
+}
+
+// Lottery item
+message RecordInfo {
   int32 id = 1; // id
   int32 lottery_id = 2; // id
   string user_id = 3; // id
-  string value = 4; // lottery image
-  repeated string remarks = 5;
-  google.protobuf.Timestamp created_at = 6;
-  google.protobuf.Timestamp updated_at = 7;
+  int32 item_id = 4; // id
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+message Record {
+  RecordInfo record = 1;
+  repeated RecordRemark record_remarks = 2;
 }
 
-message NewRecord {
+message RecordQuery {
+  optional int32 id = 1; // id
+  optional int32 lottery_id = 2; // id
+  optional string user_id = 3; // id
+}
+
+message NewRecordInfo {
   int32 lottery_id = 1; // id
   string user_id = 2; // id
-  string value = 3; // lottery image
-  repeated string remarks = 4;
+  int32 item_id = 3; // id
+}
+message NewRecord {
+  NewRecordInfo record = 1; // id
+  repeated NewRecordRemark record_remarks = 2;
 }
 
 message ListRequest {
-  Record record = 1;
+  RecordQuery record = 1;
   paginate.Paginate paginate = 2;
 }
 message ListResponse {

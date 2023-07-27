@@ -2,32 +2,29 @@
 
 pub mod sql_types {
     #[derive(diesel::sql_types::SqlType)]
-    #[diesel(postgres_type(name = "item"))]
-    pub struct Item;
-
-    #[derive(diesel::sql_types::SqlType)]
     #[diesel(postgres_type(name = "oauth_pattern"))]
     pub struct OauthPattern;
-
-    #[derive(diesel::sql_types::SqlType)]
-    #[diesel(postgres_type(name = "remark"))]
-    pub struct Remark;
 }
 
 diesel::table! {
-    use diesel::sql_types::*;
-    use super::sql_types::Item;
-    use super::sql_types::Remark;
+    items (id) {
+        id -> Int4,
+        lottery_id -> Int4,
+        name -> Text,
+        value -> Int4,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
 
+diesel::table! {
     lotterys (id) {
         id -> Int4,
         user_id -> Uuid,
         title -> Text,
         #[sql_name = "type"]
         type_ -> Int4,
-        items -> Array<Item>,
         remark -> Bool,
-        remarks -> Array<Remark>,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -55,12 +52,33 @@ diesel::table! {
 }
 
 diesel::table! {
+    record_remarks (id) {
+        id -> Int4,
+        record_id -> Int4,
+        remark_id -> Int4,
+        value -> Text,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     records (id) {
         id -> Int4,
         lottery_id -> Int4,
         user_id -> Uuid,
-        value -> Text,
-        remarks -> Array<Text>,
+        item_id -> Int4,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    remarks (id) {
+        id -> Int4,
+        lottery_id -> Int4,
+        name -> Text,
+        require -> Bool,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -89,16 +107,24 @@ diesel::table! {
     }
 }
 
+diesel::joinable!(items -> lotterys (lottery_id));
 diesel::joinable!(lotterys -> users (user_id));
+diesel::joinable!(record_remarks -> records (record_id));
+diesel::joinable!(record_remarks -> remarks (remark_id));
+diesel::joinable!(records -> items (item_id));
 diesel::joinable!(records -> lotterys (lottery_id));
 diesel::joinable!(records -> users (user_id));
+diesel::joinable!(remarks -> lotterys (lottery_id));
 diesel::joinable!(wx_users -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
+    items,
     lotterys,
     oauth_clients,
     oauth_configs,
+    record_remarks,
     records,
+    remarks,
     users,
     wx_users,
 );

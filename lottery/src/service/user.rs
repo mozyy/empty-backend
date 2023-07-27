@@ -1,6 +1,10 @@
 use crate::{configs::ADDR_CLIENT, pb::user as pb};
 use async_trait::async_trait;
-use empty_utils::{diesel::db, errors::Error, tonic::Resp};
+use empty_utils::{
+    diesel::db,
+    errors::{Error, ErrorConvert},
+    tonic::Resp,
+};
 use tonic::{Request, Response};
 use uuid::Uuid;
 
@@ -38,8 +42,7 @@ impl pb::user_service_server::UserService for Service {
     async fn get(&self, request: Request<pb::GetRequest>) -> Resp<pb::GetResponse> {
         let mut conn = self.db.get_conn()?;
         let id = request.into_inner().id;
-        let id =
-            Uuid::parse_str(&id).map_err(|e| tonic::Status::invalid_argument(e.to_string()))?;
+        let id = Uuid::parse_str(&id).ok_or_invalid()?;
         let wx_user = model::query_by_id(&mut conn, id).await?;
         Ok(Response::new(pb::GetResponse {
             wx_user: Some(wx_user),
@@ -48,7 +51,7 @@ impl pb::user_service_server::UserService for Service {
 
     async fn create(&self, request: Request<pb::CreateRequest>) -> Resp<pb::CreateResponse> {
         let mut conn = self.db.get_conn()?;
-        let wx_user = request.into_inner().wx_user.ok_or_else(Error::invalid)?;
+        let wx_user = request.into_inner().wx_user.ok_or_invalid()?;
         let wx_user = model::insert(&mut conn, wx_user).await?;
         Ok(Response::new(pb::CreateResponse {
             wx_user: Some(wx_user),
@@ -58,9 +61,8 @@ impl pb::user_service_server::UserService for Service {
     async fn update(&self, request: Request<pb::UpdateRequest>) -> Resp<pb::UpdateResponse> {
         let mut conn = self.db.get_conn()?;
         let pb::UpdateRequest { id, wx_user } = request.into_inner();
-        let id =
-            Uuid::parse_str(&id).map_err(|e| tonic::Status::invalid_argument(e.to_string()))?;
-        let wx_user = wx_user.ok_or_else(Error::invalid)?;
+        let id = Uuid::parse_str(&id).ok_or_invalid()?;
+        let wx_user = wx_user.ok_or_invalid()?;
         let wx_user = model::update_by_id(&mut conn, id, wx_user).await?;
         Ok(Response::new(pb::UpdateResponse {
             wx_user: Some(wx_user),
@@ -70,8 +72,7 @@ impl pb::user_service_server::UserService for Service {
     async fn delete(&self, request: Request<pb::DeleteRequest>) -> Resp<pb::DeleteResponse> {
         let mut conn = self.db.get_conn()?;
         let id = request.into_inner().id;
-        let id =
-            Uuid::parse_str(&id).map_err(|e| tonic::Status::invalid_argument(e.to_string()))?;
+        let id = Uuid::parse_str(&id).ok_or_invalid()?;
         model::delete_by_id(&mut conn, id).await?;
         Ok(Response::new(pb::DeleteResponse {}))
     }
@@ -105,7 +106,7 @@ impl pb::user_service_server::UserService for Service {
                     .register(crate::pb::oauth::RegisterRequest {})
                     .await?;
                 let res = res.into_inner();
-                let user_id = res.user.ok_or_else(Error::invalid)?.id;
+                let user_id = res.user.ok_or_invalid()?.id;
                 let user = pb::NewWxUser {
                     user_id,
                     openid: resp.openid,

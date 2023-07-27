@@ -26,20 +26,34 @@ pub enum Error {
 }
 
 impl Error {
-    pub fn invalid() -> Self {
-        Self::StatusError(tonic::Status::invalid_argument("invalid_argument"))
-    }
-    pub fn invalid_error<E>(e: E) -> Self
-    where
-        E: std::error::Error,
-    {
-        Self::StatusError(tonic::Status::invalid_argument(e.to_string()))
+    pub fn unknown(message: &str) -> Self {
+        Self::StatusError(tonic::Status::unknown(message))
     }
     pub fn other<E>(e: E) -> Self
     where
         E: std::error::Error + Send + Sync + 'static,
     {
         Self::Other(anyhow::Error::from(e))
+    }
+}
+pub trait ErrorConvert<T> {
+    fn ok_or_invalid(self) -> Result<T>;
+    fn ok_or_loss(self) -> Result<T>;
+}
+impl<T> ErrorConvert<T> for Option<T> {
+    fn ok_or_invalid(self) -> Result<T> {
+        self.ok_or_else(|| Error::StatusError(tonic::Status::invalid_argument("invalid_argument")))
+    }
+    fn ok_or_loss(self) -> Result<T> {
+        self.ok_or_else(|| Error::StatusError(tonic::Status::data_loss("data_loss")))
+    }
+}
+impl<T, E: std::error::Error> ErrorConvert<T> for core::result::Result<T, E> {
+    fn ok_or_invalid(self) -> Result<T> {
+        self.map_err(|e| Error::StatusError(tonic::Status::invalid_argument(e.to_string())))
+    }
+    fn ok_or_loss(self) -> Result<T> {
+        self.map_err(|e| Error::StatusError(tonic::Status::data_loss(e.to_string())))
     }
 }
 

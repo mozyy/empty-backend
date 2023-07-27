@@ -1,2 +1,2 @@
-pub mod lottery;
+// pub mod lottery;
 pub mod oauth;

@@ -1,40 +1,55 @@
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let build_config = tonic_build::configure()
     // lottery
+    // .type_attribute(
+    //     "lottery.Item",
+    //     "#[derive(::diesel::FromSqlRow, ::diesel::AsExpression)]
+    //     #[diesel(sql_type = crate::schema::sql_types::Item)]",
+    // )
     .type_attribute(
         "lottery.Item",
-        "#[derive(::diesel::FromSqlRow, ::diesel::AsExpression)]
-        #[diesel(sql_type = crate::schema::sql_types::Item)]",
+        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable, ::diesel::prelude::Associations)]
+        #[diesel(table_name=crate::schema::items, belongs_to(crate::pb::lottery::LotteryInfo, foreign_key = lottery_id))]",
+    )
+    .type_attribute(
+        "lottery.NewItem",
+        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset, ::diesel::prelude::Associations)]
+        #[diesel(table_name=crate::schema::items, belongs_to(crate::pb::lottery::LotteryInfo, foreign_key = lottery_id))]",
     )
     .type_attribute(
         "lottery.Remark",
-        "#[derive(::diesel::FromSqlRow, ::diesel::AsExpression)]
-        #[diesel(sql_type = crate::schema::sql_types::Remark)]",
+        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable, ::diesel::prelude::Associations)]
+        #[diesel(table_name=crate::schema::remarks, belongs_to(crate::pb::lottery::LotteryInfo, foreign_key = lottery_id))]",
     )
     .type_attribute(
-        "lottery.Lottery",
+        "lottery.NewRemark",
+        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset, ::diesel::prelude::Associations)]
+        #[diesel(table_name=crate::schema::remarks, belongs_to(crate::pb::lottery::LotteryInfo, foreign_key = lottery_id))]",
+    )
+    .type_attribute(
+        "lottery.LotteryInfo",
         "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable, ::diesel::prelude::Associations)]
         #[diesel(table_name=crate::schema::lotterys, belongs_to(crate::pb::oauth::User))]",
     )
     .field_attribute(
-        "lottery.Lottery.user_id",
+        "lottery.LotteryInfo.user_id",
         "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
     )
     .type_attribute(
-        "lottery.NewLottery",
+        "lottery.NewLotteryInfo",
         "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset, ::diesel::prelude::Associations)]
         #[diesel(table_name=crate::schema::lotterys, belongs_to(crate::pb::oauth::User))]",
     )
     .field_attribute(
-        "lottery.NewLottery.user_id",
+        "lottery.NewLotteryInfo.user_id",
         "#[diesel(serialize_as = ::empty_utils::tonic::uuid::Uuid)]",
     )
     .field_attribute(
-        "lottery.Lottery.type",
+        "lottery.LotteryInfo.type",
         "#[diesel(column_name = \"type_\")]",
     )
     .field_attribute(
-        "lottery.NewLottery.type",
+        "lottery.NewLotteryInfo.type",
         "#[diesel(column_name = \"type_\")]",
     )
 
@@ -85,21 +100,31 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // record
     .type_attribute(
-        "record.Record",
+        "record.RecordInfo",
         "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable, ::diesel::prelude::Associations)]
         #[diesel(table_name=crate::schema::records, belongs_to(crate::pb::oauth::User))]",
     )
     .type_attribute(
-        "record.NewRecord",
+        "record.NewRecordInfo",
         "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset, ::diesel::prelude::Associations)]
         #[diesel(table_name=crate::schema::records, belongs_to(crate::pb::oauth::User))]",
     )
+    .type_attribute(
+        "record.RecordRemark",
+        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable, ::diesel::prelude::Associations)]
+        #[diesel(table_name=crate::schema::record_remarks, belongs_to(crate::pb::record::RecordInfo, foreign_key = record_id))]",
+    )
+    .type_attribute(
+        "record.NewRecordRemark",
+        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset, ::diesel::prelude::Associations)]
+        #[diesel(table_name=crate::schema::record_remarks, belongs_to(crate::pb::record::RecordInfo, foreign_key = record_id))]",
+    )
     .field_attribute(
-        "record.Record.user_id",
+        "record.RecordInfo.user_id",
         "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
     )
     .field_attribute(
-        "record.NewRecord.user_id",
+        "record.NewRecordInfo.user_id",
         "#[diesel(serialize_as = ::empty_utils::tonic::uuid::Uuid)]",
     )
 

@@ -1,5 +1,8 @@
 use async_trait::async_trait;
-use empty_utils::{errors::Error, tonic::Resp};
+use empty_utils::{
+    errors::{Error, ErrorConvert},
+    tonic::Resp,
+};
 use oxide_auth::{
     endpoint::{OwnerConsent, Solicitation, WebResponse},
     frontends::simple::endpoint::{FnSolicitor, Vacant},
@@ -124,7 +127,7 @@ impl pb::o_auth_service_server::OAuthService for State {
         &self,
         request: Request<pb::ClientCreateRequest>,
     ) -> Resp<pb::ClientCreateResponse> {
-        let client = request.into_inner().client.ok_or_else(Error::invalid)?;
+        let client = request.into_inner().client.ok_or_invalid()?;
         let mut conn = self.db.get_conn()?;
         let client = diesel::client_insert(&mut conn, client).await?;
         Ok(Response::new(pb::ClientCreateResponse {
@@ -143,7 +146,7 @@ impl pb::o_auth_service_server::OAuthService for State {
         &self,
         request: Request<pb::ConfigCreateRequest>,
     ) -> Resp<pb::ConfigCreateResponse> {
-        let config = request.into_inner().config.ok_or_else(Error::invalid)?;
+        let config = request.into_inner().config.ok_or_invalid()?;
         let mut conn = self.db.get_conn()?;
         let config = diesel::config_insert(&mut conn, config).await?;
         Ok(Response::new(pb::ConfigCreateResponse {
