@@ -32,6 +32,11 @@ before_script:
   - cp $CI_PROJECT_DIR/cargo.config ~/.cargo/config
   - rustc --version
   - cargo --version
+  - PROTOC_VERSION=23.2 && \
+    PROTOC_ZIP=protoc-${PROTOC_VERSION}-linux-x86_64.zip && \
+    curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/${PROTOC_ZIP} && \
+    unzip $PROTOC_ZIP -d /home/vscode/.local && \
+    rm -f $PROTOC_ZIP
 
 stages:          # List of stages for jobs, and their order of execution
   - check
