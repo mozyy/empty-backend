@@ -19,6 +19,7 @@ dotenvy = {workspace = true}
 async-trait =  { workspace = true }
 http =  { workspace = true }
 regex =  { workspace = true }
+rand = { workspace = true }
 
 
 tonic = { workspace = true }

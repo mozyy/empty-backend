@@ -4,6 +4,7 @@ use empty_utils::{
     errors::{Error, ErrorConvert, Result},
     tonic::Resp,
 };
+use rand::Rng;
 use tonic::Response;
 
 use crate::{
@@ -37,8 +38,8 @@ impl pb::record_service_server::RecordService for Service {
     }
     async fn create(&self, request: tonic::Request<pb::CreateRequest>) -> Resp<pb::CreateResponse> {
         let user_id = UserId::try_from(&request)?.0;
-        let new_record = request.into_inner().record.ok_or_invalid()?;
-        let record = new_record.clone().record.ok_or_invalid()?;
+        let mut new_record = request.into_inner().record.ok_or_invalid()?;
+        let mut record = new_record.record.as_mut().ok_or_invalid()?;
         let mut conn = self.db.get_conn()?;
         let my_records = model::query_list_by_record(
             &mut conn,
@@ -48,7 +49,7 @@ impl pb::record_service_server::RecordService for Service {
                 lottery_id: Some(record.lottery_id),
             }),
         )?;
-        if my_records.len() > 0 {
+        if !my_records.is_empty() {
             return Err(Error::unknown("already records"))?;
         }
 
@@ -64,11 +65,7 @@ impl pb::record_service_server::RecordService for Service {
             .into_inner()
             .lottery
             .ok_or_loss()?;
-        let crate::pb::lottery::Lottery {
-            lottery,
-            items,
-            remarks,
-        } = lottery;
+        let crate::pb::lottery::Lottery { lottery, items, .. } = lottery;
         let lottery = lottery.ok_or_loss()?;
 
         let r#type = crate::pb::lottery::Type::from_i32(lottery.r#type).ok_or_invalid()?;
@@ -86,31 +83,59 @@ impl pb::record_service_server::RecordService for Service {
             Ok(record)
         })
         .collect::<Result<Vec<_>>>()?;
-        match r#type {
+        let mut rng = rand::thread_rng();
+        let mut items = items.into_iter();
+        let total_amount: i32 = items.clone().map(|item| item.value).sum();
+        let item = match r#type {
             crate::pb::lottery::Type::Number => {
-                let items = items.into_iter();
-                let total_count: i32 = items.map(|item| item.value).sum();
-                if total_count <= all_records.len() as i32 {
+                let remaining_amount = total_amount - all_records.len() as i32;
+                if remaining_amount <= 0 {
                     return Err(Error::unknown("lottery has been drawn"))?;
                 }
-                // let items = items.filter_map(|item| {}).collect();
+                let random_index = rng.gen_range(0..remaining_amount);
+                let mut index = 0;
+
+                items
+                    .find(|item| {
+                        let mut already: i32 = 0;
+                        all_records.iter().for_each(|record| {
+                            if record.item_id == item.id {
+                                already += 1
+                            }
+                        });
+                        let remaining = item.value - already;
+                        if random_index < index + remaining {
+                            true
+                        } else {
+                            index += remaining;
+                            false
+                        }
+                    })
+                    .ok_or_loss()?
             }
-            crate::pb::lottery::Type::Percent => todo!(),
-        }
-        // 生成一个随机数生成器
-        // let mut rng = rand::thread_rng();
-
-        // // 生成一个 0 到 (total_remaining - 1) 之间的随机数
-        // let random_index = rng.gen_range(0..total_remaining);
-
-        let my_records = model::query_list_by_record(
-            &mut conn,
-            Some(pb::RecordQuery {
-                id: None,
-                user_id: Some(user_id),
-                lottery_id: Some(record.lottery_id),
-            }),
-        )?;
+            crate::pb::lottery::Type::Percent => {
+                let random_index = rng.gen_range(0..total_amount);
+                let mut index = 0;
+                items
+                    .find(|item| {
+                        let mut already: i32 = 0;
+                        all_records.iter().for_each(|record| {
+                            if record.item_id == item.id {
+                                already += 1
+                            }
+                        });
+                        let remaining = item.value - already;
+                        if random_index < index + remaining {
+                            true
+                        } else {
+                            index += remaining;
+                            false
+                        }
+                    })
+                    .ok_or_loss()?
+            }
+        };
+        record.item_id = item.id;
         let record = model::insert(&mut conn, new_record)?;
         Ok(Response::new(pb::CreateResponse {
             record: Some(record),
