@@ -1,22 +1,11 @@
-[workspace]
-members = [
-    "empty-backend",
-    "empty-backend-openapi",
-    "empty-utils",
-    "empty-macro",
-    "empty-user",
-    "empty-registry",
-    "empty-template",
-    "empty-oauth",
-    "proto",
-    "blog",
-    "file",
-    "lottery",
-    "oauth",
-    "app",
-]
+[package]
+name = "empty-backend"
+version = "0.1.0"
+edition = "2021"
 
-[workspace.dependencies]
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
 
 # common
 tokio = { version = "1.29", features = ["macros", "rt-multi-thread"] }
@@ -72,12 +61,6 @@ actix-web = "4.3"
 utoipa = {version = "3.4", features = ["axum_extras", "yaml"] }
 utoipa-swagger-ui ={version =  "3.1", features = ["axum"] }
 
-
-
-empty-registry = { path="empty-registry" }
-empty-utils = {path = "empty-utils"}
-empty-macro = { path="empty-macro" }
-proto = { path="proto" }
 
 # micro
 syn = "2.0"

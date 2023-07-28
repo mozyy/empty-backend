@@ -1,3 +1,16 @@
+
+[source.crates-io]
+replace-with = 'rsproxy-sparse'
+[source.rsproxy]
+registry = "https://rsproxy.cn/crates.io-index"
+[source.rsproxy-sparse]
+registry = "sparse+https://rsproxy.cn/index/"
+[registries.rsproxy]
+index = "https://rsproxy.cn/crates.io-index"
+[net]
+git-fetch-with-cli = true
+
+
 [env]
 # Set ENV_VAR_NAME=value for any process run by Cargo
 REGISTRY_ADDR = "127.0.0.1:50051"
