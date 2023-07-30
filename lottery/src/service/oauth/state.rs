@@ -111,10 +111,8 @@ where
             let configs = that.configs.lock().await;
             let _method = request.method();
             let uri = request.uri().to_string();
-            log::info!("request uri: {:?}, addr:{}", uri, ADDR_CLIENT);
             let exp = regex::Regex::new("^https?://[^/]+").unwrap();
             let uri = exp.replace(&uri, "");
-            log::info!("request uri: {:?}", uri);
             let scope = configs
                 .iter()
                 .find_map(|config| config.get_scope(uri.to_string()));
@@ -130,10 +128,9 @@ where
                 let res = that.check_resource(auth, scope).await;
                 return match res {
                     Ok(res) => {
-                        log::info!("oauth res: {:?}", res);
-                        request
-                            .extensions_mut()
-                            .insert(UserId(res.into_inner().owner_id));
+                        let user_id = UserId(res.into_inner().owner_id);
+                        log::info!("login user: {:?}", *user_id);
+                        request.extensions_mut().insert(user_id);
                         Ok(request)
                     }
                     Err(err) => {

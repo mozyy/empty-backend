@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use diesel::GroupedBy;
 use empty_utils::{
     diesel::db,
     errors::{Error, ErrorConvert, Result},
@@ -65,7 +66,9 @@ impl pb::record_service_server::RecordService for Service {
             .into_inner()
             .lottery
             .ok_or_loss()?;
-        let crate::pb::lottery::Lottery { lottery, items, .. } = lottery;
+        let crate::pb::lottery::Lottery {
+            lottery, mut items, ..
+        } = lottery;
         let lottery = lottery.ok_or_loss()?;
 
         let r#type = crate::pb::lottery::Type::from_i32(lottery.r#type).ok_or_invalid()?;
@@ -83,59 +86,43 @@ impl pb::record_service_server::RecordService for Service {
             Ok(record)
         })
         .collect::<Result<Vec<_>>>()?;
+        let all_records_amount = all_records.len() as i32;
+        let grouped_records = all_records.grouped_by(&items);
         let mut rng = rand::thread_rng();
-        let mut items = items.into_iter();
-        let total_amount: i32 = items.clone().map(|item| item.value).sum();
-        let item = match r#type {
-            crate::pb::lottery::Type::Number => {
-                let remaining_amount = total_amount - all_records.len() as i32;
-                if remaining_amount <= 0 {
-                    return Err(Error::unknown("lottery has been drawn"))?;
+        let mut total_amount: i32 = items.clone().into_iter().map(|item| item.value).sum();
+        if let crate::pb::lottery::Type::Number = r#type {
+            let remaining_amount = total_amount - all_records_amount;
+            if remaining_amount <= 0 {
+                return Err(Error::unknown("lottery has been drawn"))?;
+            }
+            total_amount = remaining_amount;
+            items = items
+                .into_iter()
+                .zip(grouped_records)
+                .map(|(mut item, record)| {
+                    item.value -= record.len() as i32;
+                    item
+                })
+                .collect();
+        }
+        let random_index = rng.gen_range(0..total_amount);
+        let mut index = 0;
+        let item = items
+            .into_iter()
+            .find(|item| {
+                let already = 1;
+                let remaining = item.value - already;
+                if random_index < index + remaining {
+                    true
+                } else {
+                    index += remaining;
+                    false
                 }
-                let random_index = rng.gen_range(0..remaining_amount);
-                let mut index = 0;
-
-                items
-                    .find(|item| {
-                        let mut already: i32 = 0;
-                        all_records.iter().for_each(|record| {
-                            if record.item_id == item.id {
-                                already += 1
-                            }
-                        });
-                        let remaining = item.value - already;
-                        if random_index < index + remaining {
-                            true
-                        } else {
-                            index += remaining;
-                            false
-                        }
-                    })
-                    .ok_or_loss()?
-            }
-            crate::pb::lottery::Type::Percent => {
-                let random_index = rng.gen_range(0..total_amount);
-                let mut index = 0;
-                items
-                    .find(|item| {
-                        let mut already: i32 = 0;
-                        all_records.iter().for_each(|record| {
-                            if record.item_id == item.id {
-                                already += 1
-                            }
-                        });
-                        let remaining = item.value - already;
-                        if random_index < index + remaining {
-                            true
-                        } else {
-                            index += remaining;
-                            false
-                        }
-                    })
-                    .ok_or_loss()?
-            }
-        };
+            })
+            .ok_or_loss()?;
         record.item_id = item.id;
+        record.user_id = user_id;
+        log::info!("new_record: {:?}", new_record);
         let record = model::insert(&mut conn, new_record)?;
         Ok(Response::new(pb::CreateResponse {
             record: Some(record),

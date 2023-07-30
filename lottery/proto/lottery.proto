@@ -24,16 +24,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
         token_url: "https://example.com/oauth/token";
         scopes: {
           scope: {
-            key: "read";
-            value: "Grants read access";
-          }
-          scope: {
-            key: "write";
-            value: "Grants write access";
-          }
-          scope: {
-            key: "admin";
-            value: "Grants read and write access to administrative information";
+            key: "login";
           }
         }
       }
@@ -62,7 +53,7 @@ service LotteryService {
         security_requirement: {
           key: "OAuth2";
           value: {
-            scope: "write";
+            scope: "login";
           }
         }
       }

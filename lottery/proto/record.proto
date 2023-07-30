@@ -13,6 +13,22 @@ option go_package = "record.v1";
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   schemes: HTTPS;
   host: "yyuck.com";
+  security_definitions: {
+    security: {
+      key: "OAuth2";
+      value: {
+        type: TYPE_OAUTH2;
+        flow: FLOW_ACCESS_CODE;
+        authorization_url: "https://example.com/oauth/authorize";
+        token_url: "https://example.com/oauth/token";
+        scopes: {
+          scope: {
+            key: "login";
+          }
+        }
+      }
+    }
+  }
 };
 
 service RecordService {
@@ -20,10 +36,30 @@ service RecordService {
     option (google.api.http) = {
       get: "/record.RecordService/records"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      security: {
+        security_requirement: {
+          key: "OAuth2";
+          value: {
+            scope: "login";
+          }
+        }
+      }
+    };
   }
   rpc Get(GetRequest) returns (GetResponse) {
     option (google.api.http) = {
       get: "/record.RecordService/records/{id}"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      security: {
+        security_requirement: {
+          key: "OAuth2";
+          value: {
+            scope: "login";
+          }
+        }
+      }
     };
   }
   rpc Create(CreateRequest) returns (CreateResponse) {
@@ -31,16 +67,46 @@ service RecordService {
       post: "/record.RecordService/records",
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      security: {
+        security_requirement: {
+          key: "OAuth2";
+          value: {
+            scope: "login";
+          }
+        }
+      }
+    };
   }
   rpc Update(UpdateRequest) returns (UpdateResponse) {
     option (google.api.http) = {
       patch: "/record.RecordService/records/{id}",
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      security: {
+        security_requirement: {
+          key: "OAuth2";
+          value: {
+            scope: "login";
+          }
+        }
+      }
+    };
   }
   rpc Delete(DeleteRequest) returns (DeleteResponse) {
     option (google.api.http) = {
       delete: "/record.RecordService/records/{id}",
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      security: {
+        security_requirement: {
+          key: "OAuth2";
+          value: {
+            scope: "login";
+          }
+        }
+      }
     };
   }
 }

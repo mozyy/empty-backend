@@ -50,8 +50,7 @@ impl pb::lottery_service_server::LotteryService for Service {
         let user_id = UserId::try_from(&request)?.0;
         let mut new_lottery = request.into_inner().lottery.ok_or_invalid()?;
         let mut lottery = new_lottery.lottery.as_mut().ok_or_invalid()?;
-        lottery.user_id = user_id.clone();
-        log::info!("user:{}, {:?}", user_id, lottery);
+        lottery.user_id = user_id;
         let mut conn = self.db.get_conn()?;
         let lottery = model::insert(&mut conn, new_lottery)?;
         Ok(Response::new(pb::CreateResponse {

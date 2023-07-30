@@ -3,6 +3,7 @@ use diesel::prelude::*;
 use diesel::query_builder::*;
 use diesel::query_dsl::methods::LoadQuery;
 use diesel::sql_types::BigInt;
+use diesel::sql_types::Integer;
 
 use crate::pb::paginate as pb;
 
@@ -12,11 +13,11 @@ pub trait Paginate: Sized {
 
 impl<T> Paginate for T {
     fn paginate(self, paginate: Option<pb::Paginate>) -> Paginated<Self> {
-        let paginate = paginate.unwrap_or(pb::Paginate {
-            page: 1,
-            per_page: 10,
-        });
-        let offset = (paginate.page - 1) * paginate.per_page;
+        let offset = if let Some(paginate) = &paginate {
+            (paginate.page - 1) * paginate.per_page
+        } else {
+            0
+        };
         Paginated {
             query: self,
             paginate,
@@ -28,8 +29,8 @@ impl<T> Paginate for T {
 #[derive(Debug, Clone, QueryId)]
 pub struct Paginated<T> {
     query: T,
-    paginate: pb::Paginate,
-    offset: i64,
+    paginate: Option<pb::Paginate>,
+    offset: i32,
 }
 
 impl<T> Paginated<T> {
@@ -40,20 +41,24 @@ impl<T> Paginated<T> {
     where
         Self: LoadQuery<'a, PgConnection, (U, i64)>,
     {
-        let pb::Paginate { page, per_page } = self.paginate;
-        let results = self.load::<(U, i64)>(conn)?;
-        let total = results.get(0).map(|x| x.1).unwrap_or(0);
-        let records = results.into_iter().map(|x| x.0).collect();
-        let total_pages = (total as f64 / per_page as f64).ceil() as i64;
-        Ok((
-            records,
-            Some(pb::Paginated {
+        if let Some(paginate) = &self.paginate {
+            let pb::Paginate { page, per_page } = paginate.clone();
+            let results = self.load::<(U, i64)>(conn)?;
+            let total = results.get(0).map(|x| x.1).unwrap_or(0);
+            let records = results.into_iter().map(|x| x.0).collect();
+            let total_pages = (total as f64 / per_page as f64).ceil() as i32;
+            let paginated = Some(pb::Paginated {
                 page,
                 per_page,
-                total,
+                total: total as i32,
                 total_pages,
-            }),
-        ))
+            });
+            Ok((records, paginated))
+        } else {
+            let results = self.load::<(U, i64)>(conn)?;
+            let records = results.into_iter().map(|x| x.0).collect();
+            Ok((records, None))
+        }
     }
 }
 
@@ -68,12 +73,18 @@ where
     T: QueryFragment<Pg>,
 {
     fn walk_ast<'b>(&'b self, mut out: AstPass<'_, 'b, Pg>) -> QueryResult<()> {
-        out.push_sql("SELECT *, COUNT(*) OVER () FROM (");
-        self.query.walk_ast(out.reborrow())?;
-        out.push_sql(") t LIMIT ");
-        out.push_bind_param::<BigInt, _>(&self.paginate.per_page)?;
-        out.push_sql(" OFFSET ");
-        out.push_bind_param::<BigInt, _>(&self.offset)?;
+        if let Some(paginate) = &self.paginate {
+            out.push_sql("SELECT *, COUNT(*) OVER () FROM (");
+            self.query.walk_ast(out.reborrow())?;
+            out.push_sql(") t LIMIT ");
+            out.push_bind_param::<Integer, _>(&paginate.per_page)?;
+            out.push_sql(" OFFSET ");
+            out.push_bind_param::<Integer, _>(&self.offset)?;
+        } else {
+            out.push_sql("SELECT *, 0 FROM (");
+            self.query.walk_ast(out.reborrow())?;
+            out.push_sql(")");
+        }
         Ok(())
     }
 }

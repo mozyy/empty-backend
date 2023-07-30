@@ -15,6 +15,7 @@ use lottery::{
     pb::{
         lottery::lottery_service_server::LotteryServiceServer,
         oauth::o_auth_service_server::OAuthServiceServer,
+        record::record_service_server::RecordServiceServer,
         user::user_service_server::UserServiceServer, wx::wx_service_server::WxServiceServer,
     },
     service::{self, oauth::handler},
@@ -41,7 +42,7 @@ async fn main() -> Result {
 
     let lottery = LotteryServiceServer::new(service::lottery::Service::new_by_db(db.clone()));
     let oauth = OAuthServiceServer::new(oauth_state.clone());
-    // let record = RecordServiceServer::new(service::record::Service::new_by_db(db));
+    let record = RecordServiceServer::new(service::record::Service::new_by_db(db.clone()));
     let user = UserServiceServer::new(service::user::Service::new_by_db(db.clone()));
     let wx = WxServiceServer::new(service::wx::Service::default());
 
@@ -50,7 +51,7 @@ async fn main() -> Result {
         // .layer(AuthLayer {})
         .add_service(lottery)
         .add_service(oauth)
-        // .add_service(record)
+        .add_service(record)
         .add_service(user)
         .add_service(wx)
         .serve(url)
