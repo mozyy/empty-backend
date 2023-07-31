@@ -18,7 +18,7 @@
 
 image: docker:24.0.5
 services:
-  - docker:docker:24.0.5-dind
+  - docker:24.0.5-dind
 variables:
   DOCKER_TLS_CERTDIR: "/certs"
 
