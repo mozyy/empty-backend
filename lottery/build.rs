@@ -102,7 +102,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     .type_attribute(
         "record.RecordInfo",
         "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable, ::diesel::prelude::Associations)]
-        #[diesel(table_name=crate::schema::records, belongs_to(crate::pb::oauth::User), belongs_to(crate::pb::lottery::Item))]",
+        #[diesel(table_name=crate::schema::records, belongs_to(crate::pb::oauth::User), belongs_to(crate::pb::lottery::Item), belongs_to(crate::pb::lottery::LotteryInfo, foreign_key = lottery_id))]",
     )
     .type_attribute(
         "record.NewRecordInfo",

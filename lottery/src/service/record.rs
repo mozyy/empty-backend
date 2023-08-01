@@ -10,8 +10,8 @@ use tonic::Response;
 
 use crate::{
     configs::ADDR_CLIENT,
-    model::{oauth::UserId, record as model},
-    pb::record as pb,
+    model::{self, oauth::UserId},
+    pb,
 };
 
 pub struct Service {
@@ -24,27 +24,39 @@ impl Service {
 }
 
 #[async_trait]
-impl pb::record_service_server::RecordService for Service {
-    async fn list(&self, request: tonic::Request<pb::ListRequest>) -> Resp<pb::ListResponse> {
+impl pb::record::record_service_server::RecordService for Service {
+    async fn list(
+        &self,
+        request: tonic::Request<pb::record::ListRequest>,
+    ) -> Resp<pb::record::ListResponse> {
         let mut conn = self.db.get_conn()?;
-        let (records, paginated) = model::query_list(&mut conn, request.into_inner())?;
-        Ok(Response::new(pb::ListResponse { records, paginated }))
+        let (records, paginated) = model::record::query_list(&mut conn, request.into_inner())?;
+        Ok(Response::new(pb::record::ListResponse {
+            records,
+            paginated,
+        }))
     }
-    async fn get(&self, request: tonic::Request<pb::GetRequest>) -> Resp<pb::GetResponse> {
+    async fn get(
+        &self,
+        request: tonic::Request<pb::record::GetRequest>,
+    ) -> Resp<pb::record::GetResponse> {
         let mut conn = self.db.get_conn()?;
-        let record = model::query_by_id(&mut conn, request.into_inner().id)?;
-        Ok(Response::new(pb::GetResponse {
+        let record = model::record::query_by_id(&mut conn, request.into_inner().id)?;
+        Ok(Response::new(pb::record::GetResponse {
             record: Some(record),
         }))
     }
-    async fn create(&self, request: tonic::Request<pb::CreateRequest>) -> Resp<pb::CreateResponse> {
+    async fn create(
+        &self,
+        request: tonic::Request<pb::record::CreateRequest>,
+    ) -> Resp<pb::record::CreateResponse> {
         let user_id = UserId::try_from(&request)?.0;
         let mut new_record = request.into_inner().record.ok_or_invalid()?;
         let mut record = new_record.record.as_mut().ok_or_invalid()?;
         let mut conn = self.db.get_conn()?;
-        let my_records = model::query_list_by_record(
+        let my_records = model::record::query_list_by_record(
             &mut conn,
-            Some(pb::RecordQuery {
+            Some(pb::record::RecordQuery {
                 id: None,
                 user_id: Some(user_id.clone()),
                 lottery_id: Some(record.lottery_id),
@@ -53,28 +65,17 @@ impl pb::record_service_server::RecordService for Service {
         if !my_records.is_empty() {
             return Err(Error::unknown("already records"))?;
         }
+        let lottery = model::lottery::query_by_id(&mut conn, record.lottery_id)?;
 
-        let mut client =
-            crate::pb::lottery::lottery_service_client::LotteryServiceClient::connect(ADDR_CLIENT)
-                .await
-                .map_err(Error::other)?;
-        let lottery = client
-            .get(tonic::Request::new(crate::pb::lottery::GetRequest {
-                id: record.lottery_id,
-            }))
-            .await?
-            .into_inner()
-            .lottery
-            .ok_or_loss()?;
-        let crate::pb::lottery::Lottery {
+        let pb::lottery::Lottery {
             lottery, mut items, ..
         } = lottery;
         let lottery = lottery.ok_or_loss()?;
 
-        let r#type = crate::pb::lottery::Type::from_i32(lottery.r#type).ok_or_invalid()?;
-        let all_records = model::query_list_by_record(
+        let r#type = pb::lottery::Type::from_i32(lottery.r#type).ok_or_invalid()?;
+        let all_records = model::record::query_list_by_record(
             &mut conn,
-            Some(pb::RecordQuery {
+            Some(pb::record::RecordQuery {
                 id: None,
                 user_id: None,
                 lottery_id: Some(record.lottery_id),
@@ -90,7 +91,7 @@ impl pb::record_service_server::RecordService for Service {
         let grouped_records = all_records.grouped_by(&items);
         let mut rng = rand::thread_rng();
         let mut total_amount: i32 = items.clone().into_iter().map(|item| item.value).sum();
-        if let crate::pb::lottery::Type::Number = r#type {
+        if let pb::lottery::Type::Number = r#type {
             let remaining_amount = total_amount - all_records_amount;
             if remaining_amount <= 0 {
                 return Err(Error::unknown("lottery has been drawn"))?;
@@ -123,24 +124,30 @@ impl pb::record_service_server::RecordService for Service {
         record.item_id = item.id;
         record.user_id = user_id;
         log::info!("new_record: {:?}", new_record);
-        let record = model::insert(&mut conn, new_record)?;
-        Ok(Response::new(pb::CreateResponse {
+        let record = model::record::insert(&mut conn, new_record)?;
+        Ok(Response::new(pb::record::CreateResponse {
             record: Some(record),
         }))
     }
-    async fn update(&self, request: tonic::Request<pb::UpdateRequest>) -> Resp<pb::UpdateResponse> {
+    async fn update(
+        &self,
+        request: tonic::Request<pb::record::UpdateRequest>,
+    ) -> Resp<pb::record::UpdateResponse> {
         let mut conn = self.db.get_conn()?;
-        let pb::UpdateRequest { id, record } = request.into_inner();
+        let pb::record::UpdateRequest { id, record } = request.into_inner();
         let record = record.ok_or_invalid()?;
-        let record = model::update_by_id(&mut conn, id, record)?;
-        Ok(Response::new(pb::UpdateResponse {
+        let record = model::record::update_by_id(&mut conn, id, record)?;
+        Ok(Response::new(pb::record::UpdateResponse {
             record: Some(record),
         }))
     }
-    async fn delete(&self, request: tonic::Request<pb::DeleteRequest>) -> Resp<pb::DeleteResponse> {
+    async fn delete(
+        &self,
+        request: tonic::Request<pb::record::DeleteRequest>,
+    ) -> Resp<pb::record::DeleteResponse> {
         let mut conn = self.db.get_conn()?;
         let id = request.into_inner().id;
-        model::delete_by_id(&mut conn, id)?;
-        Ok(Response::new(pb::DeleteResponse {}))
+        model::record::delete_by_id(&mut conn, id)?;
+        Ok(Response::new(pb::record::DeleteResponse {}))
     }
 }

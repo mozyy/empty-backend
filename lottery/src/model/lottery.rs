@@ -49,6 +49,18 @@ pub fn query_list_by_user_id(
     let lotterys = query_lottery(conn, lotterys)?;
     Ok(lotterys)
 }
+
+pub fn query_list_by_id(
+    conn: &mut PgConnection,
+    ids: Vec<i32>,
+) -> Result<Vec<pb::lottery::Lottery>> {
+    let lotterys = schema::lotterys::table
+        .filter(schema::lotterys::id.eq_any(ids))
+        .get_results::<pb::lottery::LotteryInfo>(conn)?;
+    let lotterys = query_lottery(conn, lotterys)?;
+    Ok(lotterys)
+}
+
 pub fn query_by_id(conn: &mut PgConnection, id: i32) -> Result<pb::lottery::Lottery> {
     let lottery = schema::lotterys::table
         .find(id)

@@ -1085,6 +1085,7 @@ dependencies = [
  "tonic",
  "tower",
  "tower-http",
+ "tracing",
  "tracing-subscriber",
  "uuid 1.4.1",
  "walkdir",

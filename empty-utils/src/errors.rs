@@ -76,6 +76,7 @@ impl IntoResponse for Error {
 
 impl From<Error> for tonic::Status {
     fn from(value: Error) -> Self {
+        log::error!("error backtrace: {}", std::backtrace::Backtrace::capture());
         let message = match value {
             Error::AxumStatus(_, message) => message,
             Error::PoolError(e) => e.to_string(),

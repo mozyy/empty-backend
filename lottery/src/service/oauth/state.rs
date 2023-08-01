@@ -13,7 +13,7 @@ use crate::{
         endpoint::{Endpoint, EndpointState},
         grpc::request::OAuthRequest,
     },
-    pb::oauth as pb,
+    pb,
 };
 use futures_util::future::BoxFuture;
 use http::StatusCode;
@@ -57,9 +57,9 @@ impl State {
                     .pattern
                     .and_then(|pattern| pattern.pattern)
                     .map(|pattern| match pattern {
-                        pb::pattern::Pattern::Equal(value) => Pattern::Equal(value),
-                        pb::pattern::Pattern::Prefix(value) => Pattern::Prefix(value),
-                        pb::pattern::Pattern::Regex(value) => {
+                        pb::oauth::pattern::Pattern::Equal(value) => Pattern::Equal(value),
+                        pb::oauth::pattern::Pattern::Prefix(value) => Pattern::Prefix(value),
+                        pb::oauth::pattern::Pattern::Regex(value) => {
                             Pattern::Regex(value.parse().unwrap())
                         }
                     })
@@ -74,7 +74,11 @@ impl State {
         *value = configs;
         Ok(())
     }
-    pub async fn check_resource(&self, auth: String, scope: Scope) -> Resp<pb::ResourceResponse> {
+    pub async fn check_resource(
+        &self,
+        auth: String,
+        scope: Scope,
+    ) -> Resp<pb::oauth::ResourceResponse> {
         let endpoint = self
             .endpoint_state
             .endpoint()
