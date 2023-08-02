@@ -1,6 +1,7 @@
 use crate::{pb, utils::diesel::Paginate};
 use diesel::prelude::*;
 use empty_utils::errors::{Error, Result};
+use tracing::info;
 use uuid::Uuid;
 
 use crate::schema;
@@ -32,9 +33,18 @@ pub fn query_list(
     conn: &mut PgConnection,
     request: pb::lottery::ListRequest,
 ) -> Result<(Vec<pb::lottery::Lottery>, Option<pb::paginate::Paginated>)> {
-    let (lotterys, paginated) = schema::lotterys::table
-        .filter(schema::lotterys::id.is_not_null())
-        .paginate(request.paginate)
+
+    let mut filter = schema::lotterys::table.into_boxed();
+    if let Some(lottery) = request.lottery {
+        if let Some(id) = lottery.id {
+            filter = filter.filter(schema::lotterys::id.eq(id));
+        }
+        if let Some(user_id) = lottery.user_id {
+            filter = filter.filter(schema::lotterys::user_id.eq(user_id.parse::<Uuid>().unwrap()));
+        }
+    }
+
+    let (lotterys, paginated) = filter.paginate(request.paginate)
         .load_and_paginated::<pb::lottery::LotteryInfo>(conn)?;
     let lotterys = query_lottery(conn, lotterys)?;
     Ok((lotterys, paginated))

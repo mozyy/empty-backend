@@ -132,7 +132,7 @@ where
                 let res = that.check_resource(auth, scope).await;
                 return match res {
                     Ok(res) => {
-                        let user_id = UserId(res.into_inner().owner_id);
+                        let user_id = UserId::new(res.into_inner());
                         log::info!("login user: {:?}", *user_id);
                         request.extensions_mut().insert(user_id);
                         Ok(request)

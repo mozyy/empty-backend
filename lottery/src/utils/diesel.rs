@@ -81,9 +81,9 @@ where
             out.push_sql(" OFFSET ");
             out.push_bind_param::<Integer, _>(&self.offset)?;
         } else {
-            out.push_sql("SELECT *, 0 FROM (");
+            out.push_sql("SELECT *, 0::bigint FROM (");
             self.query.walk_ast(out.reborrow())?;
-            out.push_sql(")");
+            out.push_sql(") t");
         }
         Ok(())
     }

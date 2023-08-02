@@ -32,7 +32,16 @@ impl pb::lottery::lottery_service_server::LotteryService for Service {
         &self,
         request: Request<pb::lottery::ListRequest>,
     ) -> Resp<pb::lottery::ListResponse> {
-        let request = request.into_inner();
+        let user_id = UserId::try_from(&request)?.to_string();
+        let mut request = request.into_inner();
+        match &mut request.lottery {
+            Some(lottery) => {
+                lottery.user_id = Some(user_id);
+            },
+            None => {
+                request.lottery = Some(pb::lottery::LotteryQuery{user_id:Some(user_id), ..Default::default()});
+            },
+        };
         let mut conn = self.db.get_conn()?;
         let (lotterys, paginated) = model::lottery::query_list(&mut conn, request)?;
         Ok(Response::new(pb::lottery::ListResponse {
@@ -56,7 +65,7 @@ impl pb::lottery::lottery_service_server::LotteryService for Service {
         &self,
         request: Request<pb::lottery::CreateRequest>,
     ) -> Resp<pb::lottery::CreateResponse> {
-        let user_id = UserId::try_from(&request)?.0;
+        let user_id = UserId::try_from(&request)?.to_string();
         let mut new_lottery = request.into_inner().lottery.ok_or_invalid()?;
         let mut lottery = new_lottery.lottery.as_mut().ok_or_invalid()?;
         lottery.user_id = user_id;
@@ -71,7 +80,7 @@ impl pb::lottery::lottery_service_server::LotteryService for Service {
         &self,
         request: Request<pb::lottery::UpdateRequest>,
     ) -> Resp<pb::lottery::UpdateResponse> {
-        let user_id = UserId::try_from(&request)?.0;
+        let user_id = UserId::try_from(&request)?.to_string();
         let pb::lottery::UpdateRequest { id, lottery } = request.into_inner();
         let mut new_lottery = lottery.ok_or_invalid()?;
         let mut lottery = new_lottery.lottery.as_mut().ok_or_invalid()?;

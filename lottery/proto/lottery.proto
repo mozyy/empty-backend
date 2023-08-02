@@ -125,6 +125,10 @@ message Lottery {
   repeated Item items = 2;
   repeated Remark remarks = 3;
 }
+message LotteryQuery {
+  optional int32 id = 1; // id
+  optional string user_id = 2; // id
+}
 
 message NewLotteryInfo {
   string user_id = 1; // id
@@ -139,7 +143,7 @@ message NewLottery {
 }
 
 message ListRequest {
-  Lottery lottery = 1;
+  LotteryQuery lottery = 1;
   paginate.Paginate paginate = 2;
 }
 message ListResponse {

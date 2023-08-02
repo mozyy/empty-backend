@@ -1,3 +1,5 @@
+use std::borrow::BorrowMut;
+
 use async_trait::async_trait;
 use diesel::GroupedBy;
 use empty_utils::{
@@ -7,6 +9,7 @@ use empty_utils::{
 };
 use rand::Rng;
 use tonic::Response;
+use tracing::info;
 
 use crate::{
     configs::ADDR_CLIENT,
@@ -23,14 +26,26 @@ impl Service {
     }
 }
 
+
 #[async_trait]
 impl pb::record::record_service_server::RecordService for Service {
     async fn list(
         &self,
         request: tonic::Request<pb::record::ListRequest>,
     ) -> Resp<pb::record::ListResponse> {
+        let user_id = UserId::try_from(&request)?.to_string();
         let mut conn = self.db.get_conn()?;
-        let (records, paginated) = model::record::query_list(&mut conn, request.into_inner())?;
+        let mut request = request.into_inner();
+        match &mut request.record {
+            Some(record) => {
+                record.user_id = Some(user_id);
+            },
+            None => {
+                request.record = Some(pb::record::RecordQuery{user_id:Some(user_id), ..Default::default()});
+            },
+        };
+        let (records, paginated) = model::record::query_list(&mut conn, request)?;
+        info!("records: {:?}", &records);
         Ok(Response::new(pb::record::ListResponse {
             records,
             paginated,
@@ -50,7 +65,7 @@ impl pb::record::record_service_server::RecordService for Service {
         &self,
         request: tonic::Request<pb::record::CreateRequest>,
     ) -> Resp<pb::record::CreateResponse> {
-        let user_id = UserId::try_from(&request)?.0;
+        let user_id = UserId::try_from(&request)?.to_string();
         let mut new_record = request.into_inner().record.ok_or_invalid()?;
         let mut record = new_record.record.as_mut().ok_or_invalid()?;
         let mut conn = self.db.get_conn()?;
