@@ -1,61 +1,67 @@
-use crate::{pb, utils::diesel::Paginate};
 use diesel::prelude::*;
 use empty_utils::errors::{Error, Result};
+use proto::pb;
 use tracing::info;
 use uuid::Uuid;
 
-use crate::schema;
+use proto::{schema, utils::diesel::Paginate};
 
 fn query_lottery(
     conn: &mut PgConnection,
-    lotterys: Vec<pb::lottery::LotteryInfo>,
-) -> Result<Vec<pb::lottery::Lottery>> {
-    let items = pb::lottery::Item::belonging_to(&lotterys)
-        .load::<pb::lottery::Item>(conn)?
+    lotterys: Vec<pb::lottery::lottery::LotteryInfo>,
+) -> Result<Vec<pb::lottery::lottery::Lottery>> {
+    let items = pb::lottery::lottery::Item::belonging_to(&lotterys)
+        .load::<pb::lottery::lottery::Item>(conn)?
         .grouped_by(&lotterys);
-    let remarks = pb::lottery::Remark::belonging_to(&lotterys)
-        .load::<pb::lottery::Remark>(conn)?
+    let remarks = pb::lottery::lottery::Remark::belonging_to(&lotterys)
+        .load::<pb::lottery::lottery::Remark>(conn)?
         .grouped_by(&lotterys);
     let lotterys = lotterys
         .into_iter()
         .zip(items)
         .zip(remarks)
-        .map(|((lottery, items), remarks)| pb::lottery::Lottery {
-            lottery: Some(lottery),
-            items,
-            remarks,
-        })
+        .map(
+            |((lottery, items), remarks)| pb::lottery::lottery::Lottery {
+                lottery: Some(lottery),
+                items,
+                remarks,
+            },
+        )
         .collect();
     Ok(lotterys)
 }
 
 pub fn query_list(
     conn: &mut PgConnection,
-    request: pb::lottery::ListRequest,
-) -> Result<(Vec<pb::lottery::Lottery>, Option<pb::paginate::Paginated>)> {
-
-    let mut filter = schema::lotterys::table.into_boxed();
+    request: pb::lottery::lottery::ListRequest,
+) -> Result<(
+    Vec<pb::lottery::lottery::Lottery>,
+    Option<pb::utils::paginate::Paginated>,
+)> {
+    let mut filter = schema::lottery::lotterys::table.into_boxed();
     if let Some(lottery) = request.lottery {
         if let Some(id) = lottery.id {
-            filter = filter.filter(schema::lotterys::id.eq(id));
+            filter = filter.filter(schema::lottery::lotterys::id.eq(id));
         }
         if let Some(user_id) = lottery.user_id {
-            filter = filter.filter(schema::lotterys::user_id.eq(user_id.parse::<Uuid>().unwrap()));
+            filter = filter
+                .filter(schema::lottery::lotterys::user_id.eq(user_id.parse::<Uuid>().unwrap()));
         }
     }
 
-    let (lotterys, paginated) = filter.paginate(request.paginate)
-        .load_and_paginated::<pb::lottery::LotteryInfo>(conn)?;
+    let (lotterys, paginated) = filter
+        .paginate(request.paginate)
+        .load_and_paginated::<pb::lottery::lottery::LotteryInfo>(conn)?;
     let lotterys = query_lottery(conn, lotterys)?;
     Ok((lotterys, paginated))
 }
 pub fn query_list_by_user_id(
     conn: &mut PgConnection,
     user_id: Uuid,
-) -> Result<Vec<pb::lottery::Lottery>> {
-    let lotterys = schema::lotterys::table
-        .filter(schema::lotterys::user_id.eq(user_id))
-        .get_results::<pb::lottery::LotteryInfo>(conn)?;
+) -> Result<Vec<pb::lottery::lottery::Lottery>> {
+    let lotterys = schema::lottery::lotterys::table
+        .filter(schema::lottery::lotterys::user_id.eq(user_id))
+        .get_results::<pb::lottery::lottery::LotteryInfo>(conn)?;
     let lotterys = query_lottery(conn, lotterys)?;
     Ok(lotterys)
 }
@@ -63,21 +69,23 @@ pub fn query_list_by_user_id(
 pub fn query_list_by_id(
     conn: &mut PgConnection,
     ids: Vec<i32>,
-) -> Result<Vec<pb::lottery::Lottery>> {
-    let lotterys = schema::lotterys::table
-        .filter(schema::lotterys::id.eq_any(ids))
-        .get_results::<pb::lottery::LotteryInfo>(conn)?;
+) -> Result<Vec<pb::lottery::lottery::Lottery>> {
+    let lotterys = schema::lottery::lotterys::table
+        .filter(schema::lottery::lotterys::id.eq_any(ids))
+        .get_results::<pb::lottery::lottery::LotteryInfo>(conn)?;
     let lotterys = query_lottery(conn, lotterys)?;
     Ok(lotterys)
 }
 
-pub fn query_by_id(conn: &mut PgConnection, id: i32) -> Result<pb::lottery::Lottery> {
-    let lottery = schema::lotterys::table
+pub fn query_by_id(conn: &mut PgConnection, id: i32) -> Result<pb::lottery::lottery::Lottery> {
+    let lottery = schema::lottery::lotterys::table
         .find(id)
-        .first::<pb::lottery::LotteryInfo>(conn)?;
-    let items = pb::lottery::Item::belonging_to(&lottery).load::<pb::lottery::Item>(conn)?;
-    let remarks = pb::lottery::Remark::belonging_to(&lottery).load::<pb::lottery::Remark>(conn)?;
-    let lotterys = pb::lottery::Lottery {
+        .first::<pb::lottery::lottery::LotteryInfo>(conn)?;
+    let items = pb::lottery::lottery::Item::belonging_to(&lottery)
+        .load::<pb::lottery::lottery::Item>(conn)?;
+    let remarks = pb::lottery::lottery::Remark::belonging_to(&lottery)
+        .load::<pb::lottery::lottery::Remark>(conn)?;
+    let lotterys = pb::lottery::lottery::Lottery {
         lottery: Some(lottery),
         items,
         remarks,
@@ -87,10 +95,10 @@ pub fn query_by_id(conn: &mut PgConnection, id: i32) -> Result<pb::lottery::Lott
 
 fn insert_items_remarks(
     conn: &mut PgConnection,
-    lottery: pb::lottery::LotteryInfo,
-    items: Vec<pb::lottery::NewItem>,
-    remarks: Vec<pb::lottery::NewRemark>,
-) -> Result<pb::lottery::Lottery> {
+    lottery: pb::lottery::lottery::LotteryInfo,
+    items: Vec<pb::lottery::lottery::NewItem>,
+    remarks: Vec<pb::lottery::lottery::NewRemark>,
+) -> Result<pb::lottery::lottery::Lottery> {
     let lottery_id = lottery.id;
     let items = items
         .into_iter()
@@ -99,9 +107,9 @@ fn insert_items_remarks(
             item
         })
         .collect::<Vec<_>>();
-    let items = diesel::insert_into(schema::items::table)
+    let items = diesel::insert_into(schema::lottery::items::table)
         .values(items)
-        .get_results::<pb::lottery::Item>(conn)?;
+        .get_results::<pb::lottery::lottery::Item>(conn)?;
     let remarks = remarks
         .into_iter()
         .map(|mut remark| {
@@ -109,10 +117,10 @@ fn insert_items_remarks(
             remark
         })
         .collect::<Vec<_>>();
-    let remarks = diesel::insert_into(schema::remarks::table)
+    let remarks = diesel::insert_into(schema::lottery::remarks::table)
         .values(remarks)
-        .get_results::<pb::lottery::Remark>(conn)?;
-    Ok(pb::lottery::Lottery {
+        .get_results::<pb::lottery::lottery::Remark>(conn)?;
+    Ok(pb::lottery::lottery::Lottery {
         lottery: Some(lottery),
         items,
         remarks,
@@ -120,16 +128,16 @@ fn insert_items_remarks(
 }
 pub fn insert(
     conn: &mut PgConnection,
-    lottery: pb::lottery::NewLottery,
-) -> Result<pb::lottery::Lottery> {
-    let pb::lottery::NewLottery {
+    lottery: pb::lottery::lottery::NewLottery,
+) -> Result<pb::lottery::lottery::Lottery> {
+    let pb::lottery::lottery::NewLottery {
         lottery,
         items,
         remarks,
     } = lottery;
-    let lottery = diesel::insert_into(schema::lotterys::table)
+    let lottery = diesel::insert_into(schema::lottery::lotterys::table)
         .values(lottery)
-        .get_result::<pb::lottery::LotteryInfo>(conn)?;
+        .get_result::<pb::lottery::lottery::LotteryInfo>(conn)?;
     let lottery = insert_items_remarks(conn, lottery, items, remarks)?;
     Ok(lottery)
 }
@@ -137,28 +145,34 @@ pub fn insert(
 pub fn update_by_id(
     conn: &mut PgConnection,
     id: i32,
-    lottery: pb::lottery::NewLottery,
-) -> Result<pb::lottery::Lottery> {
-    diesel::delete(schema::items::table.filter(schema::items::lottery_id.eq(id))).execute(conn)?;
-    diesel::delete(schema::remarks::table.filter(schema::remarks::lottery_id.eq(id)))
+    lottery: pb::lottery::lottery::NewLottery,
+) -> Result<pb::lottery::lottery::Lottery> {
+    diesel::delete(schema::lottery::items::table.filter(schema::lottery::items::lottery_id.eq(id)))
         .execute(conn)?;
-    let pb::lottery::NewLottery {
+    diesel::delete(
+        schema::lottery::remarks::table.filter(schema::lottery::remarks::lottery_id.eq(id)),
+    )
+    .execute(conn)?;
+    let pb::lottery::lottery::NewLottery {
         lottery,
         items,
         remarks,
     } = lottery;
-    let lottery = diesel::update(schema::lotterys::table)
-        .filter(schema::lotterys::dsl::id.eq(id))
+    let lottery = diesel::update(schema::lottery::lotterys::table)
+        .filter(schema::lottery::lotterys::dsl::id.eq(id))
         .set(lottery)
-        .get_result::<pb::lottery::LotteryInfo>(conn)?;
+        .get_result::<pb::lottery::lottery::LotteryInfo>(conn)?;
     let lottery = insert_items_remarks(conn, lottery, items, remarks)?;
     Ok(lottery)
 }
 pub fn delete_by_id(conn: &mut PgConnection, id: i32) -> Result {
-    diesel::delete(schema::items::table.filter(schema::items::lottery_id.eq(id))).execute(conn)?;
-    diesel::delete(schema::remarks::table.filter(schema::remarks::lottery_id.eq(id)))
+    diesel::delete(schema::lottery::items::table.filter(schema::lottery::items::lottery_id.eq(id)))
         .execute(conn)?;
-    let value = diesel::delete(schema::lotterys::table.find(id)).execute(conn)?;
+    diesel::delete(
+        schema::lottery::remarks::table.filter(schema::lottery::remarks::lottery_id.eq(id)),
+    )
+    .execute(conn)?;
+    let value = diesel::delete(schema::lottery::lotterys::table.find(id)).execute(conn)?;
     if value == 0 {
         return Err(Error::String(String::from("delete error")));
     }

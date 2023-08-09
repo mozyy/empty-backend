@@ -14,6 +14,9 @@ utoipa = {workspace = true }
 diesel = { workspace = true }
 prost-wkt = { workspace = true }
 prost-wkt-types = { workspace = true }
+log = { workspace = true }
+oxide-auth = {workspace = true}
+chrono = {workspace = true}
 
 empty-utils = { workspace = true }
 

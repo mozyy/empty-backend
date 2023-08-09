@@ -8,6 +8,7 @@ members = [
     "empty-registry",
     "empty-template",
     "empty-oauth",
+    "database",
     "proto",
     "blog",
     "file",
@@ -77,6 +78,7 @@ utoipa-swagger-ui ={version =  "3.1", features = ["axum"] }
 empty-registry = { path="empty-registry" }
 empty-utils = {path = "empty-utils"}
 empty-macro = { path="empty-macro" }
+lottery = { path="lottery" }
 proto = { path="proto" }
 
 # micro

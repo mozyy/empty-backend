@@ -24,13 +24,11 @@ use oxide_auth::{
 use oxide_auth_async::endpoint::{access_token::AccessTokenFlow, authorization::AuthorizationFlow};
 use uuid::Uuid;
 
-use crate::{
-    model::oauth::grpc::{
-        request::{Auth, OAuthRequest},
-        response::{OAuthResponse, ResponseStatus},
-    },
-    pb::oauth as pb,
+use crate::model::oauth::grpc::{
+    request::{Auth, OAuthRequest},
+    response::{OAuthResponse, ResponseStatus},
 };
+use proto::pb;
 
 #[derive(Clone)]
 pub struct EndpointState {
@@ -47,7 +45,7 @@ impl EndpointState {
         let clients = clients
             .into_iter()
             .map(|client| {
-                let pb::Client {
+                let pb::oauth::oauth::Client {
                     id,
                     redirect_uri,
                     default_scope,
@@ -86,7 +84,7 @@ impl EndpointState {
         &self,
         user_id: Uuid,
         request: OAuthRequest,
-        client: pb::Client,
+        client: pb::oauth::oauth::Client,
     ) -> Result<OAuthResponse> {
         let endpoint = self.endpoint().await;
         let endpoint =

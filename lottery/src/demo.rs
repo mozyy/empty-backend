@@ -1,4 +1,4 @@
-use crate::schema::users;
+use proto::schema::oauth::users;
 use uuid::Uuid;
 
 #[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable)]

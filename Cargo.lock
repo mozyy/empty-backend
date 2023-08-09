@@ -840,6 +840,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "database"
+version = "0.1.0"
+
+[[package]]
 name = "der"
 version = "0.7.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1926,6 +1930,7 @@ dependencies = [
  "oxide-auth-axum",
  "prost",
  "prost-types",
+ "proto",
  "rand",
  "regex",
  "reqwest",
@@ -2566,8 +2571,11 @@ dependencies = [
 name = "proto"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "diesel",
  "empty-utils",
+ "log",
+ "oxide-auth",
  "prost",
  "prost-types",
  "prost-wkt",

@@ -2,7 +2,7 @@ use std::ops::Deref;
 
 use empty_utils::errors::Error;
 
-use crate::pb;
+use proto::pb;
 
 pub mod diesel;
 pub mod endpoint;
@@ -11,7 +11,7 @@ pub mod primitives;
 pub mod solicitor;
 
 #[derive(Clone)]
-pub struct UserId(pb::oauth::ResourceResponse);
+pub struct UserId(pb::oauth::oauth::ResourceResponse);
 
 impl<T> TryFrom<&tonic::Request<T>> for UserId {
     type Error = Error;
@@ -26,13 +26,13 @@ impl<T> TryFrom<&tonic::Request<T>> for UserId {
 }
 
 impl UserId {
-    pub fn new(res: pb::oauth::ResourceResponse) -> Self{
+    pub fn new(res: pb::oauth::oauth::ResourceResponse) -> Self {
         Self(res)
     }
 }
 
 impl Deref for UserId {
-    type Target = pb::oauth::ResourceResponse;
+    type Target = pb::oauth::oauth::ResourceResponse;
 
     fn deref(&self) -> &Self::Target {
         &self.0

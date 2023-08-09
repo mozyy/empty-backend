@@ -2,7 +2,7 @@ use std::{borrow::Cow, collections::HashMap};
 
 use oxide_auth::endpoint::WebRequest;
 
-use crate::pb::oauth as pb;
+use proto::pb;
 
 use super::{error::OAuthError, response::OAuthResponse};
 
@@ -49,8 +49,8 @@ impl WebRequest for OAuthRequest {
     }
 }
 
-impl From<tonic::Request<pb::AuthorizeRequest>> for OAuthRequest {
-    fn from(value: tonic::Request<pb::AuthorizeRequest>) -> Self {
+impl From<tonic::Request<pb::oauth::oauth::AuthorizeRequest>> for OAuthRequest {
+    fn from(value: tonic::Request<pb::oauth::oauth::AuthorizeRequest>) -> Self {
         let auth = (&value).into();
         let req = value.into_inner();
         let mut query = HashMap::new();
@@ -67,8 +67,8 @@ impl From<tonic::Request<pb::AuthorizeRequest>> for OAuthRequest {
         }
     }
 }
-impl From<tonic::Request<pb::TokenRequest>> for OAuthRequest {
-    fn from(value: tonic::Request<pb::TokenRequest>) -> Self {
+impl From<tonic::Request<pb::oauth::oauth::TokenRequest>> for OAuthRequest {
+    fn from(value: tonic::Request<pb::oauth::oauth::TokenRequest>) -> Self {
         let auth = (&value).into();
         let req = value.into_inner();
         let mut query = HashMap::new();
@@ -98,7 +98,7 @@ impl OAuthRequest {
         state.query = query;
         state
     }
-    pub fn default_with_client(client: &pb::Client) -> Self {
+    pub fn default_with_client(client: &pb::oauth::oauth::Client) -> Self {
         let mut state = Self::default();
         let mut query = HashMap::new();
         query.insert(String::from("client_id"), client.id.to_owned());

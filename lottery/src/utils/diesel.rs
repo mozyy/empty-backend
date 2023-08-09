@@ -5,7 +5,7 @@ use diesel::query_dsl::methods::LoadQuery;
 use diesel::sql_types::BigInt;
 use diesel::sql_types::Integer;
 
-use crate::pb::paginate as pb;
+use proto::pb;
 
 pub trait Paginate: Sized {
     fn paginate(self, paginate: Option<pb::Paginate>) -> Paginated<Self>;

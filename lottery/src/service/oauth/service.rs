@@ -12,23 +12,21 @@ use oxide_auth_async::endpoint::{
 };
 use tonic::{Request, Response};
 
-use crate::{
-    model::oauth::{
-        diesel,
-        endpoint::Endpoint,
-        grpc::{request::OAuthRequest, response::OAuthResponse},
-    },
-    pb::oauth as pb,
+use crate::model::oauth::{
+    diesel,
+    endpoint::Endpoint,
+    grpc::{request::OAuthRequest, response::OAuthResponse},
 };
+use proto::pb;
 
 use super::state::State;
 
 #[async_trait]
-impl pb::o_auth_service_server::OAuthService for State {
+impl pb::oauth::oauth::o_auth_service_server::OAuthService for State {
     async fn authorize(
         &self,
-        request: Request<pb::AuthorizeRequest>,
-    ) -> Resp<pb::AuthorizeResponse> {
+        request: Request<pb::oauth::oauth::AuthorizeRequest>,
+    ) -> Resp<pb::oauth::oauth::AuthorizeResponse> {
         let endpoint = self.endpoint_state.endpoint().await;
         let endpoint = endpoint.with_solicitor(FnSolicitor(
             |_: &mut OAuthRequest, solicitation: Solicitation| {
@@ -50,11 +48,14 @@ impl pb::o_auth_service_server::OAuthService for State {
         let _p = AuthorizationFlow::prepare(endpoint)?
             .execute(request.into())
             .await?;
-        Ok(Response::new(pb::AuthorizeResponse {
+        Ok(Response::new(pb::oauth::oauth::AuthorizeResponse {
             code: "todo".into(),
         }))
     }
-    async fn token(&self, request: Request<pb::TokenRequest>) -> Resp<pb::TokenResponse> {
+    async fn token(
+        &self,
+        request: Request<pb::oauth::oauth::TokenRequest>,
+    ) -> Resp<pb::oauth::oauth::TokenResponse> {
         let _p = AccessTokenFlow::<Endpoint<'_, Vacant>, OAuthRequest>::prepare(
             self.endpoint_state.endpoint().await,
         )?
@@ -62,8 +63,11 @@ impl pb::o_auth_service_server::OAuthService for State {
         .await?;
         todo!();
     }
-    async fn resource(&self, request: Request<pb::ResourceRequest>) -> Resp<pb::ResourceResponse> {
-        let pb::ResourceRequest { uri: _, auth } = request.into_inner();
+    async fn resource(
+        &self,
+        request: Request<pb::oauth::oauth::ResourceRequest>,
+    ) -> Resp<pb::oauth::oauth::ResourceResponse> {
+        let pb::oauth::oauth::ResourceRequest { uri: _, auth } = request.into_inner();
         let res = ResourceFlow::<Endpoint<'_, Vacant>, OAuthRequest>::prepare(
             self.endpoint_state.endpoint().await,
         )?
@@ -81,7 +85,10 @@ impl pb::o_auth_service_server::OAuthService for State {
         };
         Ok(Response::new(res.into()))
     }
-    async fn login(&self, request: Request<pb::LoginRequest>) -> Resp<pb::LoginResponse> {
+    async fn login(
+        &self,
+        request: Request<pb::oauth::oauth::LoginRequest>,
+    ) -> Resp<pb::oauth::oauth::LoginResponse> {
         let mut conn = self.db.get_conn()?;
         let id = request.into_inner().user_id;
         let id = id.parse().map_err(Error::other)?;
@@ -93,12 +100,15 @@ impl pb::o_auth_service_server::OAuthService for State {
         let token = req
             .body
             .map(|body| serde_json::from_str(body.as_str()).unwrap());
-        Ok(Response::new(pb::LoginResponse {
+        Ok(Response::new(pb::oauth::oauth::LoginResponse {
             user: Some(user),
             token,
         }))
     }
-    async fn register(&self, _request: Request<pb::RegisterRequest>) -> Resp<pb::RegisterResponse> {
+    async fn register(
+        &self,
+        _request: Request<pb::oauth::oauth::RegisterRequest>,
+    ) -> Resp<pb::oauth::oauth::RegisterResponse> {
         let mut conn = self.db.get_conn()?;
         let user = diesel::user_insert(&mut conn).await?;
         let id = user.id.parse().map_err(Error::other)?;
@@ -110,46 +120,50 @@ impl pb::o_auth_service_server::OAuthService for State {
             .body
             .map(|body| serde_json::from_str(body.as_str()).unwrap());
 
-        Ok(Response::new(pb::RegisterResponse {
+        Ok(Response::new(pb::oauth::oauth::RegisterResponse {
             user: Some(user),
             token,
         }))
     }
     async fn client_list(
         &self,
-        _request: Request<pb::ClientListRequest>,
-    ) -> Resp<pb::ClientListResponse> {
+        _request: Request<pb::oauth::oauth::ClientListRequest>,
+    ) -> Resp<pb::oauth::oauth::ClientListResponse> {
         let mut conn = self.db.get_conn()?;
         let clients = diesel::client_query_all(&mut conn).await?;
-        Ok(Response::new(pb::ClientListResponse { clients }))
+        Ok(Response::new(pb::oauth::oauth::ClientListResponse {
+            clients,
+        }))
     }
     async fn client_create(
         &self,
-        request: Request<pb::ClientCreateRequest>,
-    ) -> Resp<pb::ClientCreateResponse> {
+        request: Request<pb::oauth::oauth::ClientCreateRequest>,
+    ) -> Resp<pb::oauth::oauth::ClientCreateResponse> {
         let client = request.into_inner().client.ok_or_invalid()?;
         let mut conn = self.db.get_conn()?;
         let client = diesel::client_insert(&mut conn, client).await?;
-        Ok(Response::new(pb::ClientCreateResponse {
+        Ok(Response::new(pb::oauth::oauth::ClientCreateResponse {
             client: Some(client),
         }))
     }
     async fn config_list(
         &self,
-        _request: Request<pb::ConfigListRequest>,
-    ) -> Resp<pb::ConfigListResponse> {
+        _request: Request<pb::oauth::oauth::ConfigListRequest>,
+    ) -> Resp<pb::oauth::oauth::ConfigListResponse> {
         let mut conn = self.db.get_conn()?;
         let configs = diesel::config_query_all(&mut conn).await?;
-        Ok(Response::new(pb::ConfigListResponse { configs }))
+        Ok(Response::new(pb::oauth::oauth::ConfigListResponse {
+            configs,
+        }))
     }
     async fn config_create(
         &self,
-        request: Request<pb::ConfigCreateRequest>,
-    ) -> Resp<pb::ConfigCreateResponse> {
+        request: Request<pb::oauth::oauth::ConfigCreateRequest>,
+    ) -> Resp<pb::oauth::oauth::ConfigCreateResponse> {
         let config = request.into_inner().config.ok_or_invalid()?;
         let mut conn = self.db.get_conn()?;
         let config = diesel::config_insert(&mut conn, config).await?;
-        Ok(Response::new(pb::ConfigCreateResponse {
+        Ok(Response::new(pb::oauth::oauth::ConfigCreateResponse {
             config: Some(config),
         }))
     }

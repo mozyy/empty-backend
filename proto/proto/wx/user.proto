@@ -1,0 +1,128 @@
+syntax = "proto3";
+
+package wx.user;
+
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+import "oauth/oauth.proto";
+
+option go_package = "wx.user";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  schemes: HTTPS;
+  host: "yyuck.com";
+};
+
+service UserService {
+  rpc List(ListRequest) returns (ListResponse) {
+    option (google.api.http) = {
+      get: "/user.UserService/users"
+    };
+  }
+  rpc Get(GetRequest) returns (GetResponse) {
+    option (google.api.http) = {
+      get: "/user.UserService/users/{id}"
+    };
+  }
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      post: "/user.UserService/users",
+      body: "*"
+    };
+  }
+  rpc Update(UpdateRequest) returns (UpdateResponse) {
+    option (google.api.http) = {
+      patch: "/user.UserService/users/{id}",
+      body: "*"
+    };
+  }
+  rpc Delete(DeleteRequest) returns (DeleteResponse) {
+    option (google.api.http) = {
+      delete: "/user.UserService/users/{id}",
+    };
+  }
+  // 小程序登录, 返回oauth的token
+  rpc Login(LoginRequest) returns (LoginResponse) {
+    option (google.api.http) = {
+      post: "/user.UserService/login",
+      body: "*"
+    };
+  }
+  rpc Info(InfoRequest) returns (InfoResponse) {
+    option (google.api.http) = {
+      post: "/user.UserService/info",
+    };
+  }
+}
+
+
+// Lottery item
+message WxUser {
+  string id = 1; // openid
+  string user_id = 2; // openid
+  string openid = 3; // openid
+  optional string unionid = 4; // user title
+  string session_key = 5; // lottery image
+  string name = 6;
+  optional string avatar = 7;
+  optional string mobile = 8;
+  google.protobuf.Timestamp created_at = 9;
+  google.protobuf.Timestamp updated_at = 10;
+}
+
+message NewWxUser {
+  string user_id = 1; // openid
+  string openid = 2; // openid
+  optional string unionid = 3; // user title
+  string session_key = 4; // lottery image
+  string name = 5;
+  optional string avatar = 6;
+  optional string mobile = 7;
+}
+
+message ListRequest {}
+message ListResponse {
+  repeated WxUser wx_users = 1;
+}
+
+message GetRequest {
+  string id = 1;
+}
+message GetResponse {
+  WxUser wx_user = 1;
+}
+
+message CreateRequest {
+  NewWxUser wx_user = 1;
+}
+message CreateResponse {
+  WxUser wx_user = 1;
+}
+
+message UpdateRequest {
+  string id = 1;
+  NewWxUser wx_user = 2;
+}
+message UpdateResponse {
+  WxUser wx_user = 1;
+}
+
+message DeleteRequest {
+  string id = 1;
+}
+message DeleteResponse {
+}
+message LoginRequest {
+  string code = 1;
+}
+message LoginResponse {
+  oauth.oauth.Token token = 1;
+}
+message InfoRequest {
+}
+message InfoResponse {
+  WxUser wx_user = 1;
+}

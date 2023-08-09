@@ -1,46 +1,63 @@
 syntax = "proto3";
 
-package lottery;
+package lottery.lottery;
 
 
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
+import "utils/paginate.proto";
 
-option go_package = "lottery";
+option go_package = "lottery.lottery";
 
+// https://github.com/grpc-ecosystem/grpc-gateway/blob/main/examples/internal/proto/examplepb/a_bit_of_everything.proto#L19C99
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   schemes: HTTPS;
   host: "yyuck.com";
-  base_path: "/lottery.LotteryService";
+  security_definitions: {
+    security: {
+      key: "OAuth2";
+      value: {
+        type: TYPE_OAUTH2;
+        flow: FLOW_ACCESS_CODE;
+        authorization_url: "https://example.com/oauth/authorize";
+        token_url: "https://example.com/oauth/token";
+        scopes: {
+          scope: {
+            key: "login";
+          }
+        }
+      }
+    }
+  }
 };
 
 service LotteryService {
   rpc List(ListRequest) returns (ListResponse) {
     option (google.api.http) = {
-      get: "/lotterys"
+      get: "/lottery.LotteryService/lotterys"
     };
   }
   rpc Get(GetRequest) returns (GetResponse) {
     option (google.api.http) = {
-      get: "/lotterys/{id}"
+      get: "/lottery.LotteryService/lotterys/{id}"
     };
   }
   rpc Create(CreateRequest) returns (CreateResponse) {
     option (google.api.http) = {
-      post: "/lotterys",
+      post: "/lottery.LotteryService/lotterys",
       body: "*"
     };
   }
   rpc Update(UpdateRequest) returns (UpdateResponse) {
     option (google.api.http) = {
-      patch: "/lotterys/{id}",
+      patch: "/lottery.LotteryService/lotterys/{id}",
       body: "*"
     };
   }
   rpc Delete(DeleteRequest) returns (DeleteResponse) {
     option (google.api.http) = {
-      delete: "/lotterys/{id}",
+      delete: "/lottery.LotteryService/lotterys/{id}",
     };
   }
 }
@@ -55,38 +72,73 @@ enum Type {
 
 // Lottery item
 message Item {
-  string name = 1; // lottery title
-  int32 value = 2; // lottery summary
+  int32 id = 1;
+  int32 lottery_id = 2;
+  string name = 3; // lottery title
+  int32 value = 4; // lottery summary
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+message NewItem {
+  int32 lottery_id = 1;
+  string name = 2; // lottery title
+  int32 value = 3; // lottery summary
 }
 // Lottery item
 message Remark {
-  string name = 1; // lottery title
-  bool require = 2; // lottery summary
+  int32 id = 1;
+  int32 lottery_id = 2;
+  string name = 3; // lottery title
+  bool require = 4; // lottery summary
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+message NewRemark {
+  int32 lottery_id = 1;
+  string name = 2; // lottery title
+  bool require = 3; // lottery summary
 }
 
 // Lottery item
-message Lottery {
+message LotteryInfo {
   int32 id = 1; // id
+  string user_id = 2; // id
+  string title = 3; // lottery title
+  Type type = 4; // lottery image
+  bool remark = 5; // lottery summary
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+message Lottery {
+  LotteryInfo lottery = 1;
+  repeated Item items = 2;
+  repeated Remark remarks = 3;
+}
+message LotteryQuery {
+  optional int32 id = 1; // id
+  optional string user_id = 2; // id
+}
+
+message NewLotteryInfo {
+  string user_id = 1; // id
   string title = 2; // lottery title
   Type type = 3; // lottery image
-  repeated Item items = 4;
-  bool remark = 5; // lottery summary
-  repeated Remark remarks = 6;
-  google.protobuf.Timestamp created_at = 7;
-  google.protobuf.Timestamp updated_at = 8;
-}
-
-message NewLottery {
-  string title = 1; // lottery title
-  Type type = 2; // lottery image
-  repeated Item items = 3; // lottery image
   bool remark = 4; // lottery summary
-  repeated Remark remarks = 5; // lottery summary
+}
+message NewLottery {
+  NewLotteryInfo lottery = 1; // lottery title
+  repeated NewItem items = 2; // lottery image
+  repeated NewRemark remarks = 3; // lottery summary
 }
 
-message ListRequest {}
+message ListRequest {
+  LotteryQuery lottery = 1;
+  utils.paginate.Paginate paginate = 2;
+}
 message ListResponse {
   repeated Lottery lotterys = 1;
+  utils.paginate.Paginated paginated = 2;
 }
 
 message GetRequest {

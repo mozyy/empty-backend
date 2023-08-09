@@ -1,7 +1,6 @@
 use std::future::Future;
 use tonic::body::BoxBody;
 use tower::{Layer, Service};
-pub mod diesel;
 pub mod wx;
 
 #[derive(Clone)]

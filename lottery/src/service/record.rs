@@ -14,8 +14,8 @@ use tracing::info;
 use crate::{
     configs::ADDR_CLIENT,
     model::{self, oauth::UserId},
-    pb,
 };
+use proto::pb;
 
 pub struct Service {
     pub db: db::DbPool,
@@ -26,51 +26,53 @@ impl Service {
     }
 }
 
-
 #[async_trait]
-impl pb::record::record_service_server::RecordService for Service {
+impl pb::lottery::record::record_service_server::RecordService for Service {
     async fn list(
         &self,
-        request: tonic::Request<pb::record::ListRequest>,
-    ) -> Resp<pb::record::ListResponse> {
+        request: tonic::Request<pb::lottery::record::ListRequest>,
+    ) -> Resp<pb::lottery::record::ListResponse> {
         let user_id = UserId::try_from(&request)?.to_string();
         let mut conn = self.db.get_conn()?;
         let mut request = request.into_inner();
         match &mut request.record {
             Some(record) => {
                 record.user_id = Some(user_id);
-            },
+            }
             None => {
-                request.record = Some(pb::record::RecordQuery{user_id:Some(user_id), ..Default::default()});
-            },
+                request.record = Some(pb::lottery::record::RecordQuery {
+                    user_id: Some(user_id),
+                    ..Default::default()
+                });
+            }
         };
         let (records, paginated) = model::record::query_list(&mut conn, request)?;
-        Ok(Response::new(pb::record::ListResponse {
+        Ok(Response::new(pb::lottery::record::ListResponse {
             records,
             paginated,
         }))
     }
     async fn get(
         &self,
-        request: tonic::Request<pb::record::GetRequest>,
-    ) -> Resp<pb::record::GetResponse> {
+        request: tonic::Request<pb::lottery::record::GetRequest>,
+    ) -> Resp<pb::lottery::record::GetResponse> {
         let mut conn = self.db.get_conn()?;
         let record = model::record::query_by_id(&mut conn, request.into_inner().id)?;
-        Ok(Response::new(pb::record::GetResponse {
+        Ok(Response::new(pb::lottery::record::GetResponse {
             record: Some(record),
         }))
     }
     async fn create(
         &self,
-        request: tonic::Request<pb::record::CreateRequest>,
-    ) -> Resp<pb::record::CreateResponse> {
+        request: tonic::Request<pb::lottery::record::CreateRequest>,
+    ) -> Resp<pb::lottery::record::CreateResponse> {
         let user_id = UserId::try_from(&request)?.to_string();
         let mut new_record = request.into_inner().record.ok_or_invalid()?;
         let mut record = new_record.record.as_mut().ok_or_invalid()?;
         let mut conn = self.db.get_conn()?;
         let my_records = model::record::query_list_by_record(
             &mut conn,
-            Some(pb::record::RecordQuery {
+            Some(pb::lottery::record::RecordQuery {
                 id: None,
                 user_id: Some(user_id.clone()),
                 lottery_id: Some(record.lottery_id),
@@ -81,15 +83,15 @@ impl pb::record::record_service_server::RecordService for Service {
         }
         let lottery = model::lottery::query_by_id(&mut conn, record.lottery_id)?;
 
-        let pb::lottery::Lottery {
+        let pb::lottery::lottery::Lottery {
             lottery, mut items, ..
         } = lottery;
         let lottery = lottery.ok_or_loss()?;
 
-        let r#type = pb::lottery::Type::from_i32(lottery.r#type).ok_or_invalid()?;
+        let r#type = pb::lottery::lottery::Type::from_i32(lottery.r#type).ok_or_invalid()?;
         let all_records = model::record::query_list_by_record(
             &mut conn,
-            Some(pb::record::RecordQuery {
+            Some(pb::lottery::record::RecordQuery {
                 id: None,
                 user_id: None,
                 lottery_id: Some(record.lottery_id),
@@ -105,7 +107,7 @@ impl pb::record::record_service_server::RecordService for Service {
         let grouped_records = all_records.grouped_by(&items);
         let mut rng = rand::thread_rng();
         let mut total_amount: i32 = items.clone().into_iter().map(|item| item.value).sum();
-        if let pb::lottery::Type::Number = r#type {
+        if let pb::lottery::lottery::Type::Number = r#type {
             let remaining_amount = total_amount - all_records_amount;
             if remaining_amount <= 0 {
                 return Err(Error::unknown("lottery has been drawn"))?;
@@ -138,29 +140,29 @@ impl pb::record::record_service_server::RecordService for Service {
         record.user_id = user_id;
         log::info!("new_record: {:?}", new_record);
         let record = model::record::insert(&mut conn, new_record)?;
-        Ok(Response::new(pb::record::CreateResponse {
+        Ok(Response::new(pb::lottery::record::CreateResponse {
             record: Some(record),
         }))
     }
     async fn update(
         &self,
-        request: tonic::Request<pb::record::UpdateRequest>,
-    ) -> Resp<pb::record::UpdateResponse> {
+        request: tonic::Request<pb::lottery::record::UpdateRequest>,
+    ) -> Resp<pb::lottery::record::UpdateResponse> {
         let mut conn = self.db.get_conn()?;
-        let pb::record::UpdateRequest { id, record } = request.into_inner();
+        let pb::lottery::record::UpdateRequest { id, record } = request.into_inner();
         let record = record.ok_or_invalid()?;
         let record = model::record::update_by_id(&mut conn, id, record)?;
-        Ok(Response::new(pb::record::UpdateResponse {
+        Ok(Response::new(pb::lottery::record::UpdateResponse {
             record: Some(record),
         }))
     }
     async fn delete(
         &self,
-        request: tonic::Request<pb::record::DeleteRequest>,
-    ) -> Resp<pb::record::DeleteResponse> {
+        request: tonic::Request<pb::lottery::record::DeleteRequest>,
+    ) -> Resp<pb::lottery::record::DeleteResponse> {
         let mut conn = self.db.get_conn()?;
         let id = request.into_inner().id;
         model::record::delete_by_id(&mut conn, id)?;
-        Ok(Response::new(pb::record::DeleteResponse {}))
+        Ok(Response::new(pb::lottery::record::DeleteResponse {}))
     }
 }

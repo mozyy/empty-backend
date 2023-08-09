@@ -12,13 +12,13 @@ use empty_utils::{
 use lottery::{
     configs::ADDR,
     model::oauth::UserId,
-    pb::{
-        lottery::lottery_service_server::LotteryServiceServer,
-        oauth::o_auth_service_server::OAuthServiceServer,
-        record::record_service_server::RecordServiceServer,
-        user::user_service_server::UserServiceServer, wx::wx_service_server::WxServiceServer,
-    },
     service::{self, oauth::handler},
+};
+use proto::pb::{
+    lottery::lottery::lottery_service_server::LotteryServiceServer,
+    lottery::record::record_service_server::RecordServiceServer,
+    oauth::oauth::o_auth_service_server::OAuthServiceServer,
+    wx::{user::user_service_server::UserServiceServer, wx::wx_service_server::WxServiceServer},
 };
 use tonic::{body::BoxBody, codegen::empty_body};
 use tower_http::auth::AsyncRequireAuthorizationLayer;

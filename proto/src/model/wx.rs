@@ -2,7 +2,7 @@ use std::env;
 
 use crate::pb;
 
-impl pb::wx::SnsJscode2sessionRequest {
+impl pb::wx::wx::SnsJscode2sessionRequest {
     pub fn new(js_code: String) -> Self {
         Self {
             appid: env::var("MINI_APPID").expect("MINI_APPID must be set"),

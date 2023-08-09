@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package utils.paginate;
+
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "utils.paginate";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  schemes: HTTPS;
+  host: "yyuck.com";
+};
+
+// Paginate item
+message Paginate {
+  int32 page = 1;
+  int32 per_page = 2;
+}
+
+message Paginated {
+  int32 page = 1;
+  int32 per_page = 2;
+  int32 total = 3;
+  int32 total_pages = 4;
+} 
