@@ -46,7 +46,7 @@ axum = {workspace = true}
 
 reqwest = { workspace = true, features = ["json"] }
 
-futures-util="*"
+futures-util={workspace = true}
 
 [build-dependencies]
 tonic-build = {workspace = true}

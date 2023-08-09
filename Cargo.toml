@@ -14,6 +14,7 @@ members = [
     "file",
     "lottery",
     "oauth",
+    "config",
     "app",
 ]
 
@@ -38,6 +39,7 @@ async-trait = "0.1"
 reqwest = { version = "0.11", features = ["json"] }
 http = "0.2"
 regex = "1.9"
+futures-util = "0.3"
 
 # database
 diesel = { version = "2.1", features = ["postgres", "r2d2", "chrono", "uuid"] }
@@ -80,6 +82,9 @@ empty-utils = {path = "empty-utils"}
 empty-macro = { path="empty-macro" }
 lottery = { path="lottery" }
 proto = { path="proto" }
+blog = { path="blog" }
+oauth = { path="oauth" }
+config = { path="config" }
 
 # micro
 syn = "2.0"

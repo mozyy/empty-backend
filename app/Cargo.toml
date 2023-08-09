@@ -9,10 +9,12 @@ edition = "2021"
 tokio = {workspace = true, features = ["macros", "rt-multi-thread"]}
 log = {workspace = true}
 axum = {workspace = true}
+tower-http = { workspace = true, features = ["cors", "trace", "compression-br", "compression-gzip","set-header", "auth"] }
 
-
-blog = { path="../blog" }
-lottery = { path="../lottery" }
-oauth = { path="../oauth" }
+blog = {workspace = true}
+lottery = {workspace = true}
+oauth = {workspace = true}
+config = {workspace = true}
+proto = {workspace = true}
 empty-utils = {workspace = true}
 

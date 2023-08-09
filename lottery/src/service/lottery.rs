@@ -1,4 +1,3 @@
-use crate::model::oauth::UserId;
 use empty_utils::{
     diesel::db,
     errors::{Error, ErrorConvert},
@@ -7,7 +6,7 @@ use empty_utils::{
 use tonic::{Request, Response};
 
 use crate::model;
-use proto::pb;
+use proto::{pb, UserId};
 
 pub struct Service {
     db: db::DbPool,

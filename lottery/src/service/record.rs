@@ -11,11 +11,8 @@ use rand::Rng;
 use tonic::Response;
 use tracing::info;
 
-use crate::{
-    configs::ADDR_CLIENT,
-    model::{self, oauth::UserId},
-};
-use proto::pb;
+use crate::{configs::ADDR_CLIENT, model};
+use proto::{pb, UserId};
 
 pub struct Service {
     pub db: db::DbPool,
