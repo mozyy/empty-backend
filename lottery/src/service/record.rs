@@ -45,7 +45,6 @@ impl pb::record::record_service_server::RecordService for Service {
             },
         };
         let (records, paginated) = model::record::query_list(&mut conn, request)?;
-        info!("records: {:?}", &records);
         Ok(Response::new(pb::record::ListResponse {
             records,
             paginated,
@@ -126,8 +125,7 @@ impl pb::record::record_service_server::RecordService for Service {
         let item = items
             .into_iter()
             .find(|item| {
-                let already = 1;
-                let remaining = item.value - already;
+                let remaining = item.value;
                 if random_index < index + remaining {
                     true
                 } else {
