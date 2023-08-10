@@ -4,7 +4,7 @@ use std::ops::Deref;
 pub mod pb {
     pub mod blog {
         pub mod blog {
-            // tonic::include_proto!("blog");
+            tonic::include_proto!("blog.blog");
         }
     }
     pub mod file {

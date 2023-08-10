@@ -4,5 +4,4 @@ before_script:
 build:
   stage: build
   script:
-    - docker build -t my-docker-image .
-    - docker run my-docker-image
+    - docker build -t mozyy/empty-compose-backend .

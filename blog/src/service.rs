@@ -1,4 +1,3 @@
-use crate::pb;
 use empty_utils::{diesel::db, errors::Error, tonic::Resp};
 use tonic::{Request, Response};
 
@@ -15,46 +14,68 @@ impl Default for Service {
         }
     }
 }
+use proto::pb;
 
 #[tonic::async_trait]
-impl pb::blog_service_server::BlogService for Service {
-    async fn list(&self, _request: Request<pb::ListRequest>) -> Resp<pb::ListResponse> {
+impl pb::blog::blog::blog_service_server::BlogService for Service {
+    async fn list(
+        &self,
+        _request: Request<pb::blog::blog::ListRequest>,
+    ) -> Resp<pb::blog::blog::ListResponse> {
         log::debug!("request list");
         let mut conn = self.db.get_conn()?;
         log::debug!("get conn");
         let blogs = model::query_list(&mut conn).await?;
         log::debug!("get blogs");
-        Ok(Response::new(pb::ListResponse { blogs }))
+        Ok(Response::new(pb::blog::blog::ListResponse { blogs }))
     }
 
-    async fn get(&self, request: Request<pb::GetRequest>) -> Resp<pb::GetResponse> {
+    async fn get(
+        &self,
+        request: Request<pb::blog::blog::GetRequest>,
+    ) -> Resp<pb::blog::blog::GetResponse> {
         let mut conn = self.db.get_conn()?;
         let blog = model::query_by_id(&mut conn, request.into_inner().id).await?;
-        Ok(Response::new(pb::GetResponse { blog: Some(blog) }))
+        Ok(Response::new(pb::blog::blog::GetResponse {
+            blog: Some(blog),
+        }))
     }
 
-    async fn create(&self, request: Request<pb::CreateRequest>) -> Resp<pb::CreateResponse> {
+    async fn create(
+        &self,
+        request: Request<pb::blog::blog::CreateRequest>,
+    ) -> Resp<pb::blog::blog::CreateResponse> {
         let mut conn = self.db.get_conn()?;
         let blog = request
             .into_inner()
             .blog
             .ok_or_else(|| Error::StatusError(tonic::Status::data_loss("no blog")))?;
         let blog = model::insert(&mut conn, blog).await?;
-        Ok(Response::new(pb::CreateResponse { blog: Some(blog) }))
+        Ok(Response::new(pb::blog::blog::CreateResponse {
+            blog: Some(blog),
+        }))
     }
 
-    async fn update(&self, request: Request<pb::UpdateRequest>) -> Resp<pb::UpdateResponse> {
+    async fn update(
+        &self,
+        request: Request<pb::blog::blog::UpdateRequest>,
+    ) -> Resp<pb::blog::blog::UpdateResponse> {
         let mut conn = self.db.get_conn()?;
-        let pb::UpdateRequest { id, blog } = request.into_inner();
+        let pb::blog::blog::UpdateRequest { id, blog } = request.into_inner();
         let blog = blog.ok_or_else(|| Error::StatusError(tonic::Status::data_loss("no blog")))?;
         let blog = model::update_by_id(&mut conn, id, blog).await?;
-        Ok(Response::new(pb::UpdateResponse { blog: Some(blog) }))
+        Ok(Response::new(pb::blog::blog::UpdateResponse {
+            blog: Some(blog),
+        }))
     }
 
-    async fn delete(&self, request: Request<pb::DeleteRequest>) -> Resp<pb::DeleteResponse> {
+    async fn delete(
+        &self,
+        request: Request<pb::blog::blog::DeleteRequest>,
+    ) -> Resp<pb::blog::blog::DeleteResponse> {
         let mut conn = self.db.get_conn()?;
         let id = request.into_inner().id;
         model::delete_by_id(&mut conn, id).await?;
-        Ok(Response::new(pb::DeleteResponse {}))
+        Ok(Response::new(pb::blog::blog::DeleteResponse {}))
     }
 }

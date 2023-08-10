@@ -338,6 +338,7 @@ dependencies = [
  "proto",
  "tokio",
  "tower-http",
+ "wx",
 ]
 
 [[package]]
@@ -570,6 +571,7 @@ dependencies = [
  "prost",
  "prost-types",
  "prost-wkt-types",
+ "proto",
  "serde",
  "serde_json",
  "thiserror",
@@ -2136,7 +2138,6 @@ dependencies = [
  "thiserror",
  "tokio",
  "tonic",
- "tonic-build",
  "tower-http",
  "tracing",
  "tracing-subscriber",
@@ -4114,6 +4115,45 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "80d0f4e272c85def139476380b12f9ac60926689dd2e01d4923222f40580869d"
 dependencies = [
  "winapi",
+]
+
+[[package]]
+name = "wx"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "axum",
+ "axum-macros",
+ "chrono",
+ "config",
+ "diesel",
+ "dotenvy",
+ "empty-utils",
+ "futures-util",
+ "http",
+ "hyper",
+ "log",
+ "oxide-auth",
+ "oxide-auth-async",
+ "oxide-auth-axum",
+ "prost",
+ "prost-types",
+ "proto",
+ "regex",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "serde_qs",
+ "thiserror",
+ "tokio",
+ "tonic",
+ "tower-http",
+ "tracing",
+ "tracing-subscriber",
+ "url",
+ "utoipa",
+ "utoipa-swagger-ui",
+ "uuid 1.4.1",
 ]
 
 [[package]]

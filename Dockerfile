@@ -19,11 +19,11 @@ RUN rm src/*.rs
 
 COPY . .
 
-RUN cargo build -r --bin lottery
+RUN cargo build -r --bin app
 
 
 FROM debian:bullseye-slim
 RUN apt-get update && apt-get install -y libpq-dev && rm -rf /var/lib/apt/lists/*
-COPY --from=builder /usr/src/empty-backend/target/release/lottery /usr/local/bin/lottery
-EXPOSE 3003
-CMD ["lottery"]
+COPY --from=builder /usr/src/empty-backend/target/release/app /usr/local/bin/app
+EXPOSE 50051
+CMD ["app"]

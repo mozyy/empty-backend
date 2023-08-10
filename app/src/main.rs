@@ -18,6 +18,9 @@ async fn main() -> Result {
 
     let url = ADDR.parse().map_err(Error::other)?;
 
+    let blog = pb::blog::blog::blog_service_server::BlogServiceServer::new(
+        blog::service::Service::default(),
+    );
     let lottery = pb::lottery::lottery::lottery_service_server::LotteryServiceServer::new(
         lottery::service::lottery::Service::new_by_db(db.clone()),
     );
@@ -27,11 +30,10 @@ async fn main() -> Result {
         lottery::service::record::Service::new_by_db(db.clone()),
     );
     let user = pb::wx::user::user_service_server::UserServiceServer::new(
-        lottery::service::user::Service::new_by_db(db.clone()),
+        wx::service::user::Service::new_by_db(db.clone()),
     );
-    let wx = pb::wx::wx::wx_service_server::WxServiceServer::new(
-        lottery::service::wx::Service::default(),
-    );
+    let wx =
+        pb::wx::wx::wx_service_server::WxServiceServer::new(wx::service::wx::Service::default());
 
     server()
         .layer(AsyncRequireAuthorizationLayer::new(oauth_state))
@@ -41,6 +43,7 @@ async fn main() -> Result {
         .add_service(record)
         .add_service(user)
         .add_service(wx)
+        .add_service(blog)
         .serve(url)
         .await?;
 

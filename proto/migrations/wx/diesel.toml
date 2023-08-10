@@ -2,7 +2,7 @@
 # see https://diesel.rs/guides/configuring-diesel-cli
 
 [print_schema]
-file = "../../src/schemas/wx.rs"
+file = "../../src/schema/wx.rs"
 # patch_file = "src/schema.patch"
 
 [migrations_directory]

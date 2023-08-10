@@ -1,4 +1,4 @@
 {
   "DevChat.PythonPath": "/usr/bin/python3",
-  "DevChat.DevChatPath": "/home/vscode/.vscode-server/extensions/merico.devchat-0.1.19/tools/devchat/bin/devchat"
+  "DevChat.DevChatPath": "/home/vscode/.local/share/devchat/devchat/bin/devchat"
 }

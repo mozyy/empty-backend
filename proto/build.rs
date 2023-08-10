@@ -162,6 +162,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "#[diesel(serialize_as = ::empty_utils::tonic::uuid::Uuid)]",
     )
 
+    // blog
+    .type_attribute(
+        "blog.blog.Blog",
+        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable)]
+        #[diesel(table_name=crate::schema::blog::blogs)]",
+    )
+    .type_attribute(
+        "blog.blog.NewBlog",
+        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
+        #[diesel(table_name=crate::schema::blog::blogs)]",
+    )
+
     // common
     .field_attribute(
         "created_at",
@@ -180,6 +192,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 "./proto/oauth/oauth.proto",
                 "./proto/wx/wx.proto",
                 "./proto/wx/user.proto",
+                "./proto/blog/blog.proto",
             ],
             &["./proto", "../proto/third_party"],
         )?;

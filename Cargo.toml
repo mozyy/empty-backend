@@ -15,6 +15,7 @@ members = [
     "lottery",
     "oauth",
     "config",
+    "wx",
     "app",
 ]
 
@@ -85,6 +86,7 @@ proto = { path="proto" }
 blog = { path="blog" }
 oauth = { path="oauth" }
 config = { path="config" }
+wx = { path="wx" }
 
 # micro
 syn = "2.0"
