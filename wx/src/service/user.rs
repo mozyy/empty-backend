@@ -24,7 +24,7 @@ impl Service {
 impl Default for Service {
     fn default() -> Self {
         Self {
-            db: db::DbPool::new("lottery"),
+            db: db::DbPool::new("wx_v2"),
         }
     }
 }
@@ -126,7 +126,7 @@ impl pb::wx::user::user_service_server::UserService for Service {
                     .await?;
                 let res = res.into_inner();
                 let user_id = res.user.ok_or_invalid()?.id;
-                let user = pb::wx::user::NewWxUser {
+                let user = pb::wx::user::NewUser {
                     user_id,
                     openid: resp.openid,
                     unionid: resp.unionid,

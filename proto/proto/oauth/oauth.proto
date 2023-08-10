@@ -11,18 +11,18 @@ option go_package = "oauth.oauth";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   schemes: HTTPS;
-  host: "yyuck.com";
+  host: "api.zuoyinyun.com";
 };
 
 service OAuthService {
   rpc Authorize(AuthorizeRequest) returns (AuthorizeResponse) {
     option (google.api.http) = {
-      get: "/oauth.OAuthService/authorize"
+      get: "/oauth.oauth.OAuthService/authorize"
     };
   }
   rpc Token(TokenRequest) returns (TokenResponse) {
     option (google.api.http) = {
-      post: "/oauth.OAuthService/token",
+      post: "/oauth.oauth.OAuthService/token",
       body: "*"
     };
   }

@@ -10,7 +10,7 @@ pub struct Service {
 impl Default for Service {
     fn default() -> Self {
         Self {
-            db: db::DbPool::new("empty_blog"),
+            db: db::DbPool::new("blog_v2"),
         }
     }
 }

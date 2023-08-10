@@ -28,7 +28,7 @@ pub struct State {
 
 impl State {
     pub async fn new() -> Result<Self> {
-        Self::new_by_db(db::DbPool::new("lottery")).await
+        Self::new_by_db(db::DbPool::new("oauth_v2")).await
     }
 
     pub async fn new_by_db(db: db::DbPool) -> Result<Self> {

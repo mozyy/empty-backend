@@ -11,35 +11,35 @@ option go_package = "blog.blog";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   schemes: HTTPS;
-  host: "yyuck.com";
+  host: "api.zuoyinyun.com";
 };
 
 service BlogService {
   rpc List(ListRequest) returns (ListResponse) {
     option (google.api.http) = {
-      get: "/blog.BlogService/blogs"
+      get: "/blog.blog.BlogService/blogs"
     };
   }
   rpc Get(GetRequest) returns (GetResponse) {
     option (google.api.http) = {
-      get: "/blog.BlogService/blogs/{id}"
+      get: "/blog.blog.BlogService/blogs/{id}"
     };
   }
   rpc Create(CreateRequest) returns (CreateResponse) {
     option (google.api.http) = {
-      post: "/blog.BlogService/blogs",
+      post: "/blog.blog.BlogService/blogs",
       body: "*"
     };
   }
   rpc Update(UpdateRequest) returns (UpdateResponse) {
     option (google.api.http) = {
-      patch: "/blog.BlogService/blogs/{id}",
+      patch: "/blog.blog.BlogService/blogs/{id}",
       body: "*"
     };
   }
   rpc Delete(DeleteRequest) returns (DeleteResponse) {
     option (google.api.http) = {
-      delete: "/blog.BlogService/blogs/{id}",
+      delete: "/blog.blog.BlogService/blogs/{id}",
     };
   }
 }

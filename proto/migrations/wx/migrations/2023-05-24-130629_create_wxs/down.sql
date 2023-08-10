@@ -1,2 +1,2 @@
 -- This file should undo anything in `up.sql`
-DROP TABLE IF EXISTS wx_users;
+DROP TABLE IF EXISTS users;

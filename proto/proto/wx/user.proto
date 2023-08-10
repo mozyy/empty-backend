@@ -13,54 +13,54 @@ option go_package = "wx.user";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   schemes: HTTPS;
-  host: "yyuck.com";
+  host: "api.zuoyinyun.com";
 };
 
 service UserService {
   rpc List(ListRequest) returns (ListResponse) {
     option (google.api.http) = {
-      get: "/user.UserService/users"
+      get: "/wx.user.UserService/users"
     };
   }
   rpc Get(GetRequest) returns (GetResponse) {
     option (google.api.http) = {
-      get: "/user.UserService/users/{id}"
+      get: "/wx.user.UserService/users/{id}"
     };
   }
   rpc Create(CreateRequest) returns (CreateResponse) {
     option (google.api.http) = {
-      post: "/user.UserService/users",
+      post: "/wx.user.UserService/users",
       body: "*"
     };
   }
   rpc Update(UpdateRequest) returns (UpdateResponse) {
     option (google.api.http) = {
-      patch: "/user.UserService/users/{id}",
+      patch: "/wx.user.UserService/users/{id}",
       body: "*"
     };
   }
   rpc Delete(DeleteRequest) returns (DeleteResponse) {
     option (google.api.http) = {
-      delete: "/user.UserService/users/{id}",
+      delete: "/wx.user.UserService/users/{id}",
     };
   }
   // 小程序登录, 返回oauth的token
   rpc Login(LoginRequest) returns (LoginResponse) {
     option (google.api.http) = {
-      post: "/user.UserService/login",
+      post: "/wx.user.UserService/login",
       body: "*"
     };
   }
   rpc Info(InfoRequest) returns (InfoResponse) {
     option (google.api.http) = {
-      post: "/user.UserService/info",
+      post: "/wx.user.UserService/info",
     };
   }
 }
 
 
 // Lottery item
-message WxUser {
+message User {
   string id = 1; // openid
   string user_id = 2; // openid
   string openid = 3; // openid
@@ -73,7 +73,7 @@ message WxUser {
   google.protobuf.Timestamp updated_at = 10;
 }
 
-message NewWxUser {
+message NewUser {
   string user_id = 1; // openid
   string openid = 2; // openid
   optional string unionid = 3; // user title
@@ -85,29 +85,29 @@ message NewWxUser {
 
 message ListRequest {}
 message ListResponse {
-  repeated WxUser wx_users = 1;
+  repeated User wx_users = 1;
 }
 
 message GetRequest {
   string id = 1;
 }
 message GetResponse {
-  WxUser wx_user = 1;
+  User wx_user = 1;
 }
 
 message CreateRequest {
-  NewWxUser wx_user = 1;
+  NewUser wx_user = 1;
 }
 message CreateResponse {
-  WxUser wx_user = 1;
+  User wx_user = 1;
 }
 
 message UpdateRequest {
   string id = 1;
-  NewWxUser wx_user = 2;
+  NewUser wx_user = 2;
 }
 message UpdateResponse {
-  WxUser wx_user = 1;
+  User wx_user = 1;
 }
 
 message DeleteRequest {
@@ -124,5 +124,5 @@ message LoginResponse {
 message InfoRequest {
 }
 message InfoResponse {
-  WxUser wx_user = 1;
+  User wx_user = 1;
 }

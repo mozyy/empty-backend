@@ -140,25 +140,25 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "#[derive(::serde::Deserialize)]",
     )
     .type_attribute(
-        "wx.user.WxUser",
+        "wx.user.User",
         "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable, ::diesel::prelude::Associations)]
-        #[diesel(table_name=crate::schema::wx::wx_users, belongs_to(crate::pb::oauth::oauth::User))]",
+        #[diesel(table_name=crate::schema::wx::users, belongs_to(crate::pb::oauth::oauth::User))]",
     )
     .type_attribute(
-        "wx.user.NewWxUser",
+        "wx.user.NewUser",
         "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset, ::diesel::prelude::Associations)]
-        #[diesel(table_name=crate::schema::wx::wx_users, belongs_to(crate::pb::oauth::oauth::User))]",
+        #[diesel(table_name=crate::schema::wx::users, belongs_to(crate::pb::oauth::oauth::User))]",
     )
     .field_attribute(
-        "wx.user.WxUser.id",
+        "wx.user.User.id",
         "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
     )
     .field_attribute(
-        "wx.user.WxUser.user_id",
+        "wx.user.User.user_id",
         "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
     )
     .field_attribute(
-        "wx.user.NewWxUser.user_id",
+        "wx.user.NewUser.user_id",
         "#[diesel(serialize_as = ::empty_utils::tonic::uuid::Uuid)]",
     )
 

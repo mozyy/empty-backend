@@ -1,7 +1,7 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
-    wx_users (id) {
+    users (id) {
         id -> Uuid,
         user_id -> Uuid,
         openid -> Text,

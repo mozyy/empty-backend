@@ -21,7 +21,7 @@ impl Service {
 impl Default for Service {
     fn default() -> Self {
         Self {
-            db: db::DbPool::new("lottery"),
+            db: db::DbPool::new("lottery_v2"),
         }
     }
 }
