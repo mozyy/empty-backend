@@ -23,11 +23,12 @@ protoc \
   --descriptor_set_out=./target/lottery.pb \
   --openapiv2_out=../empty-frontend/src/openapi/docs/lottery/ \
   --openapiv2_out=../lottery-tool/src/openapi/docs/lottery/ \
-  ./lottery/proto/lottery.proto \
-  ./lottery/proto/oauth.proto \
-  ./lottery/proto/record.proto \
-  ./lottery/proto/user.proto \
-  ./lottery/proto/wx.proto
+  ./proto/proto/lottery/lottery.proto \
+  ./proto/proto/lottery/record.proto \
+  ./proto/proto/oauth/oauth.proto \
+  ./proto/proto/wx/wx.proto
+  ./proto/proto/wx/user.proto \
+  ./proto/proto/blog/blog.proto \
 
 docker run --name envoy -it --rm \
   -v "vsc-remote-containers-empty:/workspaces:ro" \

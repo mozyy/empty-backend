@@ -19,9 +19,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "updated_at",
             "#[diesel(deserialize_as = ::empty_utils::diesel::timestamp::Timestamp)]",
         );
-    build_config.compile(
-        &["../proto/proto/blog/blog.proto"],
-        &["../proto/proto", "../proto/third_party"],
-    )?;
+    build_config
+        .protoc_arg("--experimental_allow_proto3_optional")
+        .compile(
+            &["../proto/proto/blog/blog.proto"],
+            &["../proto/proto", "../proto/third_party"],
+        )?;
     Ok(())
 }
