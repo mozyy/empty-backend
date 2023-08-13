@@ -1,11 +1,6 @@
-pub mod configs;
 pub mod demo;
 pub mod model;
-// pub mod pb;
-// pub mod schema;
 pub mod service;
-pub mod types;
-pub mod utils;
 
 use proto::pb;
 

@@ -1,7 +1,7 @@
 use diesel::prelude::*;
 use empty_utils::errors::{Error, Result};
 use proto::pb;
-use tracing::info;
+
 use uuid::Uuid;
 
 use proto::{schema, utils::diesel::Paginate};

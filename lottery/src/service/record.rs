@@ -1,4 +1,4 @@
-use std::borrow::BorrowMut;
+
 
 use async_trait::async_trait;
 use diesel::GroupedBy;
@@ -9,9 +9,9 @@ use empty_utils::{
 };
 use rand::Rng;
 use tonic::Response;
-use tracing::info;
 
-use crate::{configs::ADDR_CLIENT, model};
+
+use crate::model;
 use proto::{pb, UserId};
 
 pub struct Service {

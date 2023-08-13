@@ -1,6 +1,6 @@
 use empty_utils::{
     diesel::db,
-    errors::{Error, ErrorConvert},
+    errors::{ErrorConvert},
     tonic::Resp,
 };
 use tonic::{Request, Response};

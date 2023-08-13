@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{model, service::record};
+use crate::{model};
 use diesel::prelude::*;
 use empty_utils::errors::{Error, ErrorConvert, Result};
 use uuid::Uuid;

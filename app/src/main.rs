@@ -1,9 +1,8 @@
-use axum::Router;
 use config::ADDR;
 use empty_utils::{
     diesel::db,
     errors::{Error, Result},
-    tonic::{self, server},
+    tonic::server,
 };
 use proto::pb;
 use tower_http::auth::AsyncRequireAuthorizationLayer;
@@ -11,7 +10,6 @@ use tower_http::auth::AsyncRequireAuthorizationLayer;
 #[tokio::main]
 async fn main() -> Result {
     empty_utils::init();
-
 
     let oauth_state = oauth::Service::new().await?;
 
@@ -33,11 +31,10 @@ async fn main() -> Result {
 
     let db_wx = db::DbPool::new("wx_v2");
     let wx =
-    pb::wx::wx::wx_service_server::WxServiceServer::new(wx::service::wx::Service::default());
+        pb::wx::wx::wx_service_server::WxServiceServer::new(wx::service::wx::Service::default());
     let user = pb::wx::user::user_service_server::UserServiceServer::new(
         wx::service::user::Service::new_by_db(db_wx),
     );
-
 
     server()
         .layer(AsyncRequireAuthorizationLayer::new(oauth_state))
