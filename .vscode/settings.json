@@ -1,4 +1,12 @@
 {
   "DevChat.PythonPath": "/usr/bin/python3",
-  "DevChat.DevChatPath": "/home/vscode/.local/share/devchat/devchat/bin/devchat"
+  "DevChat.DevChatPath": "/home/vscode/.local/share/devchat/devchat/bin/devchat",
+  "protoc": {
+    "path": "/home/vscode/.local/bin/protoc",
+    "compile_on_save": false,
+    "options": [
+      "--proto_path=${workspaceRoot}/proto/proto",
+      "--proto_path=${workspaceRoot}/proto/third_party"
+    ]
+  }
 }

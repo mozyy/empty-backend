@@ -1,75 +1,70 @@
 syntax = "proto3";
 
-package blog.blog;
-
+package health.hospital;
 
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "utils/paginate.proto";
 
-option go_package = "blog.blog";
+option go_package = "health.hospital";
+
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   schemes: HTTPS;
   host: "api.zuoyinyun.com";
 };
 
-service BlogService {
+service HospitalService {
   rpc List(ListRequest) returns (ListResponse) {
     option (google.api.http) = {
-      get: "/blog.blog.BlogService/blogs"
+      get: "/health.hospital.HospitalService/hospitals"
     };
   }
   rpc Get(GetRequest) returns (GetResponse) {
     option (google.api.http) = {
-      get: "/blog.blog.BlogService/blogs/{id}"
+      get: "/health.hospital.HospitalService/hospitals/{id}"
     };
   }
   rpc Create(CreateRequest) returns (CreateResponse) {
     option (google.api.http) = {
-      post: "/blog.blog.BlogService/blogs",
+      post: "/health.hospital.HospitalService/hospitals",
       body: "*"
     };
   }
   rpc Update(UpdateRequest) returns (UpdateResponse) {
     option (google.api.http) = {
-      patch: "/blog.blog.BlogService/blogs/{id}",
+      patch: "/health.hospital.HospitalService/hospitals/{id}",
       body: "*"
     };
   }
   rpc Delete(DeleteRequest) returns (DeleteResponse) {
     option (google.api.http) = {
-      delete: "/blog.blog.BlogService/blogs/{id}",
+      delete: "/health.hospital.HospitalService/hospitals/{id}",
     };
   }
 }
 
-// Blog item
-message Blog {
-  int32 id = 1; // id
-  string title = 2; // blog title
-  string image = 3; // blog image
-  string summary = 4; // blog summary
-  string markdown = 5; // markdown
-  string author = 6; // author
-  google.protobuf.Timestamp created_at = 7;
-  google.protobuf.Timestamp updated_at = 8;
+// hospital struct
+message Hospital {
+  int32 id = 1;
+  string name = 2;
+  string image = 3;
+  string summary = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
 }
-// New Blog item
-message NewBlog {
-  string title = 1; // blog title
-  string image = 2; // blog image
-  string summary = 3; // blog summary
-  string markdown = 4; // markdown
-  string author = 5; // author
+message NewHospital {
+  string name = 1;
+  string image = 2;
+  string summary = 3;
 }
 
 message ListRequest {
   utils.paginate.Paginate paginate = 1;
 }
 message ListResponse {
-  repeated Blog blogs = 1;
+  repeated Hospital hospital = 1;
   utils.paginate.Paginated paginated = 2;
 }
 
@@ -77,22 +72,22 @@ message GetRequest {
   int32 id = 1;
 }
 message GetResponse {
-  Blog blog = 1;
+  Hospital hospital = 1;
 }
 
 message CreateRequest {
-  NewBlog blog = 1;
+  NewHospital hospital = 1;
 }
 message CreateResponse {
-  Blog blog = 1;
+  Hospital hospital = 1;
 }
 
 message UpdateRequest {
   int32 id = 1;
-  NewBlog blog = 2;
+  NewHospital hospital = 2;
 }
 message UpdateResponse {
-  Blog blog = 1;
+  Hospital hospital = 1;
 }
 
 message DeleteRequest {

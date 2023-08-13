@@ -22,12 +22,16 @@ protoc \
   --include_source_info \
   --descriptor_set_out=./target/backend.pb \
   --openapiv2_out=../empty-frontend/src/openapi/docs/ \
-  --openapiv2_out=../lottery-tool/src/openapi/docs/lottery/ \
+  --openapiv2_out=../lottery-tool/src/openapi/docs/ \
   ./proto/proto/lottery/lottery.proto \
   ./proto/proto/lottery/record.proto \
   ./proto/proto/oauth/oauth.proto \
   ./proto/proto/wx/wx.proto \
   ./proto/proto/wx/user.proto \
+  ./proto/proto/health/department.proto \
+  ./proto/proto/health/hospital.proto \
+  ./proto/proto/health/nurse.proto \
+  ./proto/proto/health/patient.proto \
   ./proto/proto/blog/blog.proto
 
 docker run --name envoy -it --rm \

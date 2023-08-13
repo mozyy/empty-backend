@@ -20,14 +20,17 @@ use proto::pb;
 impl pb::blog::blog::blog_service_server::BlogService for Service {
     async fn list(
         &self,
-        _request: Request<pb::blog::blog::ListRequest>,
+        request: Request<pb::blog::blog::ListRequest>,
     ) -> Resp<pb::blog::blog::ListResponse> {
         log::debug!("request list");
         let mut conn = self.db.get_conn()?;
         log::debug!("get conn");
-        let blogs = model::query_list(&mut conn).await?;
+        let (blogs, paginated) = model::query_list(&mut conn, request.into_inner()).await?;
         log::debug!("get blogs");
-        Ok(Response::new(pb::blog::blog::ListResponse { blogs }))
+        Ok(Response::new(pb::blog::blog::ListResponse {
+            blogs,
+            paginated,
+        }))
     }
 
     async fn get(

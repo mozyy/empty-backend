@@ -1,12 +1,19 @@
 use diesel::{connection::DefaultLoadingMode, prelude::*};
 use empty_utils::errors::{Error, Result};
-
+use proto::utils::diesel::Paginate;
 use proto::{pb, schema};
 
-pub async fn query_list(conn: &mut PgConnection) -> Result<Vec<pb::blog::blog::Blog>> {
-    let blogs = schema::blog::blogs::dsl::blogs
-        .load_iter::<pb::blog::blog::Blog, DefaultLoadingMode>(conn)?
-        .collect::<QueryResult<Vec<pb::blog::blog::Blog>>>()?;
+pub async fn query_list(
+    conn: &mut PgConnection,
+    request: pb::blog::blog::ListRequest,
+) -> Result<(
+    Vec<pb::blog::blog::Blog>,
+    Option<pb::utils::paginate::Paginated>,
+)> {
+    let blogs = schema::blog::blogs::table
+        .filter(schema::blog::blogs::id.is_not_null())
+        .paginate(request.paginate)
+        .load_and_paginated::<pb::blog::blog::Blog>(conn)?;
     Ok(blogs)
 }
 pub async fn query_by_id(conn: &mut PgConnection, id: i32) -> Result<pb::blog::blog::Blog> {
