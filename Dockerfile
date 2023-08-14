@@ -1,4 +1,4 @@
-FROM lukemathwalker/cargo-chef:0.1.62-rust-latest AS chef
+FROM lukemathwalker/cargo-chef:0.1.62-rust-1-slim-bookworm AS chef
 WORKDIR /app
 
 FROM chef AS planner
@@ -17,7 +17,7 @@ COPY . .
 RUN cargo build -r --bin app
 
 # We do not need the Rust toolchain to run the binary!
-FROM debian:bullseye-slim AS runtime
+FROM debian:12.1-slim AS runtime
 RUN apt-get update && apt-get install -y libpq-dev && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=builder /app/target/release/app /usr/local/bin

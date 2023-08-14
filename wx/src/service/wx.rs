@@ -18,9 +18,10 @@ impl pb::wx::wx::wx_service_server::WxService for Service {
         let request = request.into_inner();
         let query = serde_qs::to_string(&request).map_err(Error::other)?;
         let url = format!("https://api.weixin.qq.com/sns/jscode2session?{query}");
-        let res = reqwest::get(url)
-            .await
-            .map_err(|e| tonic::Status::resource_exhausted(e.to_string()))?;
+        let res = reqwest::get(url).await.map_err(|e| {
+            log::error!("reqwest error: {}", e);
+            tonic::Status::resource_exhausted(e.to_string())
+        })?;
         let res = res
             .bytes()
             .await
