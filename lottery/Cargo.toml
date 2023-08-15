@@ -44,8 +44,6 @@ oxide-auth-axum = {workspace = true}
 url = {workspace = true}
 axum = {workspace = true}
 
-reqwest = { workspace = true, features = ["json"] }
-
 futures-util={workspace = true}
 
 [build-dependencies]
