@@ -13,6 +13,6 @@ impl OwnerSolicitor<OAuthRequest> for Solicitor {
         _req: &mut OAuthRequest,
         _solicitation: Solicitation<'_>,
     ) -> OwnerConsent<OAuthResponse> {
-        todo!()
+        OwnerConsent::Denied
     }
 }

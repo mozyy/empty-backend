@@ -1,4 +1,4 @@
-use diesel::{connection::DefaultLoadingMode, prelude::*};
+use diesel::{prelude::*};
 use empty_utils::errors::{Error, Result};
 use proto::utils::diesel::Paginate;
 use proto::{pb, schema};

@@ -3,7 +3,7 @@ use axum::response::IntoResponse;
 
 use oxide_auth::endpoint::{OwnerConsent, Solicitation, WebResponse};
 use oxide_auth::frontends::simple::endpoint::FnSolicitor;
-use oxide_auth_async::endpoint::access_token::AccessTokenFlow;
+
 use oxide_auth_async::endpoint::authorization::AuthorizationFlow;
 use oxide_auth_axum::{OAuthRequest, OAuthResponse, WebError};
 
@@ -40,9 +40,11 @@ pub async fn authorize_get(
     .map_err(WebError::from)
 }
 
-pub async fn token(State(state): State<state::State>, request: OAuthRequest) -> impl IntoResponse {
-    AccessTokenFlow::prepare(state.endpoint_state.endpoint().await)?
-        .execute(request)
-        .await
-        .map_err(WebError::from)
-}
+// async fn token(State(state): State<state::State>, request: OAuthRequest) -> impl IntoResponse {
+//     let r = AccessTokenFlow::prepare(state.endpoint_state.endpoint().await)?
+//         .execute(request)
+//         .await;
+
+//         let rr = r.map_err(WebError::from);
+//         rr
+// }

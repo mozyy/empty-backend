@@ -1,5 +1,3 @@
-
-
 use async_trait::async_trait;
 use diesel::GroupedBy;
 use empty_utils::{
@@ -10,9 +8,8 @@ use empty_utils::{
 use rand::Rng;
 use tonic::Response;
 
-
 use crate::model;
-use proto::{pb, UserId};
+use proto::pb;
 
 pub struct Service {
     pub db: db::DbPool,
@@ -29,20 +26,8 @@ impl pb::lottery::record::record_service_server::RecordService for Service {
         &self,
         request: tonic::Request<pb::lottery::record::ListRequest>,
     ) -> Resp<pb::lottery::record::ListResponse> {
-        let user_id = UserId::try_from(&request)?.to_string();
         let mut conn = self.db.get_conn()?;
-        let mut request = request.into_inner();
-        match &mut request.record {
-            Some(record) => {
-                record.user_id = Some(user_id);
-            }
-            None => {
-                request.record = Some(pb::lottery::record::RecordQuery {
-                    user_id: Some(user_id),
-                    ..Default::default()
-                });
-            }
-        };
+        let request = request.into_inner();
         let (records, paginated) = model::record::query_list(&mut conn, request)?;
         Ok(Response::new(pb::lottery::record::ListResponse {
             records,
@@ -63,7 +48,6 @@ impl pb::lottery::record::record_service_server::RecordService for Service {
         &self,
         request: tonic::Request<pb::lottery::record::CreateRequest>,
     ) -> Resp<pb::lottery::record::CreateResponse> {
-        let user_id = UserId::try_from(&request)?.to_string();
         let mut new_record = request.into_inner().record.ok_or_invalid()?;
         let mut record = new_record.record.as_mut().ok_or_invalid()?;
         let mut conn = self.db.get_conn()?;
@@ -71,7 +55,7 @@ impl pb::lottery::record::record_service_server::RecordService for Service {
             &mut conn,
             Some(pb::lottery::record::RecordQuery {
                 id: None,
-                user_id: Some(user_id.clone()),
+                user_id: Some(record.user_id.clone()),
                 lottery_id: Some(record.lottery_id),
             }),
         )?;
@@ -134,7 +118,6 @@ impl pb::lottery::record::record_service_server::RecordService for Service {
             })
             .ok_or_loss()?;
         record.item_id = item.id;
-        record.user_id = user_id;
         log::info!("new_record: {:?}", new_record);
         let record = model::record::insert(&mut conn, new_record)?;
         Ok(Response::new(pb::lottery::record::CreateResponse {

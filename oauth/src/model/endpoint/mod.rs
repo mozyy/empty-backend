@@ -1,8 +1,7 @@
-use super::{diesel::client_query_all, primitives::Guard};
+use super::{diesel::client_query_all, primitives::Guard, Vacant};
 
 use oxide_auth::{
     endpoint::{OAuthError, Scope, WebRequest},
-    frontends::simple::endpoint::Vacant,
     primitives::{
         prelude::{AuthMap, RandomGenerator, TokenMap},
         registrar::{Client, ClientMap},
@@ -28,7 +27,9 @@ use crate::model::grpc::{
     request::{Auth, OAuthRequest},
     response::{OAuthResponse, ResponseStatus},
 };
-use proto::pb;
+use proto::{pb};
+
+pub mod extension;
 
 #[derive(Clone)]
 pub struct EndpointState {
@@ -71,12 +72,13 @@ impl EndpointState {
             token_map: Arc::new(Mutex::new(TokenMap::new(RandomGenerator::new(16)))),
         })
     }
-    pub async fn endpoint(&self) -> Endpoint<'_, Vacant> {
+    pub async fn endpoint(&self) -> Endpoint<'_, Vacant, Vacant> {
         Endpoint {
             registrar: self.client_map.lock().await.into(),
             authorizer: self.auth_map.lock().await.into(),
             issuer: self.token_map.lock().await.into(),
             solicitor: Vacant,
+            extension: Vacant,
             scopes: vec![],
         }
     }
@@ -110,19 +112,22 @@ impl EndpointState {
         // TODO: from query
         code.insert("client_id".into(), client.id);
         code.insert("redirect_uri".into(), client.redirect_uri);
-        let res =
-            AccessTokenFlow::<Endpoint<'_, Vacant>, OAuthRequest>::prepare(self.endpoint().await)?
-                .execute(OAuthRequest {
-                    auth: Auth(None),
-                    query: code.clone(),
-                    body: code,
-                })
-                .await?;
+        let res = AccessTokenFlow::prepare(
+            self.endpoint()
+                .await
+                .with_extension::<OAuthRequest, extension::UserId>(extension::UserId::new(user_id)),
+        )?
+        .execute(OAuthRequest {
+            auth: Auth(None),
+            query: code.clone(),
+            body: code,
+        })
+        .await?;
         Ok(res)
     }
 }
 
-pub struct Endpoint<'a, Solicitor> {
+pub struct Endpoint<'a, Solicitor, Extension> {
     /// The registrar implementation, or `Vacant` if it is not necesary.
     pub(crate) registrar: Guard<'a, ClientMap>,
 
@@ -135,6 +140,7 @@ pub struct Endpoint<'a, Solicitor> {
     // extension: Extension,
     /// A solicitor implementation fit for the request types, or `Vacant` if it is not necesary.
     pub(crate) solicitor: Solicitor,
+    pub(crate) extension: Extension,
 
     /// Determine scopes for the request types, or `Vacant` if this does not protect resources.
     pub(crate) scopes: Vec<Scope>,
@@ -142,17 +148,11 @@ pub struct Endpoint<'a, Solicitor> {
     // response: Vacant,
 }
 
-impl<'a, Solicitor> Endpoint<'a, Solicitor> {
-    pub fn with_scopes(self, scopes: Vec<Scope>) -> Endpoint<'a, Solicitor> {
-        Endpoint {
-            registrar: self.registrar,
-            authorizer: self.authorizer,
-            issuer: self.issuer,
-            solicitor: self.solicitor,
-            scopes,
-        }
+impl<'a, Solicitor, Extension> Endpoint<'a, Solicitor, Extension> {
+    pub fn with_scopes(self, scopes: Vec<Scope>) -> Endpoint<'a, Solicitor, Extension> {
+        Endpoint { scopes, ..self }
     }
-    pub fn with_solicitor<Request, S>(self, solicitor: S) -> Endpoint<'a, S>
+    pub fn with_solicitor<Request, S>(self, solicitor: S) -> Endpoint<'a, S, Extension>
     where
         Request: WebRequest,
         Request::Response: Default,
@@ -164,17 +164,36 @@ impl<'a, Solicitor> Endpoint<'a, Solicitor> {
             authorizer: self.authorizer,
             issuer: self.issuer,
             solicitor,
+            extension: self.extension,
+            scopes: self.scopes,
+        }
+    }
+    pub fn with_extension<Request, E>(self, extension: E) -> Endpoint<'a, Solicitor, E>
+    where
+        Request: WebRequest,
+        Request::Response: Default,
+        Request::Error: From<OAuthError>,
+        E: endpoint::Extension,
+    {
+        Endpoint {
+            registrar: self.registrar,
+            authorizer: self.authorizer,
+            issuer: self.issuer,
+            solicitor: self.solicitor,
+            extension,
             scopes: self.scopes,
         }
     }
 }
 
-impl<'a, Request, Solicitor> endpoint::Endpoint<Request> for Endpoint<'a, Solicitor>
+impl<'a, Request, Solicitor, Extension> endpoint::Endpoint<Request>
+    for Endpoint<'a, Solicitor, Extension>
 where
     Request: WebRequest,
     Request::Response: Default,
     Request::Error: From<OAuthError>,
     Solicitor: endpoint::OwnerSolicitor<Request> + Send,
+    Extension: endpoint::Extension + Send,
 {
     type Error = Request::Error;
 
@@ -218,5 +237,8 @@ where
     fn web_error(&mut self, err: Request::Error) -> Self::Error {
         log::error!("web_error");
         err
+    }
+    fn extension(&mut self) -> Option<&mut (dyn endpoint::Extension + Send)> {
+        Some(&mut self.extension)
     }
 }

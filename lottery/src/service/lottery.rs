@@ -1,12 +1,8 @@
-use empty_utils::{
-    diesel::db,
-    errors::{ErrorConvert},
-    tonic::Resp,
-};
+use empty_utils::{diesel::db, errors::ErrorConvert, tonic::Resp};
 use tonic::{Request, Response};
 
 use crate::model;
-use proto::{pb, UserId};
+use proto::pb;
 
 pub struct Service {
     db: db::DbPool,
@@ -32,19 +28,7 @@ impl pb::lottery::lottery::lottery_service_server::LotteryService for Service {
         &self,
         request: Request<pb::lottery::lottery::ListRequest>,
     ) -> Resp<pb::lottery::lottery::ListResponse> {
-        let user_id = UserId::try_from(&request)?.to_string();
-        let mut request = request.into_inner();
-        match &mut request.lottery {
-            Some(lottery) => {
-                lottery.user_id = Some(user_id);
-            }
-            None => {
-                request.lottery = Some(pb::lottery::lottery::LotteryQuery {
-                    user_id: Some(user_id),
-                    ..Default::default()
-                });
-            }
-        };
+        let request = request.into_inner();
         let mut conn = self.db.get_conn()?;
         let (lotterys, paginated) = model::lottery::query_list(&mut conn, request)?;
         Ok(Response::new(pb::lottery::lottery::ListResponse {
@@ -68,12 +52,9 @@ impl pb::lottery::lottery::lottery_service_server::LotteryService for Service {
         &self,
         request: Request<pb::lottery::lottery::CreateRequest>,
     ) -> Resp<pb::lottery::lottery::CreateResponse> {
-        let user_id = UserId::try_from(&request)?.to_string();
-        let mut new_lottery = request.into_inner().lottery.ok_or_invalid()?;
-        let mut lottery = new_lottery.lottery.as_mut().ok_or_invalid()?;
-        lottery.user_id = user_id;
+        let lottery = request.into_inner().lottery.ok_or_invalid()?;
         let mut conn = self.db.get_conn()?;
-        let lottery = model::lottery::insert(&mut conn, new_lottery)?;
+        let lottery = model::lottery::insert(&mut conn, lottery)?;
         Ok(Response::new(pb::lottery::lottery::CreateResponse {
             lottery: Some(lottery),
         }))
@@ -83,13 +64,10 @@ impl pb::lottery::lottery::lottery_service_server::LotteryService for Service {
         &self,
         request: Request<pb::lottery::lottery::UpdateRequest>,
     ) -> Resp<pb::lottery::lottery::UpdateResponse> {
-        let user_id = UserId::try_from(&request)?.to_string();
         let pb::lottery::lottery::UpdateRequest { id, lottery } = request.into_inner();
-        let mut new_lottery = lottery.ok_or_invalid()?;
-        let mut lottery = new_lottery.lottery.as_mut().ok_or_invalid()?;
-        lottery.user_id = user_id;
+        let lottery = lottery.ok_or_invalid()?;
         let mut conn = self.db.get_conn()?;
-        let lottery = model::lottery::update_by_id(&mut conn, id, new_lottery)?;
+        let lottery = model::lottery::update_by_id(&mut conn, id, lottery)?;
         Ok(Response::new(pb::lottery::lottery::UpdateResponse {
             lottery: Some(lottery),
         }))

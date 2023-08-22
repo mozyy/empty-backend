@@ -35,6 +35,7 @@ async fn main() -> Result {
     let user = pb::wx::user::user_service_server::UserServiceServer::new(
         wx::service::user::Service::new_by_db(db_wx),
     );
+    log::info!("start ...");
 
     server()
         .layer(AsyncRequireAuthorizationLayer::new(oauth_state))

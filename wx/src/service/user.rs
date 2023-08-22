@@ -110,14 +110,15 @@ impl pb::wx::user::user_service_server::UserService for Service {
             pb::oauth::oauth::o_auth_service_client::OAuthServiceClient::connect(ADDR_CLIENT)
                 .await
                 .map_err(Error::other)?;
-        let token = match model::query_by_openid(&mut conn, resp.openid.clone()).await {
+        let (token, user) = match model::query_by_openid(&mut conn, resp.openid.clone()).await {
             Ok(user) => {
                 let resp = client
                     .login(pb::oauth::oauth::LoginRequest {
                         user_id: user.user_id,
                     })
                     .await?;
-                resp.into_inner().token
+                let resp = resp.into_inner();
+                (resp.token, resp.user)
             }
             Err(e) => {
                 log::info!("query_by_openid error: {}", e.to_string());
@@ -125,7 +126,7 @@ impl pb::wx::user::user_service_server::UserService for Service {
                     .register(pb::oauth::oauth::RegisterRequest {})
                     .await?;
                 let res = res.into_inner();
-                let user_id = res.user.ok_or_invalid()?.id;
+                let user_id = res.user.clone().ok_or_invalid()?.id;
                 let user = pb::wx::user::NewUser {
                     user_id,
                     openid: resp.openid,
@@ -136,11 +137,10 @@ impl pb::wx::user::user_service_server::UserService for Service {
                     mobile: None,
                 };
                 let _user = model::insert(&mut conn, user).await?;
-                res.token
+                (res.token, res.user)
             }
         };
-        dbg!(&token);
-        Ok(Response::new(pb::wx::user::LoginResponse { token }))
+        Ok(Response::new(pb::wx::user::LoginResponse { token, user }))
     }
     async fn info(
         &self,

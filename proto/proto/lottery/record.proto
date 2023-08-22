@@ -178,7 +178,7 @@ message GetResponse {
 }
 
 message CreateRequest {
-  NewRecord record = 1;
+  NewRecord record = 2;
 }
 message CreateResponse {
   Record record = 1;

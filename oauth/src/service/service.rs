@@ -5,7 +5,7 @@ use empty_utils::{
 };
 use oxide_auth::{
     endpoint::{OwnerConsent, Solicitation, WebResponse},
-    frontends::simple::endpoint::{FnSolicitor, Vacant},
+    frontends::simple::endpoint::FnSolicitor,
 };
 use oxide_auth_async::endpoint::{
     access_token::AccessTokenFlow, authorization::AuthorizationFlow, resource::ResourceFlow,
@@ -16,6 +16,7 @@ use crate::model::{
     diesel,
     endpoint::Endpoint,
     grpc::{request::OAuthRequest, response::OAuthResponse},
+    Vacant,
 };
 use proto::pb;
 
@@ -56,7 +57,7 @@ impl pb::oauth::oauth::o_auth_service_server::OAuthService for State {
         &self,
         request: Request<pb::oauth::oauth::TokenRequest>,
     ) -> Resp<pb::oauth::oauth::TokenResponse> {
-        let _p = AccessTokenFlow::<Endpoint<'_, Vacant>, OAuthRequest>::prepare(
+        let _p = AccessTokenFlow::<Endpoint<'_, Vacant, Vacant>, OAuthRequest>::prepare(
             self.endpoint_state.endpoint().await,
         )?
         .execute(OAuthRequest::from(request))
@@ -68,7 +69,7 @@ impl pb::oauth::oauth::o_auth_service_server::OAuthService for State {
         request: Request<pb::oauth::oauth::ResourceRequest>,
     ) -> Resp<pb::oauth::oauth::ResourceResponse> {
         let pb::oauth::oauth::ResourceRequest { uri: _, auth } = request.into_inner();
-        let res = ResourceFlow::<Endpoint<'_, Vacant>, OAuthRequest>::prepare(
+        let res = ResourceFlow::<Endpoint<'_, Vacant, Vacant>, OAuthRequest>::prepare(
             self.endpoint_state.endpoint().await,
         )?
         .execute(OAuthRequest::default().with_auth(auth))
@@ -95,9 +96,9 @@ impl pb::oauth::oauth::o_auth_service_server::OAuthService for State {
         let user = diesel::user_query_by_id(&mut conn, id).await?;
         let client = diesel::client_query_by_name(&mut conn, "zuoyinyun".into()).await?;
         let req = OAuthRequest::default_with_client(&client);
-        let req = self.endpoint_state.authorize_by_id(id, req, client).await?;
+        let res = self.endpoint_state.authorize_by_id(id, req, client).await?;
 
-        let token = req
+        let token = res
             .body
             .map(|body| serde_json::from_str(body.as_str()).unwrap());
         Ok(Response::new(pb::oauth::oauth::LoginResponse {
@@ -114,9 +115,9 @@ impl pb::oauth::oauth::o_auth_service_server::OAuthService for State {
         let id = user.id.parse().map_err(Error::other)?;
         let client = diesel::client_query_by_name(&mut conn, "zuoyinyun".into()).await?;
         let req = OAuthRequest::default_with_client(&client);
-        let req = self.endpoint_state.authorize_by_id(id, req, client).await?;
+        let res = self.endpoint_state.authorize_by_id(id, req, client).await?;
 
-        let token = req
+        let token = res
             .body
             .map(|body| serde_json::from_str(body.as_str()).unwrap());
 

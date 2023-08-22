@@ -56,3 +56,11 @@ protoc -I./proto/proto \
   -I../proto/third_party \
   --openapiv2_out=./proto \
   ./proto/proto/record.proto
+
+
+DATABASE_URL_BASE=postgres://yyue:Aa0000..@47.108.140.155:5433 \
+MINI_APPID=wx59049041ecf71722 \
+MINI_SECRET=afaac098a1bcd1cf0a53edc1df442729 \
+RUST_LOG=debug,h2=info,hyper::client=info,hyper::proto=info \
+RUST_LIB_BACKTRACE=3 \
+target/release/app

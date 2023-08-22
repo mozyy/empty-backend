@@ -1,14 +1,14 @@
 use std::sync::Arc;
 
 use empty_utils::{diesel::db, errors::Result, tonic::Resp};
-use oxide_auth::{endpoint::Scope, frontends::simple::endpoint::Vacant};
+use oxide_auth::endpoint::Scope;
 
 use oxide_auth_async::endpoint::resource::ResourceFlow;
 use tokio::sync::Mutex;
 
 use crate::model::{
     diesel::config_query_all,
-    endpoint::{Endpoint, EndpointState},
+    endpoint::{EndpointState},
     grpc::request::OAuthRequest,
 };
 use futures_util::future::BoxFuture;
@@ -79,7 +79,7 @@ impl State {
             .endpoint()
             .await
             .with_scopes(vec![scope]);
-        let res = ResourceFlow::<Endpoint<'_, Vacant>, OAuthRequest>::prepare(endpoint)?
+        let res = ResourceFlow::prepare(endpoint)?
             .execute(OAuthRequest::default().with_auth(auth))
             .await;
         let res = match res {

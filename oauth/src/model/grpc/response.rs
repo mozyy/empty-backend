@@ -1,3 +1,4 @@
+use axum::response::IntoResponse;
 use empty_utils::tonic::Resp;
 use http::header;
 use oxide_auth::endpoint::WebResponse;
@@ -77,5 +78,11 @@ where
             ResponseStatus::Unauthorized(e) => Err(tonic::Status::unauthenticated(e)),
             ResponseStatus::Ok => Ok(tonic::Response::new(Default::default())),
         }
+    }
+}
+
+impl IntoResponse for OAuthResponse {
+    fn into_response(self) -> axum::response::Response {
+        todo!()
     }
 }
