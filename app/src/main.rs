@@ -5,6 +5,7 @@ use empty_utils::{
     tonic::server,
 };
 use proto::pb;
+use tokio::signal;
 use tower_http::auth::AsyncRequireAuthorizationLayer;
 
 #[tokio::main]
@@ -13,7 +14,7 @@ async fn main() -> Result {
 
     let oauth_state = oauth::Service::new().await?;
 
-    let url = ADDR.parse().map_err(Error::other)?;
+    let addr = ADDR.parse().map_err(Error::other)?;
 
     let blog = pb::blog::blog::blog_service_server::BlogServiceServer::new(
         blog::service::Service::default(),
@@ -46,8 +47,31 @@ async fn main() -> Result {
         .add_service(user)
         .add_service(wx)
         .add_service(blog)
-        .serve(url)
+        .serve_with_shutdown(addr, shutdown_signal())
         .await?;
 
     Ok(())
+}
+
+
+async fn shutdown_signal() {
+    let ctrl_c = async {
+        signal::ctrl_c()
+            .await
+            .expect("failed to install Ctrl+C handler");
+    };
+
+    let terminate = async {
+        signal::unix::signal(signal::unix::SignalKind::terminate())
+            .expect("failed to install signal handler")
+            .recv()
+            .await;
+    };
+
+    tokio::select! {
+        _ = ctrl_c => {},
+        _ = terminate => {},
+    }
+
+    log::info!("signal received, starting graceful shutdown");
 }

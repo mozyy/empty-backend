@@ -5,13 +5,15 @@ use diesel::{
     sql_types, AsExpression, FromSqlRow,
 };
 
+use crate::errors::ErrorConvert;
+
 #[derive(Clone, Debug, AsExpression, FromSqlRow)]
 #[diesel(sql_type = sql_types::Uuid)]
 pub struct Uuid(uuid::Uuid);
 
 impl From<String> for Uuid {
     fn from(value: String) -> Self {
-        Self(uuid::Uuid::parse_str(value.as_str()).unwrap())
+        Self(uuid::Uuid::parse_str(value.as_str()).ok_or_invalid().unwrap())
     }
 }
 impl From<Uuid> for String {
