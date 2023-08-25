@@ -39,7 +39,7 @@ impl pb::wx::wx::wx_service_server::WxService for Service {
                 }
             },
         };
-        log::info!("{:?}", res);
+        log::info!("wx response: {:?}", res);
         Ok(Response::new(res))
     }
 }

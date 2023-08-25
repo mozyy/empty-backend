@@ -4,7 +4,7 @@ package wx.wx;
 
 
 // import "google/protobuf/timestamp.proto";
-// import "google/api/annotations.proto";
+import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
 option go_package = "wx.wx";
@@ -15,7 +15,11 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
 };
 
 service WxService {
-  rpc SnsJscode2session(SnsJscode2sessionRequest) returns (SnsJscode2sessionResponse) {}
+  rpc SnsJscode2session(SnsJscode2sessionRequest) returns (SnsJscode2sessionResponse) {
+    option (google.api.http) = {
+      post: "/wx.wx.WxService/sns"
+    };
+  }
 }
 
 message SnsJscode2sessionRequest {

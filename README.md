@@ -21,8 +21,7 @@ protoc \
   --include_imports \
   --include_source_info \
   --descriptor_set_out=./target/backend.pb \
-  --openapiv2_out=../empty-frontend/src/openapi/docs/ \
-  --openapiv2_out=../lottery-tool/src/openapi/docs/ \
+  --openapiv2_out=../empty-frontend/packages/openapi/openapi/ \
   ./proto/proto/lottery/lottery.proto \
   ./proto/proto/lottery/record.proto \
   ./proto/proto/oauth/oauth.proto \
