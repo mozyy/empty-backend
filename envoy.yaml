@@ -54,6 +54,7 @@ static_resources:
                 - "oauth.oauth.OAuthService"
                 - "wx.wx.WxService"
                 - "wx.user.UserService"
+                - "oss.oss.OssService"
               print_options:
                 add_whitespace: true
                 always_print_primitive_fields: true
@@ -86,5 +87,5 @@ static_resources:
                 # WARNING: "docker.for.mac.localhost" has been deprecated from Docker v18.03.0.
                 # If you're running an older version of Docker, please use "docker.for.mac.localhost" instead.
                 # Reference: https://docs.docker.com/docker-for-mac/release-notes/#docker-community-edition-18030-ce-mac59-2018-03-26
-                address: 172.17.0.3
+                address: 172.17.0.4
                 port_value: 50051

@@ -36,6 +36,11 @@ pub mod pb {
             tonic::include_proto!("utils.paginate");
         }
     }
+    pub mod oss {
+        pub mod oss {
+            tonic::include_proto!("oss.oss");
+        }
+    }
 }
 
 pub mod model;

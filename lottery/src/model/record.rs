@@ -26,13 +26,9 @@ fn query_records(
     let records = records
         .into_iter()
         .zip(record_remarks)
-        .map(|(record, record_remarks)| {
-            let lottery = lotterys.get(&record.lottery_id).map(|l| l.to_owned());
-            pb::lottery::record::Record {
-                record: Some(record),
-                lottery,
-                record_remarks,
-            }
+        .map(|(record, record_remarks)| pb::lottery::record::Record {
+            record: Some(record),
+            record_remarks,
         })
         .collect();
     Ok(records)
@@ -93,10 +89,8 @@ pub fn query_by_id(conn: &mut PgConnection, id: i32) -> Result<pb::lottery::reco
         .first::<pb::lottery::record::RecordInfo>(conn)?;
     let record_remarks = pb::lottery::record::RecordRemark::belonging_to(&record)
         .load::<pb::lottery::record::RecordRemark>(conn)?;
-    let lottery = model::lottery::query_by_id(conn, record.lottery_id)?;
     let records = pb::lottery::record::Record {
         record: Some(record),
-        lottery: Some(lottery),
         record_remarks,
     };
     Ok(records)
@@ -118,11 +112,9 @@ fn insert_record_remarks(
     let record_remarks = diesel::insert_into(schema::lottery::record_remarks::table)
         .values(record_remarks)
         .get_results::<pb::lottery::record::RecordRemark>(conn)?;
-    let lottery = model::lottery::query_by_id(conn, record.lottery_id)?;
 
     Ok(pb::lottery::record::Record {
         record: Some(record),
-        lottery: Some(lottery),
         record_remarks,
     })
 }

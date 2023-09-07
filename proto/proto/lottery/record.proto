@@ -7,7 +7,7 @@ import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "utils/paginate.proto";
-import "lottery/lottery.proto";
+// import "lottery/lottery.proto";
 
 option go_package = "lottery.record";
 
@@ -140,8 +140,8 @@ message RecordInfo {
 }
 message Record {
   RecordInfo record = 1;
-  lottery.Lottery lottery = 2;
-  repeated RecordRemark record_remarks = 3;
+  // lottery.Lottery lottery = 2;
+  repeated RecordRemark record_remarks = 2;
 }
 
 message RecordQuery {

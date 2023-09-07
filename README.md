@@ -31,6 +31,7 @@ protoc \
   ./proto/proto/health/hospital.proto \
   ./proto/proto/health/nurse.proto \
   ./proto/proto/health/patient.proto \
+  ./proto/proto/oss/oss.proto \
   ./proto/proto/blog/blog.proto
 
 docker run --name envoy -it --rm \

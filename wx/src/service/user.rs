@@ -38,7 +38,7 @@ impl pb::wx::user::user_service_server::UserService for Service {
         log::debug!("request list");
         let mut conn = self.db.get_conn()?;
         log::debug!("get conn");
-        let wx_users = model::query_list(&mut conn).await?;
+        let wx_users = model::query_list(&mut conn)?;
         log::debug!("get blogs");
         Ok(Response::new(pb::wx::user::ListResponse { wx_users }))
     }
@@ -50,8 +50,20 @@ impl pb::wx::user::user_service_server::UserService for Service {
         let mut conn = self.db.get_conn()?;
         let id = request.into_inner().id;
         let id = Uuid::parse_str(&id).ok_or_invalid()?;
-        let wx_user = model::query_by_id(&mut conn, id).await?;
+        let wx_user = model::query_by_id(&mut conn, id)?;
         Ok(Response::new(pb::wx::user::GetResponse {
+            wx_user: Some(wx_user),
+        }))
+    }
+    async fn get_by_user_id(
+        &self,
+        request: Request<pb::wx::user::GetByUserIdRequest>,
+    ) -> Resp<pb::wx::user::GetByUserIdResponse> {
+        let mut conn = self.db.get_conn()?;
+        let user_id = request.into_inner().user_id;
+        let user_id = Uuid::parse_str(&user_id).ok_or_invalid()?;
+        let wx_user = model::query_by_user_id(&mut conn, user_id)?;
+        Ok(Response::new(pb::wx::user::GetByUserIdResponse {
             wx_user: Some(wx_user),
         }))
     }
@@ -62,7 +74,7 @@ impl pb::wx::user::user_service_server::UserService for Service {
     ) -> Resp<pb::wx::user::CreateResponse> {
         let mut conn = self.db.get_conn()?;
         let wx_user = request.into_inner().wx_user.ok_or_invalid()?;
-        let wx_user = model::insert(&mut conn, wx_user).await?;
+        let wx_user = model::insert(&mut conn, wx_user)?;
         Ok(Response::new(pb::wx::user::CreateResponse {
             wx_user: Some(wx_user),
         }))
@@ -76,7 +88,7 @@ impl pb::wx::user::user_service_server::UserService for Service {
         let pb::wx::user::UpdateRequest { id, wx_user } = request.into_inner();
         let id = Uuid::parse_str(&id).ok_or_invalid()?;
         let wx_user = wx_user.ok_or_invalid()?;
-        let wx_user = model::update_by_id(&mut conn, id, wx_user).await?;
+        let wx_user = model::update_by_id(&mut conn, id, wx_user)?;
         Ok(Response::new(pb::wx::user::UpdateResponse {
             wx_user: Some(wx_user),
         }))
@@ -89,7 +101,7 @@ impl pb::wx::user::user_service_server::UserService for Service {
         let mut conn = self.db.get_conn()?;
         let id = request.into_inner().id;
         let id = Uuid::parse_str(&id).ok_or_invalid()?;
-        model::delete_by_id(&mut conn, id).await?;
+        model::delete_by_id(&mut conn, id)?;
         Ok(Response::new(pb::wx::user::DeleteResponse {}))
     }
     async fn login(
@@ -105,18 +117,22 @@ impl pb::wx::user::user_service_server::UserService for Service {
             .sns_jscode2session(pb::wx::wx::SnsJscode2sessionRequest::new(code))
             .await?;
         let resp = resp.into_inner();
-        let mut conn = self.db.get_conn()?;
+        log::info!("wx sns_jscode2session success: {:?}", resp);
         let mut client =
             pb::oauth::oauth::o_auth_service_client::OAuthServiceClient::connect(ADDR_CLIENT)
                 .await
                 .map_err(Error::other)?;
-        let (token, user) = match model::query_by_openid(&mut conn, resp.openid.clone()).await {
+        log::info!("client success");
+        let mut conn = self.db.get_conn()?;
+        let (token, user) = match model::query_by_openid(&mut conn, resp.openid.clone()) {
             Ok(user) => {
+                log::info!("query_by_openid success");
                 let resp = client
                     .login(pb::oauth::oauth::LoginRequest {
                         user_id: user.user_id,
                     })
                     .await?;
+                log::info!("client login success");
                 let resp = resp.into_inner();
                 (resp.token, resp.user)
             }
@@ -136,7 +152,7 @@ impl pb::wx::user::user_service_server::UserService for Service {
                     avatar: None,
                     mobile: None,
                 };
-                let _user = model::insert(&mut conn, user).await?;
+                let _user = model::insert(&mut conn, user)?;
                 (res.token, res.user)
             }
         };

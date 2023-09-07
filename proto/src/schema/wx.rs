@@ -8,7 +8,7 @@ diesel::table! {
         unionid -> Nullable<Text>,
         session_key -> Text,
         name -> Text,
-        avatar -> Nullable<Text>,
+        avatar -> Nullable<Int4>,
         mobile -> Nullable<Text>,
         created_at -> Timestamp,
         updated_at -> Timestamp,

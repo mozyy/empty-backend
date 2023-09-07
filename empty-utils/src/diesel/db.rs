@@ -17,7 +17,7 @@ impl DbPool {
         let database_url = format!("{database_url}/{table}");
         let manager = ConnectionManager::<PgConnection>::new(&database_url);
         let db_pool = r2d2::Pool::builder()
-            .max_size(2)
+            // .max_size(2)
             .build(manager)
             .expect("Failed to create pool.");
         if let Some((_, database)) = &database_url.split_once('@') {

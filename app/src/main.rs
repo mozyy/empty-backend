@@ -36,6 +36,9 @@ async fn main() -> Result {
     let user = pb::wx::user::user_service_server::UserServiceServer::new(
         wx::service::user::Service::new_by_db(db_wx),
     );
+    let oss = pb::oss::oss::oss_service_server::OssServiceServer::new(
+        oss::service::Service::default(),
+    );
     log::info!("start ...");
 
     server()
@@ -47,6 +50,7 @@ async fn main() -> Result {
         .add_service(user)
         .add_service(wx)
         .add_service(blog)
+        .add_service(oss)
         .serve_with_shutdown(addr, shutdown_signal())
         .await?;
 

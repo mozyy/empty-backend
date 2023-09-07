@@ -27,6 +27,11 @@ service UserService {
       get: "/wx.user.UserService/users/{id}"
     };
   }
+  rpc GetByUserId(GetByUserIdRequest) returns (GetByUserIdResponse) {
+    option (google.api.http) = {
+      get: "/wx.user.UserService/users/userId/{user_id}"
+    };
+  }
   rpc Create(CreateRequest) returns (CreateResponse) {
     option (google.api.http) = {
       post: "/wx.user.UserService/users",
@@ -67,7 +72,7 @@ message User {
   optional string unionid = 4; // user title
   string session_key = 5; // lottery image
   string name = 6;
-  optional string avatar = 7;
+  optional int32 avatar = 7;
   optional string mobile = 8;
   google.protobuf.Timestamp created_at = 9;
   google.protobuf.Timestamp updated_at = 10;
@@ -79,7 +84,7 @@ message NewUser {
   optional string unionid = 3; // user title
   string session_key = 4; // lottery image
   string name = 5;
-  optional string avatar = 6;
+  optional int32 avatar = 6;
   optional string mobile = 7;
 }
 
@@ -92,6 +97,12 @@ message GetRequest {
   string id = 1;
 }
 message GetResponse {
+  User wx_user = 1;
+}
+message GetByUserIdRequest {
+  string user_id = 1;
+}
+message GetByUserIdResponse {
   User wx_user = 1;
 }
 

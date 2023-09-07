@@ -17,6 +17,7 @@ members = [
     "config",
     "wx",
     "app",
+    "oss",
 ]
 
 [workspace.dependencies]
@@ -50,13 +51,13 @@ dotenvy = "0.15"
 diesel_cli_ext="0.3"
 
 # grpc
-tonic = "0.9"
-prost = "0.11"
-tonic-health = "0.9"
-prost-types = "0.11"
+tonic = "0.10"
+prost = "0.12"
+tonic-health = "0.10"
+prost-types = "0.12"
 tower-http = { version = "0.4", features = ["cors", "trace"] }
-tonic-build = "0.9"
-prost-build = "0.11"
+tonic-build = "0.10"
+prost-build = "0.12"
 hyper = "0.14"
 tower = "0.4"
 
@@ -87,6 +88,7 @@ blog = { path="blog" }
 oauth = { path="oauth" }
 config = { path="config" }
 wx = { path="wx" }
+oss = { path="oss" }
 
 # micro
 syn = "2.0"

@@ -1,0 +1,119 @@
+syntax = "proto3";
+
+package oss.oss;
+
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "utils/paginate.proto";
+
+option go_package = "oss.oss";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  schemes: HTTPS;
+  host: "api.zuoyinyun.com";
+  security_definitions: {
+    security: {
+      key: "OAuth2";
+      value: {
+        type: TYPE_OAUTH2;
+        flow: FLOW_ACCESS_CODE;
+        authorization_url: "https://example.com/oauth/authorize";
+        token_url: "https://example.com/oauth/token";
+        scopes: {
+          scope: {
+            key: "login";
+          }
+        }
+      }
+    }
+  }
+};
+
+service OssService {
+  rpc List(ListRequest) returns (ListResponse) {
+    option (google.api.http) = {
+      get: "/oss.oss.OssService/oss"
+    };
+  }
+  rpc Get(GetRequest) returns (GetResponse) {
+    option (google.api.http) = {
+      get: "/oss.oss.OssService/oss/{id}"
+    };
+  }
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      post: "/oss.oss.OssService/oss",
+      body: "*"
+    };
+  }
+  rpc Update(UpdateRequest) returns (UpdateResponse) {
+    option (google.api.http) = {
+      patch: "/oss.oss.OssService/oss/{id}",
+      body: "*"
+    };
+  }
+  rpc Delete(DeleteRequest) returns (DeleteResponse) {
+    option (google.api.http) = {
+      delete: "/oss.oss.OssService/oss/{id}",
+    };
+  }
+}
+
+enum BucketName {
+  IMAGE = 0;
+  STATIC = 1;
+}
+
+// oss object
+message Oss {
+  int32 id = 1;
+  BucketName bucket_name = 2;
+  string objectKey = 3;
+  string name = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+message NewOss {
+  BucketName bucket_name = 1;
+  string objectKey = 2;
+  string name = 3;
+}
+
+message ListRequest {
+  repeated int32 ids = 1;
+  utils.paginate.Paginate paginate = 2;
+}
+message ListResponse {
+  repeated Oss oss = 1;
+  utils.paginate.Paginated paginated = 2;
+}
+
+message GetRequest {
+  int32 id = 1;
+}
+message GetResponse {
+  Oss oss = 1;
+}
+
+message CreateRequest {
+  NewOss oss = 1;
+}
+message CreateResponse {
+  Oss oss = 1;
+}
+
+message UpdateRequest {
+  int32 id = 1;
+  NewOss oss = 2;
+}
+message UpdateResponse {
+  Oss oss = 1;
+}
+
+message DeleteRequest {
+  int32 id = 1;
+}
+message DeleteResponse {
+}

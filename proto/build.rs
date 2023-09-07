@@ -174,6 +174,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         #[diesel(table_name=crate::schema::blog::blogs)]",
     )
 
+    // oss
+    .type_attribute(
+        "oss.oss.Oss",
+        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable)]
+        #[diesel(table_name=crate::schema::oss::oss)]",
+    )
+    .type_attribute(
+        "oss.oss.NewOss",
+        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
+        #[diesel(table_name=crate::schema::oss::oss)]",
+    )
+
     // common
     .field_attribute(
         "created_at",
@@ -193,6 +205,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 "./proto/wx/wx.proto",
                 "./proto/wx/user.proto",
                 "./proto/blog/blog.proto",
+                "./proto/oss/oss.proto",
             ],
             &["./proto", "../proto/third_party"],
         )?;

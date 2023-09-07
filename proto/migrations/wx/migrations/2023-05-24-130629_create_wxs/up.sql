@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
   unionid text,
   session_key text NOT NULL,
   name text NOT NULL,
-  avatar text,
+  avatar integer,
   mobile text,
   created_at timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
   updated_at timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL
