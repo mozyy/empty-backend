@@ -126,6 +126,80 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         #[diesel(sql_type=crate::schema::oauth::sql_types::OauthPattern)]",
     )
 
+    // auth
+    .type_attribute(
+        "auth.auth.Resource",
+        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable)]
+        #[diesel(table_name=crate::schema::auth::resources)]",
+    )
+    .field_attribute(
+        "auth.auth.Resource.user_id",
+        "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
+    )
+    .field_attribute(
+        "auth.auth.Resource.client_id",
+        "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
+    )
+    .field_attribute(
+        "auth.auth.Resource.until",
+        "#[diesel(deserialize_as = ::empty_utils::diesel::timestamp::Timestamp)]",
+    )
+    .type_attribute(
+        "auth.auth.NewResource",
+        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
+        #[diesel(table_name=crate::schema::auth::resources)]",
+    )
+    .field_attribute(
+        "auth.auth.NewResource.user_id",
+        "#[diesel(serialize_as = ::empty_utils::tonic::uuid::Uuid)]",
+    )
+    .field_attribute(
+        "auth.auth.NewResource.client_id",
+        "#[diesel(serialize_as = ::empty_utils::tonic::uuid::Uuid)]",
+    )
+    .field_attribute(
+        "auth.auth.NewResource.until",
+        "#[diesel(serialize_as = ::empty_utils::diesel::timestamp::Timestamp)]",
+    )
+    .type_attribute(
+        "auth.auth.User",
+        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable)]
+    #[diesel(table_name=crate::schema::auth::users)]",
+    )
+    .field_attribute(
+        "auth.auth.User.id",
+        "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
+    )
+    .type_attribute(
+        "auth.auth.Client",
+        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable)]
+        #[diesel(table_name=crate::schema::auth::clients)]",
+    )
+    .field_attribute(
+        "auth.auth.Client.id",
+        "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
+    )
+    .type_attribute(
+        "auth.auth.NewClient",
+        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
+        #[diesel(table_name=crate::schema::auth::clients)]",
+    )
+    .type_attribute(
+        "auth.auth.Config",
+        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable)]
+        #[diesel(table_name=crate::schema::auth::configs)]",
+    )
+    .type_attribute(
+        "auth.auth.NewConfig",
+        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
+        #[diesel(table_name=crate::schema::auth::configs)]",
+    )
+    .type_attribute(
+        "auth.auth.Pattern",
+        "#[derive(::diesel::FromSqlRow, ::diesel::AsExpression)]
+        #[diesel(sql_type=crate::schema::auth::sql_types::Pattern)]",
+    )
+
     // wx
     .type_attribute(
         "wx.wx.SnsJscode2sessionRequest",
@@ -202,6 +276,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 "./proto/lottery/lottery.proto",
                 "./proto/lottery/record.proto",
                 "./proto/oauth/oauth.proto",
+                "./proto/auth/auth.proto",
                 "./proto/wx/wx.proto",
                 "./proto/wx/user.proto",
                 "./proto/blog/blog.proto",

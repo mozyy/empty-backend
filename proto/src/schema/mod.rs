@@ -3,3 +3,4 @@ pub mod lottery;
 pub mod oauth;
 pub mod oss;
 pub mod wx;
+pub mod auth;

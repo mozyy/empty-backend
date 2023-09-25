@@ -1,6 +1,7 @@
 use empty_utils::errors::Error;
 use std::ops::Deref;
 
+#[allow(clippy::module_inception)]
 pub mod pb {
     pub mod blog {
         pub mod blog {
@@ -29,6 +30,11 @@ pub mod pb {
     pub mod oauth {
         pub mod oauth {
             tonic::include_proto!("oauth.oauth");
+        }
+    }
+    pub mod auth {
+        pub mod auth {
+            tonic::include_proto!("auth.auth");
         }
     }
     pub mod utils {

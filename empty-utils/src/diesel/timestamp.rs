@@ -77,3 +77,15 @@ impl ToSql<sql_types::Timestamp, Pg> for Timestamp {
         )
     }
 }
+
+impl From<prost_types::Timestamp> for Timestamp {
+    fn from(value: prost_types::Timestamp) -> Self {
+        Self(value)
+    }
+}
+
+impl From<std::option::Option<prost_types::Timestamp>> for Timestamp {
+    fn from(value: std::option::Option<prost_types::Timestamp>) -> Self {
+        Self(value.unwrap_or_default())
+    }
+}
