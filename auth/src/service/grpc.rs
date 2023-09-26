@@ -46,12 +46,15 @@ impl pb::auth::auth::auth_service_server::AuthService for Service {
     ) -> Resp<pb::auth::auth::LoginResponse> {
         let user_id = request.into_inner().user_id;
         let mut conn = self.db.get_conn()?;
+        let user = dao::user::query_by_id(&mut conn, user_id)?;
         todo!()
     }
     async fn register(
         &self,
         request: tonic::Request<pb::auth::auth::RegisterRequest>,
     ) -> Resp<pb::auth::auth::RegisterResponse> {
+        let mut conn = self.db.get_conn()?;
+        let user = dao::user::insert(&mut conn)?;
         todo!()
     }
     async fn client_list(

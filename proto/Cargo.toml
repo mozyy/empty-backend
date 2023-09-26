@@ -17,6 +17,8 @@ prost-wkt-types = { workspace = true }
 log = { workspace = true }
 oxide-auth = {workspace = true}
 chrono = {workspace = true}
+rand = {workspace = true}
+base64 = {workspace = true}
 
 empty-utils = { workspace = true }
 

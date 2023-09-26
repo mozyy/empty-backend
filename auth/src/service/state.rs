@@ -8,13 +8,16 @@ use empty_utils::{
 };
 use tonic::{Request, Response};
 
-use crate::dao;
+use crate::{
+    dao,
+    model::{config::Config, resource::Resource},
+};
 use proto::pb;
 
 pub struct Service {
     pub(super) db: db::DbPool,
-    resources: Arc<Mutex<Vec<pb::auth::auth::Resource>>>,
-    configs: Arc<Mutex<Vec<pb::auth::auth::Config>>>,
+    resources: Arc<Mutex<Resource>>,
+    configs: Arc<Mutex<Vec<Config>>>,
 }
 
 impl Service {
@@ -23,70 +26,34 @@ impl Service {
         Self::new_by_db(db).await
     }
     pub async fn new_by_db(db: db::DbPool) -> Result<Self> {
-        let mut conn = db.get_conn()?;
-        let configs = dao::config::query_all(&mut conn).await?;
+        let mut value = Self {
+            db,
+            resources: Arc::new(Mutex::new(Default::default())),
+            configs: Arc::new(Mutex::new(vec![])),
+        };
+        value.refresh_configs().await?;
+        value.refresh_resources().await?;
+        Ok(value)
+    }
+    pub async fn refresh_configs(&mut self) -> Result {
+        let mut conn = self.db.get_conn()?;
+        let configs = dao::config::query_all(&mut conn)?;
+        let configs = configs
+            .into_iter()
+            .rev()
+            .map(Config::try_from)
+            .collect::<Result<Vec<Config>>>()?;
         log::info!("configs: {:?}", &configs);
-        todo!()
-        // let configs = configs
-        //     .into_iter()
-        //     .rev()
-        //     .filter_map(|config| {
-        //         config
-        //             .pattern
-        //             .and_then(|pattern| pattern.pattern)
-        //             .map(|pattern| match pattern {
-        //                 pb::auth::auth::pattern::Pattern::Equal(value) => Pattern::Equal(value),
-        //                 pb::auth::auth::pattern::Pattern::Prefix(value) => Pattern::Prefix(value),
-        //                 pb::auth::auth::pattern::Pattern::Regex(value) => {
-        //                     Pattern::Regex(value.parse().unwrap())
-        //                 }
-        //             })
-        //             .map(|pattern|  pb::auth:: {
-        //                 pattern,
-        //                 scope: config.scope.map(|string| string.parse().unwrap()),
-        //             })
-        //     })
-        //     .collect();
-        // let mut value = self.configs.lock().await;
-        // log::info!("configs: {:?}", &configs);
-        // *value = configs;
-        // Self { db }
+        let mut value = self.configs.lock().await;
+        *value = configs;
+        Ok(())
     }
-    pub async fn configs(&self) -> Request<Vec<pb::auth::auth::Config>> {
-        todo!()
-    }
-}
-
-// #[derive(Debug)]
-// pub struct Config {
-//     pattern: Pattern,
-//     scope: HashSet<String>,
-// }
-
-// impl Config {
-//     fn get_scope(&self, url: String) -> Option<Option<Scope>> {
-//         let matched = self.pattern.matched(url);
-//         if matched {
-//             Some(self.scope.to_owned())
-//         } else {
-//             None
-//         }
-//     }
-// }
-
-#[derive(Debug)]
-enum Pattern {
-    Equal(String),
-    Prefix(String),
-    Regex(regex::Regex),
-}
-
-impl Pattern {
-    fn matched(&self, url: String) -> bool {
-        match self {
-            Pattern::Equal(value) => *value == url,
-            Pattern::Prefix(value) => url.starts_with(value),
-            Pattern::Regex(value) => value.is_match(url.as_str()),
-        }
+    pub async fn refresh_resources(&mut self) -> Result {
+        let mut conn = self.db.get_conn()?;
+        let resources = dao::resource::query_all(&mut conn)?.try_into()?;
+        log::info!("resources: {:?}", &resources);
+        let mut value = self.resources.lock().await;
+        *value = resources;
+        Ok(())
     }
 }

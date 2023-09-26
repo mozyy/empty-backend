@@ -12,6 +12,7 @@ diesel = { workspace = true, features = ["postgres", "r2d2", "chrono", "uuid"] }
 chrono = {workspace = true, features = ["serde"] }
 uuid= { workspace = true, features = ["serde"] }
 regex =  { workspace = true }
+rand =  { workspace = true }
 
 tonic = { workspace = true }
 

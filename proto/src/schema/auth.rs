@@ -12,6 +12,7 @@ diesel::table! {
         name -> Text,
         redirect_uri -> Text,
         default_scope -> Text,
+        default_expires_in -> Int4,
         passdata -> Nullable<Text>,
         created_at -> Timestamp,
         updated_at -> Timestamp,
