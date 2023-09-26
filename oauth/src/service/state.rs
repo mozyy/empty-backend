@@ -6,11 +6,7 @@ use oxide_auth::endpoint::Scope;
 use oxide_auth_async::endpoint::resource::ResourceFlow;
 use tokio::sync::Mutex;
 
-use crate::model::{
-    diesel::config_query_all,
-    endpoint::{EndpointState},
-    grpc::request::OAuthRequest,
-};
+use crate::dao::{diesel::config_query_all, endpoint::EndpointState, grpc::request::OAuthRequest};
 use futures_util::future::BoxFuture;
 use http::StatusCode;
 use hyper::{Request, Response};

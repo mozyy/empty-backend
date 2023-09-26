@@ -1,2 +1,2 @@
-pub mod model;
+pub(crate) mod dao;
 pub mod service;

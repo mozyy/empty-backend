@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::model;
+use crate::dao;
 use diesel::prelude::*;
 use empty_utils::errors::{Error, ErrorConvert, Result};
 use uuid::Uuid;
@@ -15,7 +15,7 @@ fn query_records(
         .load::<pb::lottery::record::RecordRemark>(conn)?
         .grouped_by(&records);
     let lottery_ids = records.iter().map(|f| f.lottery_id).collect::<Vec<_>>();
-    let lotterys = model::lottery::query_list_by_id(conn, lottery_ids)?
+    let lotterys = dao::lottery::query_list_by_id(conn, lottery_ids)?
         .into_iter()
         .map(|l| -> Result<_> {
             let lottery = l.lottery.clone().ok_or_loss()?;

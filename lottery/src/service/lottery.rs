@@ -1,7 +1,7 @@
 use empty_utils::{diesel::db, errors::ErrorConvert, tonic::Resp};
 use tonic::{Request, Response};
 
-use crate::model;
+use crate::dao;
 use proto::pb;
 
 pub struct Service {
@@ -30,7 +30,7 @@ impl pb::lottery::lottery::lottery_service_server::LotteryService for Service {
     ) -> Resp<pb::lottery::lottery::ListResponse> {
         let request = request.into_inner();
         let mut conn = self.db.get_conn()?;
-        let (lotterys, paginated) = model::lottery::query_list(&mut conn, request)?;
+        let (lotterys, paginated) = dao::lottery::query_list(&mut conn, request)?;
         Ok(Response::new(pb::lottery::lottery::ListResponse {
             lotterys,
             paginated,
@@ -42,7 +42,7 @@ impl pb::lottery::lottery::lottery_service_server::LotteryService for Service {
         request: Request<pb::lottery::lottery::GetRequest>,
     ) -> Resp<pb::lottery::lottery::GetResponse> {
         let mut conn = self.db.get_conn()?;
-        let lottery = model::lottery::query_by_id(&mut conn, request.into_inner().id)?;
+        let lottery = dao::lottery::query_by_id(&mut conn, request.into_inner().id)?;
         Ok(Response::new(pb::lottery::lottery::GetResponse {
             lottery: Some(lottery),
         }))
@@ -54,7 +54,7 @@ impl pb::lottery::lottery::lottery_service_server::LotteryService for Service {
     ) -> Resp<pb::lottery::lottery::CreateResponse> {
         let lottery = request.into_inner().lottery.ok_or_invalid()?;
         let mut conn = self.db.get_conn()?;
-        let lottery = model::lottery::insert(&mut conn, lottery)?;
+        let lottery = dao::lottery::insert(&mut conn, lottery)?;
         Ok(Response::new(pb::lottery::lottery::CreateResponse {
             lottery: Some(lottery),
         }))
@@ -67,7 +67,7 @@ impl pb::lottery::lottery::lottery_service_server::LotteryService for Service {
         let pb::lottery::lottery::UpdateRequest { id, lottery } = request.into_inner();
         let lottery = lottery.ok_or_invalid()?;
         let mut conn = self.db.get_conn()?;
-        let lottery = model::lottery::update_by_id(&mut conn, id, lottery)?;
+        let lottery = dao::lottery::update_by_id(&mut conn, id, lottery)?;
         Ok(Response::new(pb::lottery::lottery::UpdateResponse {
             lottery: Some(lottery),
         }))
@@ -79,7 +79,7 @@ impl pb::lottery::lottery::lottery_service_server::LotteryService for Service {
     ) -> Resp<pb::lottery::lottery::DeleteResponse> {
         let mut conn = self.db.get_conn()?;
         let id = request.into_inner().id;
-        model::lottery::delete_by_id(&mut conn, id)?;
+        dao::lottery::delete_by_id(&mut conn, id)?;
         Ok(Response::new(pb::lottery::lottery::DeleteResponse {}))
     }
 }

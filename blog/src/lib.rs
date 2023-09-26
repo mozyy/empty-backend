@@ -1,3 +1,2 @@
-pub mod model;
-// pub mod schema;
+pub(crate) mod dao;
 pub mod service;

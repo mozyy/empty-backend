@@ -1,10 +1,14 @@
-use std::sync::Arc;
+use std::{collections::HashSet, sync::Arc};
 use tokio::sync::Mutex;
 
-use empty_utils::{diesel::db, errors::{ErrorConvert, Result}, tonic::Resp};
+use empty_utils::{
+    diesel::db,
+    errors::{ErrorConvert, Result},
+    tonic::Resp,
+};
 use tonic::{Request, Response};
 
-use crate::model;
+use crate::dao;
 use proto::pb;
 
 pub struct Service {
@@ -15,12 +19,12 @@ pub struct Service {
 
 impl Service {
     pub async fn new() -> Result<Self> {
-      let db = db::DbPool::new("auth_v2");
-      Self::new_by_db(db).await
+        let db = db::DbPool::new("auth_v2");
+        Self::new_by_db(db).await
     }
     pub async fn new_by_db(db: db::DbPool) -> Result<Self> {
-      let mut conn = db.get_conn()?;
-        let configs = model::config::query_all(&mut conn).await?;
+        let mut conn = db.get_conn()?;
+        let configs = dao::config::query_all(&mut conn).await?;
         log::info!("configs: {:?}", &configs);
         todo!()
         // let configs = configs
@@ -49,15 +53,14 @@ impl Service {
         // Self { db }
     }
     pub async fn configs(&self) -> Request<Vec<pb::auth::auth::Config>> {
-      todo!()
+        todo!()
     }
 }
-
 
 // #[derive(Debug)]
 // pub struct Config {
 //     pattern: Pattern,
-//     scope: Option<Scope>,
+//     scope: HashSet<String>,
 // }
 
 // impl Config {
@@ -70,7 +73,6 @@ impl Service {
 //         }
 //     }
 // }
-
 
 #[derive(Debug)]
 enum Pattern {

@@ -23,11 +23,11 @@ use oxide_auth::{
 use oxide_auth_async::endpoint::{access_token::AccessTokenFlow, authorization::AuthorizationFlow};
 use uuid::Uuid;
 
-use crate::model::grpc::{
+use crate::dao::grpc::{
     request::{Auth, OAuthRequest},
     response::{OAuthResponse, ResponseStatus},
 };
-use proto::{pb};
+use proto::pb;
 
 pub mod extension;
 

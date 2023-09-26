@@ -8,7 +8,7 @@ use empty_utils::{
 use rand::Rng;
 use tonic::Response;
 
-use crate::model;
+use crate::dao;
 use proto::pb;
 
 pub struct Service {
@@ -28,7 +28,7 @@ impl pb::lottery::record::record_service_server::RecordService for Service {
     ) -> Resp<pb::lottery::record::ListResponse> {
         let mut conn = self.db.get_conn()?;
         let request = request.into_inner();
-        let (records, paginated) = model::record::query_list(&mut conn, request)?;
+        let (records, paginated) = dao::record::query_list(&mut conn, request)?;
         Ok(Response::new(pb::lottery::record::ListResponse {
             records,
             paginated,
@@ -39,7 +39,7 @@ impl pb::lottery::record::record_service_server::RecordService for Service {
         request: tonic::Request<pb::lottery::record::GetRequest>,
     ) -> Resp<pb::lottery::record::GetResponse> {
         let mut conn = self.db.get_conn()?;
-        let record = model::record::query_by_id(&mut conn, request.into_inner().id)?;
+        let record = dao::record::query_by_id(&mut conn, request.into_inner().id)?;
         Ok(Response::new(pb::lottery::record::GetResponse {
             record: Some(record),
         }))
@@ -51,7 +51,7 @@ impl pb::lottery::record::record_service_server::RecordService for Service {
         let mut new_record = request.into_inner().record.ok_or_invalid()?;
         let mut record = new_record.record.as_mut().ok_or_invalid()?;
         let mut conn = self.db.get_conn()?;
-        let my_records = model::record::query_list_by_record(
+        let my_records = dao::record::query_list_by_record(
             &mut conn,
             Some(pb::lottery::record::RecordQuery {
                 id: None,
@@ -62,7 +62,7 @@ impl pb::lottery::record::record_service_server::RecordService for Service {
         if !my_records.is_empty() {
             return Err(Error::unknown("already records"))?;
         }
-        let lottery = model::lottery::query_by_id(&mut conn, record.lottery_id)?;
+        let lottery = dao::lottery::query_by_id(&mut conn, record.lottery_id)?;
 
         let pb::lottery::lottery::Lottery {
             lottery, mut items, ..
@@ -70,7 +70,7 @@ impl pb::lottery::record::record_service_server::RecordService for Service {
         let lottery = lottery.ok_or_loss()?;
 
         let r#type = pb::lottery::lottery::Type::from_i32(lottery.r#type).ok_or_invalid()?;
-        let all_records = model::record::query_list_by_record(
+        let all_records = dao::record::query_list_by_record(
             &mut conn,
             Some(pb::lottery::record::RecordQuery {
                 id: None,
@@ -119,7 +119,7 @@ impl pb::lottery::record::record_service_server::RecordService for Service {
             .ok_or_loss()?;
         record.item_id = item.id;
         log::info!("new_record: {:?}", new_record);
-        let record = model::record::insert(&mut conn, new_record)?;
+        let record = dao::record::insert(&mut conn, new_record)?;
         Ok(Response::new(pb::lottery::record::CreateResponse {
             record: Some(record),
         }))
@@ -131,7 +131,7 @@ impl pb::lottery::record::record_service_server::RecordService for Service {
         let mut conn = self.db.get_conn()?;
         let pb::lottery::record::UpdateRequest { id, record } = request.into_inner();
         let record = record.ok_or_invalid()?;
-        let record = model::record::update_by_id(&mut conn, id, record)?;
+        let record = dao::record::update_by_id(&mut conn, id, record)?;
         Ok(Response::new(pb::lottery::record::UpdateResponse {
             record: Some(record),
         }))
@@ -142,7 +142,7 @@ impl pb::lottery::record::record_service_server::RecordService for Service {
     ) -> Resp<pb::lottery::record::DeleteResponse> {
         let mut conn = self.db.get_conn()?;
         let id = request.into_inner().id;
-        model::record::delete_by_id(&mut conn, id)?;
+        dao::record::delete_by_id(&mut conn, id)?;
         Ok(Response::new(pb::lottery::record::DeleteResponse {}))
     }
 }

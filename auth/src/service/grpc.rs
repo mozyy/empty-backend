@@ -1,14 +1,17 @@
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
-use empty_utils::{diesel::db, errors::{ErrorConvert, Result}, tonic::Resp};
+use empty_utils::{
+    diesel::db,
+    errors::{ErrorConvert, Result},
+    tonic::Resp,
+};
 use tonic::{Request, Response};
 
-use crate::model;
+use crate::dao;
 use proto::pb;
 
 use super::Service;
-
 
 #[tonic::async_trait]
 impl pb::auth::auth::auth_service_server::AuthService for Service {
@@ -28,9 +31,12 @@ impl pb::auth::auth::auth_service_server::AuthService for Service {
         &self,
         request: tonic::Request<pb::auth::auth::ResourceRequest>,
     ) -> Resp<pb::auth::auth::ResourceResponse> {
-        let pb::auth::auth::ResourceRequest { uri: _, access_token } = request.into_inner();
+        let pb::auth::auth::ResourceRequest {
+            uri: _,
+            access_token,
+        } = request.into_inner();
         let mut conn = self.db.get_conn()?;
-        let (user, token) = model::resource::query_by_token(&mut conn, access_token)?;
+        let (user, token) = dao::resource::query_by_token(&mut conn, access_token)?;
         todo!()
         // Ok(tonic::Response::new(pb::auth::auth::ResourceResponse{user: Some(user), token: Some(token)}))
     }
@@ -38,9 +44,9 @@ impl pb::auth::auth::auth_service_server::AuthService for Service {
         &self,
         request: tonic::Request<pb::auth::auth::LoginRequest>,
     ) -> Resp<pb::auth::auth::LoginResponse> {
-      let user_id = request.into_inner().user_id;
-      let mut conn = self.db.get_conn()?;
-      todo!()
+        let user_id = request.into_inner().user_id;
+        let mut conn = self.db.get_conn()?;
+        todo!()
     }
     async fn register(
         &self,

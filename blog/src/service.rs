@@ -1,7 +1,7 @@
 use empty_utils::{diesel::db, errors::Error, tonic::Resp};
 use tonic::{Request, Response};
 
-use crate::model;
+use crate::dao;
 
 pub struct Service {
     db: db::DbPool,
@@ -25,7 +25,7 @@ impl pb::blog::blog::blog_service_server::BlogService for Service {
         log::debug!("request list");
         let mut conn = self.db.get_conn()?;
         log::debug!("get conn");
-        let (blogs, paginated) = model::query_list(&mut conn, request.into_inner()).await?;
+        let (blogs, paginated) = dao::query_list(&mut conn, request.into_inner()).await?;
         log::debug!("get blogs");
         Ok(Response::new(pb::blog::blog::ListResponse {
             blogs,
@@ -38,7 +38,7 @@ impl pb::blog::blog::blog_service_server::BlogService for Service {
         request: Request<pb::blog::blog::GetRequest>,
     ) -> Resp<pb::blog::blog::GetResponse> {
         let mut conn = self.db.get_conn()?;
-        let blog = model::query_by_id(&mut conn, request.into_inner().id).await?;
+        let blog = dao::query_by_id(&mut conn, request.into_inner().id).await?;
         Ok(Response::new(pb::blog::blog::GetResponse {
             blog: Some(blog),
         }))
@@ -53,7 +53,7 @@ impl pb::blog::blog::blog_service_server::BlogService for Service {
             .into_inner()
             .blog
             .ok_or_else(|| Error::StatusError(tonic::Status::data_loss("no blog")))?;
-        let blog = model::insert(&mut conn, blog).await?;
+        let blog = dao::insert(&mut conn, blog).await?;
         Ok(Response::new(pb::blog::blog::CreateResponse {
             blog: Some(blog),
         }))
@@ -66,7 +66,7 @@ impl pb::blog::blog::blog_service_server::BlogService for Service {
         let mut conn = self.db.get_conn()?;
         let pb::blog::blog::UpdateRequest { id, blog } = request.into_inner();
         let blog = blog.ok_or_else(|| Error::StatusError(tonic::Status::data_loss("no blog")))?;
-        let blog = model::update_by_id(&mut conn, id, blog).await?;
+        let blog = dao::update_by_id(&mut conn, id, blog).await?;
         Ok(Response::new(pb::blog::blog::UpdateResponse {
             blog: Some(blog),
         }))
@@ -78,7 +78,7 @@ impl pb::blog::blog::blog_service_server::BlogService for Service {
     ) -> Resp<pb::blog::blog::DeleteResponse> {
         let mut conn = self.db.get_conn()?;
         let id = request.into_inner().id;
-        model::delete_by_id(&mut conn, id).await?;
+        dao::delete_by_id(&mut conn, id).await?;
         Ok(Response::new(pb::blog::blog::DeleteResponse {}))
     }
 }

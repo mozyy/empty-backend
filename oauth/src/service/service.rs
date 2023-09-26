@@ -12,7 +12,7 @@ use oxide_auth_async::endpoint::{
 };
 use tonic::{Request, Response};
 
-use crate::model::{
+use crate::dao::{
     diesel,
     endpoint::Endpoint,
     grpc::{request::OAuthRequest, response::OAuthResponse},

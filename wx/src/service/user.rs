@@ -8,7 +8,7 @@ use empty_utils::{
 use tonic::{Request, Response};
 use uuid::Uuid;
 
-use crate::model::user as model;
+use crate::dao::user as model;
 use proto::pb;
 
 pub struct Service {
