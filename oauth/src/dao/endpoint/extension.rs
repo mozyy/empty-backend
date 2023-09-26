@@ -1,11 +1,7 @@
-use oxide_auth::{
-    code_grant::accesstoken::Request,
-    primitives::grant::Extensions,
-};
+use oxide_auth::{code_grant::accesstoken::Request, primitives::grant::Extensions};
 use oxide_auth_async::endpoint;
 
 use uuid::Uuid;
-
 
 use async_trait::async_trait;
 

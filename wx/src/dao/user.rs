@@ -19,19 +19,13 @@ pub fn query_by_user_id(conn: &mut PgConnection, user_id: Uuid) -> Result<pb::wx
         .first::<pb::wx::user::User>(conn)?;
     Ok(user)
 }
-pub fn query_by_openid(
-    conn: &mut PgConnection,
-    openid: String,
-) -> Result<pb::wx::user::User> {
+pub fn query_by_openid(conn: &mut PgConnection, openid: String) -> Result<pb::wx::user::User> {
     let user = schema::wx::users::table
         .filter(schema::wx::users::openid.eq(openid))
         .first::<pb::wx::user::User>(conn)?;
     Ok(user)
 }
-pub fn insert(
-    conn: &mut PgConnection,
-    user: pb::wx::user::NewUser,
-) -> Result<pb::wx::user::User> {
+pub fn insert(conn: &mut PgConnection, user: pb::wx::user::NewUser) -> Result<pb::wx::user::User> {
     let user = diesel::insert_into(schema::wx::users::table)
         .values(user)
         .get_result::<pb::wx::user::User>(conn)?;

@@ -1,18 +1,12 @@
-use std::{collections::HashSet, sync::Arc};
+use std::sync::Arc;
 use tokio::sync::Mutex;
 
-use empty_utils::{
-    diesel::db,
-    errors::{ErrorConvert, Result},
-    tonic::Resp,
-};
-use tonic::{Request, Response};
+use empty_utils::{diesel::db, errors::Result};
 
 use crate::{
     dao,
     model::{config::Config, resource::Resource},
 };
-use proto::pb;
 
 pub struct Service {
     pub(super) db: db::DbPool,

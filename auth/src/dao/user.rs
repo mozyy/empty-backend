@@ -1,11 +1,10 @@
-use chrono::Utc;
 use diesel::prelude::*;
-use empty_utils::errors::{Error, ErrorConvert, Result};
+use empty_utils::errors::{ErrorConvert, Result};
 use proto::pb;
 
 use uuid::Uuid;
 
-use proto::{schema, utils::diesel::Paginate};
+use proto::schema;
 
 pub fn query_by_id(conn: &mut PgConnection, id: String) -> Result<pb::auth::auth::User> {
     let id = id.parse::<Uuid>().ok_or_invalid()?;

@@ -49,7 +49,7 @@ impl pb::lottery::record::record_service_server::RecordService for Service {
         request: tonic::Request<pb::lottery::record::CreateRequest>,
     ) -> Resp<pb::lottery::record::CreateResponse> {
         let mut new_record = request.into_inner().record.ok_or_invalid()?;
-        let mut record = new_record.record.as_mut().ok_or_invalid()?;
+        let record = new_record.record.as_mut().ok_or_invalid()?;
         let mut conn = self.db.get_conn()?;
         let my_records = dao::record::query_list_by_record(
             &mut conn,

@@ -13,7 +13,11 @@ pub struct Uuid(uuid::Uuid);
 
 impl From<String> for Uuid {
     fn from(value: String) -> Self {
-        Self(uuid::Uuid::parse_str(value.as_str()).ok_or_invalid().unwrap())
+        Self(
+            uuid::Uuid::parse_str(value.as_str())
+                .ok_or_invalid()
+                .unwrap(),
+        )
     }
 }
 impl From<Uuid> for String {

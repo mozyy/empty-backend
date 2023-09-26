@@ -58,9 +58,4 @@ diesel::table! {
 diesel::joinable!(resources -> clients (client_id));
 diesel::joinable!(resources -> users (user_id));
 
-diesel::allow_tables_to_appear_in_same_query!(
-    clients,
-    configs,
-    resources,
-    users,
-);
+diesel::allow_tables_to_appear_in_same_query!(clients, configs, resources, users,);

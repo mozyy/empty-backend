@@ -1,6 +1,5 @@
 use diesel::{prelude::*, PgConnection};
 use empty_utils::errors::Result;
-use uuid::Uuid;
 
 use proto::{pb, schema};
 

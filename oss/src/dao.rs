@@ -11,7 +11,8 @@ pub fn query_list(
     Vec<pb::oss::oss::Oss>,
     Option<pb::utils::paginate::Paginated>,
 )> {
-    let resp = schema::oss::oss::table.filter(schema::oss::oss::id.eq_any(request.ids))
+    let resp = schema::oss::oss::table
+        .filter(schema::oss::oss::id.eq_any(request.ids))
         .paginate(request.paginate)
         .load_and_paginated::<pb::oss::oss::Oss>(conn)?;
     Ok(resp)
@@ -24,10 +25,7 @@ pub fn query_by_id(conn: &mut PgConnection, id: i32) -> Result<pb::oss::oss::Oss
     Ok(oss)
 }
 
-pub fn insert(
-    conn: &mut PgConnection,
-    oss: pb::oss::oss::NewOss,
-) -> Result<pb::oss::oss::Oss> {
+pub fn insert(conn: &mut PgConnection, oss: pb::oss::oss::NewOss) -> Result<pb::oss::oss::Oss> {
     let oss = diesel::insert_into(schema::oss::oss::table)
         .values(oss)
         .get_result::<pb::oss::oss::Oss>(conn)?;
@@ -39,7 +37,6 @@ pub fn update_by_id(
     id: i32,
     oss: pb::oss::oss::NewOss,
 ) -> Result<pb::oss::oss::Oss> {
-   
     let oss = diesel::update(schema::oss::oss::table)
         .filter(schema::oss::oss::dsl::id.eq(id))
         .set(oss)

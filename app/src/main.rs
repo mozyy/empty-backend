@@ -36,9 +36,8 @@ async fn main() -> Result {
     let user = pb::wx::user::user_service_server::UserServiceServer::new(
         wx::service::user::Service::new_by_db(db_wx),
     );
-    let oss = pb::oss::oss::oss_service_server::OssServiceServer::new(
-        oss::service::Service::default(),
-    );
+    let oss =
+        pb::oss::oss::oss_service_server::OssServiceServer::new(oss::service::Service::default());
     log::info!("start ...");
 
     server()
@@ -56,7 +55,6 @@ async fn main() -> Result {
 
     Ok(())
 }
-
 
 async fn shutdown_signal() {
     let ctrl_c = async {
