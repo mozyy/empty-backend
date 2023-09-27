@@ -1,4 +1,5 @@
 use crate::{dao, model};
+use chrono::Utc;
 use empty_utils::{
     diesel::db,
     errors::{ErrorConvert, Result},
@@ -118,11 +119,22 @@ where
                 .get(http::header::AUTHORIZATION)
                 .and_then(|it| it.to_str().ok());
             if let Some(auth) = authorized {
-                // let auth = auth.to_owned();
                 let resources = resources.lock().await;
                 let resource = resources.get(auth).map(ToOwned::to_owned);
                 let resource = match resource {
-                    Some(resource) => resource,
+                    Some(resource) => {
+                        if let Some(until) = resource.until.clone() {
+                            if until.seconds > Utc::now().timestamp() {
+                                log::warn!("token timeout: {}", until);
+                                let unauthorized_response = Response::builder()
+                                    .status(StatusCode::UNAUTHORIZED)
+                                    .body(empty_body())
+                                    .unwrap();
+                                return Err(unauthorized_response);
+                            }
+                        };
+                        resource
+                    }
                     None => {
                         log::warn!("resource is none: {}", auth);
                         let unauthorized_response = Response::builder()
