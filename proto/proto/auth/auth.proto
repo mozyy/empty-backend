@@ -6,6 +6,7 @@ package auth.auth;
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
+import "utils/paginate.proto";
 
 option go_package = "auth.auth";
 
@@ -162,9 +163,11 @@ message NewConfig {
 }
 
 message ClientListRequest {
+  utils.paginate.Paginate paginate = 1;
 }
 message ClientListResponse {
   repeated Client clients = 1;
+  utils.paginate.Paginated paginated = 2;
 }
 message ClientCreateRequest {
   NewClient client = 1;

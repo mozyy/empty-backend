@@ -92,6 +92,7 @@ oauth = { path="oauth" }
 config = { path="config" }
 wx = { path="wx" }
 oss = { path="oss" }
+auth = { path="auth" }
 
 # micro
 syn = "2.0"

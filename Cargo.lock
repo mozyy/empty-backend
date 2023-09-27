@@ -328,6 +328,7 @@ checksum = "f768393e7fabd388fe8409b13faa4d93ab0fef35db1508438dfdb066918bcf38"
 name = "app"
 version = "0.1.0"
 dependencies = [
+ "auth",
  "axum",
  "blog",
  "config",
@@ -338,6 +339,7 @@ dependencies = [
  "oss",
  "proto",
  "tokio",
+ "tonic",
  "tower-http",
  "wx",
 ]
@@ -421,6 +423,9 @@ dependencies = [
  "config",
  "diesel",
  "empty-utils",
+ "futures-util",
+ "http",
+ "hyper",
  "log",
  "prost 0.12.0",
  "prost-types 0.12.0",
@@ -429,6 +434,7 @@ dependencies = [
  "regex",
  "tokio",
  "tonic",
+ "tower-http",
  "uuid 1.4.1",
 ]
 

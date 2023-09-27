@@ -14,6 +14,11 @@ uuid= { workspace = true, features = ["serde"] }
 regex =  { workspace = true }
 rand =  { workspace = true }
 
+tower-http = { workspace = true }
+futures-util={workspace = true}
+hyper = {workspace = true}
+http =  { workspace = true }
+
 tonic = { workspace = true }
 
 empty-utils = { workspace = true }

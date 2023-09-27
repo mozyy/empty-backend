@@ -3,7 +3,7 @@ use std::{cmp, collections::HashSet, fmt, str::FromStr};
 use empty_utils::errors::{Error, ErrorConvert};
 use proto::pb;
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Default)]
 pub struct Scope(HashSet<String>);
 
 impl cmp::PartialOrd for Scope {
@@ -87,8 +87,8 @@ pub struct Config {
 }
 
 impl Config {
-    fn get_scope(&self, url: String) -> Option<Scope> {
-        let matched = self.pattern.matched(url);
+    pub fn get_scope(&self, uri: String) -> Option<Scope> {
+        let matched = self.pattern.matched(uri);
         if matched {
             Some(self.scope.to_owned())
         } else {

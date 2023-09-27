@@ -49,16 +49,16 @@ pub mod pb {
     }
 }
 
-pub mod model;
-pub mod schema;
-pub mod types;
-pub mod utils;
-
 pub mod google {
     pub mod api {
         tonic::include_proto!("google.api");
     }
 }
+
+pub mod model;
+pub mod schema;
+pub mod types;
+pub mod utils;
 
 #[derive(Clone)]
 pub struct UserId(pb::oauth::oauth::ResourceResponse);
