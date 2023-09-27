@@ -12,9 +12,12 @@ axum = {workspace = true}
 tonic = {workspace = true}
 tower-http = { workspace = true, features = ["cors", "trace", "compression-br", "compression-gzip","set-header", "auth"] }
 
+futures-util={workspace = true}
+hyper = {workspace = true}
+http =  { workspace = true }
+
 blog = {workspace = true}
 lottery = {workspace = true}
-oauth = {workspace = true}
 auth = {workspace = true}
 config = {workspace = true}
 proto = {workspace = true}

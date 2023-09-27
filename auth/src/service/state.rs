@@ -13,6 +13,7 @@ use tonic::body::BoxBody;
 use tonic::codegen::empty_body;
 use tower_http::auth::AsyncAuthorizeRequest;
 
+#[derive(Clone)]
 pub struct Service {
     pub(super) db: db::DbPool,
     resources: Arc<Mutex<model::resource::Resource>>,
@@ -87,60 +88,75 @@ impl Service {
     }
 }
 
-// impl<B> AsyncAuthorizeRequest<B> for Service
-// where
-//     B: Send + Sync + 'static,
-// {
-//     type RequestBody = B;
-//     type ResponseBody = BoxBody;
-//     type Future = BoxFuture<'static, Result<Request<B>, Response<Self::ResponseBody>>>;
+impl<B> AsyncAuthorizeRequest<B> for Service
+where
+    B: Send + Sync + 'static,
+{
+    type RequestBody = B;
+    type ResponseBody = BoxBody;
+    type Future = BoxFuture<'static, Result<Request<B>, Response<Self::ResponseBody>>>;
 
-//     fn authorize(&mut self, mut request: Request<B>) -> Self::Future {
-//         let that = self.clone();
-//         Box::pin(async move {
-//             let configs = that.configs.lock().await;
-//             let _method = request.method();
-//             let uri = request.uri().to_string();
-//             let exp = regex::Regex::new("^https?://[^/]+").unwrap();
-//             let uri = exp.replace(&uri, "");
-//             let scope = configs
-//                 .iter()
-//                 .find_map(|config| config.get_scope(uri.to_string()));
-//             log::info!("request uri: {},scope: {:?}", uri, scope);
+    fn authorize(&mut self, mut request: Request<B>) -> Self::Future {
+        let uri = request.uri().to_string();
+        let uri_exp: regex::Regex = regex::Regex::new("^https?://[^/]+").unwrap();
+        let uri = uri_exp.replace(&uri, "").to_string();
 
-//             let authorized = request
-//                 .headers()
-//                 .get(http::header::AUTHORIZATION)
-//                 .and_then(|it| it.to_str().ok());
-//             if let Some(auth) = authorized {
-//                 let auth = auth.to_owned();
-//                 let scope = scope.unwrap_or_default().unwrap_or("".parse().unwrap());
-//                 let res = that.check_resource(auth, scope).await;
-//                 return match res {
-//                     Ok(res) => {
-//                         let user_id = UserId::new(res.into_inner());
-//                         log::info!("login user: {:?}", *user_id);
-//                         request.extensions_mut().insert(user_id);
-//                         Ok(request)
-//                     }
-//                     Err(err) => {
-//                         log::warn!("check resource: {}", err);
-//                         let unauthorized_response = Response::builder()
-//                             .status(StatusCode::UNAUTHORIZED)
-//                             .body(empty_body())
-//                             .unwrap();
-//                         Err(unauthorized_response)
-//                     }
-//                 };
-//             }
-//             if scope.is_none() || scope.clone().unwrap().is_none() {
-//                 return Ok(request);
-//             }
-//             let unauthorized_response = Response::builder()
-//                 .status(StatusCode::UNAUTHORIZED)
-//                 .body(empty_body())
-//                 .unwrap();
-//             Err(unauthorized_response)
-//         })
-//     }
-// }
+        let Self {
+            configs, resources, ..
+        } = self;
+        let configs = configs.clone();
+        let resources = resources.clone();
+        Box::pin(async move {
+            let configs = configs.lock().await;
+            let scope_uri = configs
+                .iter()
+                .find_map(|config| config.get_scope(uri.clone()))
+                .unwrap_or_default();
+            log::info!("request uri: {},scope: {:?}", uri, scope_uri);
+            let authorized = request
+                .headers()
+                .get(http::header::AUTHORIZATION)
+                .and_then(|it| it.to_str().ok());
+            if let Some(auth) = authorized {
+                // let auth = auth.to_owned();
+                let resources = resources.lock().await;
+                let resource = resources.get(auth).map(ToOwned::to_owned);
+                let resource = match resource {
+                    Some(resource) => resource,
+                    None => {
+                        log::warn!("resource is none: {}", auth);
+                        let unauthorized_response = Response::builder()
+                            .status(StatusCode::UNAUTHORIZED)
+                            .body(empty_body())
+                            .unwrap();
+                        return Err(unauthorized_response);
+                    }
+                };
+                let scope_token = resource
+                    .scope
+                    .parse::<model::config::Scope>()
+                    .unwrap_or_default();
+                return if scope_token < scope_uri {
+                    log::warn!("PermissionDenied: {}<{}", scope_token, scope_uri);
+                    let unauthorized_response = Response::builder()
+                        .status(StatusCode::UNAUTHORIZED)
+                        .body(empty_body())
+                        .unwrap();
+                    Err(unauthorized_response)
+                } else {
+                    log::info!("login user: {:?}", resource);
+                    request.extensions_mut().insert(resource);
+                    Ok(request)
+                };
+            }
+            if scope_uri.is_empty() {
+                return Ok(request);
+            }
+            let unauthorized_response = Response::builder()
+                .status(StatusCode::UNAUTHORIZED)
+                .body(empty_body())
+                .unwrap();
+            Err(unauthorized_response)
+        })
+    }
+}

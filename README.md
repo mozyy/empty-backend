@@ -24,7 +24,7 @@ protoc \
   --openapiv2_out=../empty-frontend/packages/openapi/openapi/ \
   ./proto/proto/lottery/lottery.proto \
   ./proto/proto/lottery/record.proto \
-  ./proto/proto/oauth/oauth.proto \
+  ./proto/proto/auth/auth.proto \
   ./proto/proto/wx/wx.proto \
   ./proto/proto/wx/user.proto \
   ./proto/proto/health/department.proto \

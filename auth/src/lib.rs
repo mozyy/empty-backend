@@ -5,7 +5,8 @@ pub(crate) mod dao;
 pub(crate) mod model;
 pub(crate) mod service;
 
-pub async fn get_service() -> Result<AuthServiceServer<service::Service>> {
-    let auth = AuthServiceServer::new(service::Service::new().await?);
-    Ok(auth)
+pub async fn get_service() -> Result<(AuthServiceServer<service::Service>, service::Service)> {
+    let state = service::Service::new().await?;
+    let auth = AuthServiceServer::new(state.clone());
+    Ok((auth, state))
 }

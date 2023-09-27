@@ -29,7 +29,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     .type_attribute(
         "lottery.lottery.LotteryInfo",
         "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable, ::diesel::prelude::Associations)]
-        #[diesel(table_name=crate::schema::lottery::lotterys, belongs_to(crate::pb::oauth::oauth::User))]",
+        #[diesel(table_name=crate::schema::lottery::lotterys, belongs_to(crate::pb::auth::auth::User))]",
     )
     .field_attribute(
         "lottery.lottery.LotteryInfo.user_id",
@@ -38,7 +38,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     .type_attribute(
         "lottery.lottery.NewLotteryInfo",
         "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset, ::diesel::prelude::Associations)]
-        #[diesel(table_name=crate::schema::lottery::lotterys, belongs_to(crate::pb::oauth::oauth::User))]",
+        #[diesel(table_name=crate::schema::lottery::lotterys, belongs_to(crate::pb::auth::auth::User))]",
     )
     .field_attribute(
         "lottery.lottery.NewLotteryInfo.user_id",
@@ -56,12 +56,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     .type_attribute(
         "lottery.record.RecordInfo",
         "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable, ::diesel::prelude::Associations)]
-        #[diesel(table_name=crate::schema::lottery::records, belongs_to(crate::pb::oauth::oauth::User), belongs_to(crate::pb::lottery::lottery::Item), belongs_to(crate::pb::lottery::lottery::LotteryInfo, foreign_key = lottery_id))]",
+        #[diesel(table_name=crate::schema::lottery::records, belongs_to(crate::pb::auth::auth::User), belongs_to(crate::pb::lottery::lottery::Item), belongs_to(crate::pb::lottery::lottery::LotteryInfo, foreign_key = lottery_id))]",
     )
     .type_attribute(
         "lottery.record.NewRecordInfo",
         "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset, ::diesel::prelude::Associations)]
-        #[diesel(table_name=crate::schema::lottery::records, belongs_to(crate::pb::oauth::oauth::User))]",
+        #[diesel(table_name=crate::schema::lottery::records, belongs_to(crate::pb::auth::auth::User))]",
     )
     .type_attribute(
         "lottery.record.RecordRemark",
@@ -80,50 +80,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     .field_attribute(
         "lottery.record.NewRecordInfo.user_id",
         "#[diesel(serialize_as = ::empty_utils::tonic::uuid::Uuid)]",
-    )
-
-    // oauth
-    .type_attribute(
-        "oauth.oauth.User",
-        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable)]
-    #[diesel(table_name=crate::schema::oauth::users)]",
-    )
-    .field_attribute(
-        "oauth.oauth.User.id",
-        "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
-    )
-    .type_attribute(
-        "oauth.oauth.Token",
-        "#[derive(::serde::Deserialize)]",
-    )
-    .type_attribute(
-        "oauth.oauth.Client",
-        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable)]
-        #[diesel(table_name=crate::schema::oauth::oauth_clients)]",
-    )
-    .field_attribute(
-        "oauth.oauth.Client.id",
-        "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
-    )
-    .type_attribute(
-        "oauth.oauth.NewClient",
-        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
-        #[diesel(table_name=crate::schema::oauth::oauth_clients)]",
-    )
-    .type_attribute(
-        "oauth.oauth.Config",
-        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
-        #[diesel(table_name=crate::schema::oauth::oauth_configs)]",
-    )
-    .type_attribute(
-        "oauth.oauth.NewConfig",
-        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
-        #[diesel(table_name=crate::schema::oauth::oauth_configs)]",
-    )
-    .type_attribute(
-        "oauth.oauth.Pattern",
-        "#[derive(::diesel::FromSqlRow, ::diesel::AsExpression)]
-        #[diesel(sql_type=crate::schema::oauth::sql_types::OauthPattern)]",
     )
 
     // auth
@@ -216,12 +172,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     .type_attribute(
         "wx.user.User",
         "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable, ::diesel::prelude::Associations)]
-        #[diesel(table_name=crate::schema::wx::users, belongs_to(crate::pb::oauth::oauth::User))]",
+        #[diesel(table_name=crate::schema::wx::users, belongs_to(crate::pb::auth::auth::User))]",
     )
     .type_attribute(
         "wx.user.NewUser",
         "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset, ::diesel::prelude::Associations)]
-        #[diesel(table_name=crate::schema::wx::users, belongs_to(crate::pb::oauth::oauth::User))]",
+        #[diesel(table_name=crate::schema::wx::users, belongs_to(crate::pb::auth::auth::User))]",
     )
     .field_attribute(
         "wx.user.User.id",
@@ -275,7 +231,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             &[
                 "./proto/lottery/lottery.proto",
                 "./proto/lottery/record.proto",
-                "./proto/oauth/oauth.proto",
+                "./proto/auth/auth.proto",
                 "./proto/auth/auth.proto",
                 "./proto/wx/wx.proto",
                 "./proto/wx/user.proto",

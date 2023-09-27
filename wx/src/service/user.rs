@@ -8,7 +8,7 @@ use empty_utils::{
 use tonic::{Request, Response};
 use uuid::Uuid;
 
-use crate::dao::user as model;
+use crate::{dao::user as model, CLIENT_ID};
 use proto::pb;
 
 pub struct Service {
@@ -119,7 +119,7 @@ impl pb::wx::user::user_service_server::UserService for Service {
         let resp = resp.into_inner();
         log::info!("wx sns_jscode2session success: {:?}", resp);
         let mut client =
-            pb::oauth::oauth::o_auth_service_client::OAuthServiceClient::connect(ADDR_CLIENT)
+            pb::auth::auth::auth_service_client::AuthServiceClient::connect(ADDR_CLIENT)
                 .await
                 .map_err(Error::other)?;
         log::info!("client success");
@@ -128,8 +128,9 @@ impl pb::wx::user::user_service_server::UserService for Service {
             Ok(user) => {
                 log::info!("query_by_openid success");
                 let resp = client
-                    .login(pb::oauth::oauth::LoginRequest {
+                    .login(pb::auth::auth::LoginRequest {
                         user_id: user.user_id,
+                        client_id: CLIENT_ID.to_string(),
                     })
                     .await?;
                 log::info!("client login success");
@@ -139,7 +140,9 @@ impl pb::wx::user::user_service_server::UserService for Service {
             Err(e) => {
                 log::info!("query_by_openid error: {}", e.to_string());
                 let res = client
-                    .register(pb::oauth::oauth::RegisterRequest {})
+                    .register(pb::auth::auth::RegisterRequest {
+                        client_id: CLIENT_ID.to_string(),
+                    })
                     .await?;
                 let res = res.into_inner();
                 let user_id = res.user.clone().ok_or_invalid()?.id;

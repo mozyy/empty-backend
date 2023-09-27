@@ -6,6 +6,12 @@ use proto::pb;
 #[derive(Clone, PartialEq, Default)]
 pub struct Scope(HashSet<String>);
 
+impl Scope {
+    pub fn is_empty(&self) -> bool {
+        return self.0.is_empty();
+    }
+}
+
 impl cmp::PartialOrd for Scope {
     fn partial_cmp(&self, rhs: &Self) -> Option<cmp::Ordering> {
         let intersect_count = self.0.intersection(&rhs.0).count();
@@ -100,7 +106,7 @@ impl Config {
 impl TryFrom<pb::auth::auth::Config> for Config {
     type Error = Error;
     fn try_from(value: pb::auth::auth::Config) -> Result<Self, Self::Error> {
-        let scope = value.scope.ok_or_loss()?.parse()?;
+        let scope = value.scope.unwrap_or_default().parse()?;
         let pattern = value.pattern.ok_or_loss()?.try_into()?;
         Ok(Self { scope, pattern })
     }

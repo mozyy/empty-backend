@@ -7,7 +7,7 @@ import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
-import "oauth/oauth.proto";
+import "auth/auth.proto";
 
 option go_package = "wx.user";
 
@@ -130,8 +130,8 @@ message LoginRequest {
   string code = 1;
 }
 message LoginResponse {
-  oauth.oauth.Token token = 1;
-  oauth.oauth.User user = 2;
+  auth.auth.Token token = 1;
+  auth.auth.User user = 2;
 }
 message InfoRequest {
 }

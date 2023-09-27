@@ -15,7 +15,7 @@ impl TryFrom<Vec<pb::auth::auth::Resource>> for Resource {
     fn try_from(value: Vec<pb::auth::auth::Resource>) -> Result<Self> {
         let hash_map = value
             .into_iter()
-            .map(|item| Ok((item.access_token.clone(), item)))
+            .map(|item| Ok((format!("{} {}", item.token_type, item.access_token), item)))
             .collect::<Result<ResourceMap>>()?;
         Ok(Self(hash_map))
     }

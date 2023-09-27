@@ -7,13 +7,12 @@ members = [
     "empty-user",
     "empty-registry",
     "empty-template",
-    "empty-oauth",
     "database",
     "proto",
     "blog",
     "file",
     "lottery",
-    "oauth",
+    # "oauth",
     "auth",
     "config",
     "wx",
@@ -24,7 +23,7 @@ members = [
 [workspace.dependencies]
 
 # common
-tokio = { version = "1.29", features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1.32", features = ["macros", "rt-multi-thread"] }
 thiserror = "1.0"
 anyhow = "1.0"
 lazy_static ="1.4"
@@ -76,11 +75,15 @@ prost-wkt-types = "0.4"
 
 # rustful
 axum = { version = "0.6", features = ["http2"] }
-actix-web = "4.3"
-utoipa = {version = "3.4", features = ["axum_extras", "yaml"] }
+actix-web = "4.4"
+utoipa = {version = "3.5", features = ["axum_extras", "yaml"] }
 utoipa-swagger-ui ={version =  "3.1", features = ["axum"] }
 
-
+clap = { version = "4.4" }
+walkdir = "2.4"
+cargo_toml = "0.16"
+toml = "0.8"
+tokio-stream = "0.1"
 
 empty-registry = { path="empty-registry" }
 empty-utils = {path = "empty-utils"}
@@ -88,7 +91,7 @@ empty-macro = { path="empty-macro" }
 lottery = { path="lottery" }
 proto = { path="proto" }
 blog = { path="blog" }
-oauth = { path="oauth" }
+# oauth = { path="oauth" }
 config = { path="config" }
 wx = { path="wx" }
 oss = { path="oss" }
@@ -101,4 +104,4 @@ proc-macro2="1.0"
 convert_case = "0.6"
 
 #tests
-tempfile ="3.7"
+tempfile ="3.8"
