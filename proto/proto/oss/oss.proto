@@ -50,7 +50,7 @@ service OssService {
   }
   rpc Update(UpdateRequest) returns (UpdateResponse) {
     option (google.api.http) = {
-      patch: "/oss.oss.OssService/oss/{id}",
+      put: "/oss.oss.OssService/oss/{id}",
       body: "*"
     };
   }

@@ -124,7 +124,7 @@ where
                 let resource = match resource {
                     Some(resource) => {
                         if let Some(until) = resource.until.clone() {
-                            if until.seconds > Utc::now().timestamp() {
+                            if until.seconds < Utc::now().timestamp() {
                                 log::warn!("token timeout: {}", until);
                                 let unauthorized_response = Response::builder()
                                     .status(StatusCode::UNAUTHORIZED)

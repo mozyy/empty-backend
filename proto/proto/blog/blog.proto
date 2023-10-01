@@ -34,7 +34,7 @@ service BlogService {
   }
   rpc Update(UpdateRequest) returns (UpdateResponse) {
     option (google.api.http) = {
-      patch: "/blog.blog.BlogService/blogs/{id}",
+      put: "/blog.blog.BlogService/blogs/{id}",
       body: "*"
     };
   }

@@ -51,7 +51,7 @@ service LotteryService {
   }
   rpc Update(UpdateRequest) returns (UpdateResponse) {
     option (google.api.http) = {
-      patch: "/lottery.lottery.LotteryService/lotterys/{id}",
+      put: "/lottery.lottery.LotteryService/lotterys/{id}",
       body: "*"
     };
   }

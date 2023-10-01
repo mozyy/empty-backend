@@ -35,7 +35,7 @@ service PatientService {
   }
   rpc Update(UpdateRequest) returns (UpdateResponse) {
     option (google.api.http) = {
-      patch: "/health.patient.PatientService/patients/{id}",
+      put: "/health.patient.PatientService/patients/{id}",
       body: "*"
     };
   }

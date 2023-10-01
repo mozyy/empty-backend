@@ -40,7 +40,7 @@ service UserService {
   }
   rpc Update(UpdateRequest) returns (UpdateResponse) {
     option (google.api.http) = {
-      patch: "/wx.user.UserService/users/{id}",
+      put: "/wx.user.UserService/users/{id}",
       body: "*"
     };
   }

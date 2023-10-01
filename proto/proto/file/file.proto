@@ -34,7 +34,7 @@ service FileService {
   }
   rpc Update(UpdateRequest) returns (UpdateResponse) {
     option (google.api.http) = {
-      patch: "/file.v1.FileService/files/{id}",
+      put: "/file.v1.FileService/files/{id}",
       body: "*"
     };
   }
