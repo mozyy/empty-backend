@@ -37,8 +37,7 @@ pub fn update_by_id(
     id: Uuid,
     user: pb::wx::user::NewUser,
 ) -> Result<pb::wx::user::User> {
-    let user = diesel::update(schema::wx::users::table)
-        .filter(schema::wx::users::dsl::id.eq(id))
+    let user = diesel::update(schema::wx::users::table.find(id))
         .set(user)
         .get_result::<pb::wx::user::User>(conn)?;
     Ok(user)

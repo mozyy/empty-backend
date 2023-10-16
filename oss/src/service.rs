@@ -1,4 +1,8 @@
-use empty_utils::{diesel::db, errors::ErrorConvert, tonic::Resp};
+use empty_utils::{
+    diesel::db,
+    errors::ErrorConvert,
+    tonic::{Resp, ToResp},
+};
 use tonic::{Request, Response};
 
 use proto::pb;
@@ -31,7 +35,7 @@ impl pb::oss::oss::oss_service_server::OssService for Service {
     ) -> Resp<pb::oss::oss::ListResponse> {
         let mut conn = self.db.get_conn()?;
         let (oss, paginated) = dao::query_list(&mut conn, request.into_inner())?;
-        Ok(Response::new(pb::oss::oss::ListResponse { oss, paginated }))
+        pb::oss::oss::ListResponse { oss, paginated }.to_resp()
     }
     async fn get(
         &self,
@@ -40,7 +44,7 @@ impl pb::oss::oss::oss_service_server::OssService for Service {
         let request = request.into_inner();
         let mut conn = self.db.get_conn()?;
         let oss = dao::query_by_id(&mut conn, request.id)?;
-        Ok(Response::new(pb::oss::oss::GetResponse { oss: Some(oss) }))
+        pb::oss::oss::GetResponse { oss: Some(oss) }.to_resp()
     }
     async fn create(
         &self,
@@ -49,9 +53,7 @@ impl pb::oss::oss::oss_service_server::OssService for Service {
         let mut conn = self.db.get_conn()?;
         let oss = request.into_inner().oss.ok_or_invalid()?;
         let oss = dao::insert(&mut conn, oss)?;
-        Ok(Response::new(pb::oss::oss::CreateResponse {
-            oss: Some(oss),
-        }))
+        pb::oss::oss::CreateResponse { oss: Some(oss) }.to_resp()
     }
     async fn update(
         &self,
@@ -61,9 +63,7 @@ impl pb::oss::oss::oss_service_server::OssService for Service {
         let pb::oss::oss::UpdateRequest { id, oss } = request.into_inner();
         let oss = oss.ok_or_invalid()?;
         let oss = dao::update_by_id(&mut conn, id, oss)?;
-        Ok(Response::new(pb::oss::oss::UpdateResponse {
-            oss: Some(oss),
-        }))
+        pb::oss::oss::UpdateResponse { oss: Some(oss) }.to_resp()
     }
     async fn delete(
         &self,
@@ -71,6 +71,6 @@ impl pb::oss::oss::oss_service_server::OssService for Service {
     ) -> Resp<pb::oss::oss::DeleteResponse> {
         let mut conn = self.db.get_conn()?;
         dao::delete_by_id(&mut conn, request.into_inner().id)?;
-        Ok(Response::new(pb::oss::oss::DeleteResponse {}))
+        pb::oss::oss::DeleteResponse {}.to_resp()
     }
 }

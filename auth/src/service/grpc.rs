@@ -1,6 +1,6 @@
 use empty_utils::{
     errors::{Error, ErrorConvert},
-    tonic::Resp,
+    tonic::{Resp, ToResp},
 };
 
 use crate::{dao, model};
@@ -38,12 +38,13 @@ impl pb::auth::auth::auth_service_server::AuthService for Service {
                 format!("token:{scope_token},uri:{scope_uri}"),
             )))?
         } else {
-            Ok(tonic::Response::new(pb::auth::auth::ResourceResponse {
+            pb::auth::auth::ResourceResponse {
                 owner_id: resource.user_id,
                 client_id: resource.client_id,
                 scope: resource.scope,
                 until: resource.until,
-            }))
+            }
+            .to_resp()
         }
     }
     async fn login(
@@ -57,10 +58,11 @@ impl pb::auth::auth::auth_service_server::AuthService for Service {
         let resource = pb::auth::auth::NewResource::generate(&user, &client);
         let resource = dao::resource::insert(&mut conn, resource)?;
         self.refresh_resources().await?;
-        Ok(tonic::Response::new(pb::auth::auth::LoginResponse {
+        pb::auth::auth::LoginResponse {
             user: Some(user),
             token: Some((&resource).into()),
-        }))
+        }
+        .to_resp()
     }
     async fn register(
         &self,
@@ -73,10 +75,11 @@ impl pb::auth::auth::auth_service_server::AuthService for Service {
         let resource = pb::auth::auth::NewResource::generate(&user, &client);
         let resource = dao::resource::insert(&mut conn, resource)?;
         self.refresh_resources().await?;
-        Ok(tonic::Response::new(pb::auth::auth::RegisterResponse {
+        pb::auth::auth::RegisterResponse {
             user: Some(user),
             token: Some((&resource).into()),
-        }))
+        }
+        .to_resp()
     }
     async fn client_list(
         &self,

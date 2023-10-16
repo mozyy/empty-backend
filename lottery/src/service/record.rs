@@ -3,7 +3,7 @@ use diesel::GroupedBy;
 use empty_utils::{
     diesel::db,
     errors::{Error, ErrorConvert, Result},
-    tonic::Resp,
+    tonic::{Resp, ToResp},
 };
 use rand::Rng;
 use tonic::Response;
@@ -29,10 +29,7 @@ impl pb::lottery::record::record_service_server::RecordService for Service {
         let mut conn = self.db.get_conn()?;
         let request = request.into_inner();
         let (records, paginated) = dao::record::query_list(&mut conn, request)?;
-        Ok(Response::new(pb::lottery::record::ListResponse {
-            records,
-            paginated,
-        }))
+        pb::lottery::record::ListResponse { records, paginated }.to_resp()
     }
     async fn get(
         &self,
@@ -40,9 +37,10 @@ impl pb::lottery::record::record_service_server::RecordService for Service {
     ) -> Resp<pb::lottery::record::GetResponse> {
         let mut conn = self.db.get_conn()?;
         let record = dao::record::query_by_id(&mut conn, request.into_inner().id)?;
-        Ok(Response::new(pb::lottery::record::GetResponse {
+        pb::lottery::record::GetResponse {
             record: Some(record),
-        }))
+        }
+        .to_resp()
     }
     async fn create(
         &self,
@@ -69,7 +67,7 @@ impl pb::lottery::record::record_service_server::RecordService for Service {
         } = lottery;
         let lottery = lottery.ok_or_loss()?;
 
-        let r#type = pb::lottery::lottery::Type::from_i32(lottery.r#type).ok_or_invalid()?;
+        let r#type = pb::lottery::lottery::Type::try_from(lottery.r#type).ok_or_invalid()?;
         let all_records = dao::record::query_list_by_record(
             &mut conn,
             Some(pb::lottery::record::RecordQuery {
@@ -120,9 +118,10 @@ impl pb::lottery::record::record_service_server::RecordService for Service {
         record.item_id = item.id;
         log::info!("new_record: {:?}", new_record);
         let record = dao::record::insert(&mut conn, new_record)?;
-        Ok(Response::new(pb::lottery::record::CreateResponse {
+        pb::lottery::record::CreateResponse {
             record: Some(record),
-        }))
+        }
+        .to_resp()
     }
     async fn update(
         &self,
@@ -132,9 +131,10 @@ impl pb::lottery::record::record_service_server::RecordService for Service {
         let pb::lottery::record::UpdateRequest { id, record } = request.into_inner();
         let record = record.ok_or_invalid()?;
         let record = dao::record::update_by_id(&mut conn, id, record)?;
-        Ok(Response::new(pb::lottery::record::UpdateResponse {
+        pb::lottery::record::UpdateResponse {
             record: Some(record),
-        }))
+        }
+        .to_resp()
     }
     async fn delete(
         &self,
@@ -143,6 +143,6 @@ impl pb::lottery::record::record_service_server::RecordService for Service {
         let mut conn = self.db.get_conn()?;
         let id = request.into_inner().id;
         dao::record::delete_by_id(&mut conn, id)?;
-        Ok(Response::new(pb::lottery::record::DeleteResponse {}))
+        pb::lottery::record::DeleteResponse {}.to_resp()
     }
 }

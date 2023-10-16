@@ -105,14 +105,14 @@ message GetRequest {
   int32 id = 1;
 }
 message GetResponse {
-  Template template = 1;
+  TemplateWithLottery template = 1;
 }
 
 message CreateRequest {
   NewTemplate template = 1;
 }
 message CreateResponse {
-  Template template = 1;
+  TemplateWithLottery template = 1;
 }
 
 message UpdateRequest {
@@ -120,7 +120,7 @@ message UpdateRequest {
   NewTemplate template = 2;
 }
 message UpdateResponse {
-  Template template = 1;
+  TemplateWithLottery template = 1;
 }
 
 message DeleteRequest {

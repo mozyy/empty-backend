@@ -1,4 +1,8 @@
-use empty_utils::{diesel::db, errors::ErrorConvert, tonic::Resp};
+use empty_utils::{
+    diesel::db,
+    errors::ErrorConvert,
+    tonic::{Resp, ToResp},
+};
 use tonic::{Request, Response};
 
 use crate::dao;
@@ -23,10 +27,11 @@ impl pb::lottery::lottery::lottery_service_server::LotteryService for Service {
         let request = request.into_inner();
         let mut conn = self.db.get_conn()?;
         let (lotterys, paginated) = dao::lottery::query_list(&mut conn, request)?;
-        Ok(Response::new(pb::lottery::lottery::ListResponse {
+        pb::lottery::lottery::ListResponse {
             lotterys,
             paginated,
-        }))
+        }
+        .to_resp()
     }
 
     async fn get(
@@ -35,9 +40,10 @@ impl pb::lottery::lottery::lottery_service_server::LotteryService for Service {
     ) -> Resp<pb::lottery::lottery::GetResponse> {
         let mut conn = self.db.get_conn()?;
         let lottery = dao::lottery::query_by_id(&mut conn, request.into_inner().id)?;
-        Ok(Response::new(pb::lottery::lottery::GetResponse {
+        pb::lottery::lottery::GetResponse {
             lottery: Some(lottery),
-        }))
+        }
+        .to_resp()
     }
 
     async fn create(
@@ -47,9 +53,10 @@ impl pb::lottery::lottery::lottery_service_server::LotteryService for Service {
         let lottery = request.into_inner().lottery.ok_or_invalid()?;
         let mut conn = self.db.get_conn()?;
         let lottery = dao::lottery::insert(&mut conn, lottery)?;
-        Ok(Response::new(pb::lottery::lottery::CreateResponse {
+        pb::lottery::lottery::CreateResponse {
             lottery: Some(lottery),
-        }))
+        }
+        .to_resp()
     }
 
     async fn update(
@@ -60,9 +67,10 @@ impl pb::lottery::lottery::lottery_service_server::LotteryService for Service {
         let lottery = lottery.ok_or_invalid()?;
         let mut conn = self.db.get_conn()?;
         let lottery = dao::lottery::update_by_id(&mut conn, id, lottery)?;
-        Ok(Response::new(pb::lottery::lottery::UpdateResponse {
+        pb::lottery::lottery::UpdateResponse {
             lottery: Some(lottery),
-        }))
+        }
+        .to_resp()
     }
 
     async fn delete(
@@ -72,6 +80,6 @@ impl pb::lottery::lottery::lottery_service_server::LotteryService for Service {
         let mut conn = self.db.get_conn()?;
         let id = request.into_inner().id;
         dao::lottery::delete_by_id(&mut conn, id)?;
-        Ok(Response::new(pb::lottery::lottery::DeleteResponse {}))
+        pb::lottery::lottery::DeleteResponse {}.to_resp()
     }
 }

@@ -1,7 +1,10 @@
 use std::str;
 
 use async_trait::async_trait;
-use empty_utils::{errors::Error, tonic::Resp};
+use empty_utils::{
+    errors::Error,
+    tonic::{Resp, ToResp},
+};
 use tonic::{Request, Response};
 
 use proto::pb;
@@ -40,6 +43,6 @@ impl pb::wx::wx::wx_service_server::WxService for Service {
             },
         };
         log::info!("wx response: {:?}", res);
-        Ok(Response::new(res))
+        res.to_resp()
     }
 }

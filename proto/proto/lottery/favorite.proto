@@ -81,7 +81,8 @@ message FavoriteWithLottery {
 }
 
 message ListRequest {
-  utils.paginate.Paginate paginate = 1;
+  string user_id = 1;
+  utils.paginate.Paginate paginate = 2;
 }
 message ListResponse {
   repeated FavoriteWithLottery favorites = 1;
@@ -92,14 +93,14 @@ message GetRequest {
   int32 id = 1;
 }
 message GetResponse {
-  Favorite favorite = 1;
+  FavoriteWithLottery favorite = 1;
 }
 
 message CreateRequest {
   NewFavorite favorite = 1;
 }
 message CreateResponse {
-  Favorite favorite = 1;
+  FavoriteWithLottery favorite = 1;
 }
 
 message UpdateRequest {
@@ -107,7 +108,7 @@ message UpdateRequest {
   NewFavorite favorite = 2;
 }
 message UpdateResponse {
-  Favorite favorite = 1;
+  FavoriteWithLottery favorite = 1;
 }
 
 message DeleteRequest {

@@ -1,4 +1,8 @@
-use empty_utils::{diesel::db, errors::Error, tonic::Resp};
+use empty_utils::{
+    diesel::db,
+    errors::Error,
+    tonic::{Resp, ToResp},
+};
 use tonic::{Request, Response};
 
 use crate::dao;
@@ -27,10 +31,7 @@ impl pb::blog::blog::blog_service_server::BlogService for Service {
         log::debug!("get conn");
         let (blogs, paginated) = dao::query_list(&mut conn, request.into_inner()).await?;
         log::debug!("get blogs");
-        Ok(Response::new(pb::blog::blog::ListResponse {
-            blogs,
-            paginated,
-        }))
+        pb::blog::blog::ListResponse { blogs, paginated }.to_resp()
     }
 
     async fn get(
@@ -39,9 +40,7 @@ impl pb::blog::blog::blog_service_server::BlogService for Service {
     ) -> Resp<pb::blog::blog::GetResponse> {
         let mut conn = self.db.get_conn()?;
         let blog = dao::query_by_id(&mut conn, request.into_inner().id).await?;
-        Ok(Response::new(pb::blog::blog::GetResponse {
-            blog: Some(blog),
-        }))
+        pb::blog::blog::GetResponse { blog: Some(blog) }.to_resp()
     }
 
     async fn create(
@@ -54,9 +53,7 @@ impl pb::blog::blog::blog_service_server::BlogService for Service {
             .blog
             .ok_or_else(|| Error::StatusError(tonic::Status::data_loss("no blog")))?;
         let blog = dao::insert(&mut conn, blog).await?;
-        Ok(Response::new(pb::blog::blog::CreateResponse {
-            blog: Some(blog),
-        }))
+        pb::blog::blog::CreateResponse { blog: Some(blog) }.to_resp()
     }
 
     async fn update(
@@ -67,9 +64,7 @@ impl pb::blog::blog::blog_service_server::BlogService for Service {
         let pb::blog::blog::UpdateRequest { id, blog } = request.into_inner();
         let blog = blog.ok_or_else(|| Error::StatusError(tonic::Status::data_loss("no blog")))?;
         let blog = dao::update_by_id(&mut conn, id, blog).await?;
-        Ok(Response::new(pb::blog::blog::UpdateResponse {
-            blog: Some(blog),
-        }))
+        pb::blog::blog::UpdateResponse { blog: Some(blog) }.to_resp()
     }
 
     async fn delete(
@@ -79,6 +74,6 @@ impl pb::blog::blog::blog_service_server::BlogService for Service {
         let mut conn = self.db.get_conn()?;
         let id = request.into_inner().id;
         dao::delete_by_id(&mut conn, id).await?;
-        Ok(Response::new(pb::blog::blog::DeleteResponse {}))
+        pb::blog::blog::DeleteResponse {}.to_resp()
     }
 }

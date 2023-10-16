@@ -148,8 +148,7 @@ pub fn update_by_id(
             .filter(schema::lottery::record_remarks::record_id.eq(id)),
     )
     .execute(conn)?;
-    let record = diesel::update(schema::lottery::records::table)
-        .filter(schema::lottery::records::dsl::id.eq(id))
+    let record = diesel::update(schema::lottery::records::table.find(id))
         .set(record)
         .get_result::<pb::lottery::record::RecordInfo>(conn)?;
     let record = insert_record_remarks(conn, record, record_remarks)?;

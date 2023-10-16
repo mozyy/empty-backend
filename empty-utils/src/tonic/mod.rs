@@ -34,10 +34,22 @@ impl<T> From<Response<T>> for Resp<T> {
 pub trait ToResp<T> {
     fn to_resp(self) -> Resp<T>;
 }
-impl<T> ToResp<T> for Result<T> {
+impl<T> ToResp<T> for Result<T>
+where
+    T: prost::Message,
+{
     fn to_resp(self) -> Resp<T> {
         let resp = self?;
         Ok(tonic::Response::new(resp))
+    }
+}
+
+impl<T> ToResp<T> for T
+where
+    T: prost::Message,
+{
+    fn to_resp(self) -> Resp<T> {
+        Ok(tonic::Response::new(self))
     }
 }
 // impl<T> std::ops::Try for Response<T> {

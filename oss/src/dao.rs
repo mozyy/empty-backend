@@ -38,8 +38,7 @@ pub fn update_by_id(
     id: i32,
     oss: pb::oss::oss::NewOss,
 ) -> Result<pb::oss::oss::Oss> {
-    let oss = diesel::update(schema::oss::oss::table)
-        .filter(schema::oss::oss::dsl::id.eq(id))
+    let oss = diesel::update(schema::oss::oss::table.find(id))
         .set(oss)
         .get_result::<pb::oss::oss::Oss>(conn)?;
     Ok(oss)

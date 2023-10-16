@@ -22,7 +22,7 @@ async fn main() -> Result {
     log::info!("start ...");
     let (auth, auth_state) = auth::get_service().await?;
     let blog = blog::get_service();
-    let (lottery, lottery_record) = lottery::get_service();
+    let (lottery, lottery_record, lottery_favorite, lottery_template) = lottery::get_service();
     let oss = oss::get_service();
     let (wx, wx_user) = wx::get_service();
     server()
@@ -32,6 +32,8 @@ async fn main() -> Result {
         .add_service(blog)
         .add_service(lottery)
         .add_service(lottery_record)
+        .add_service(lottery_favorite)
+        .add_service(lottery_template)
         // .add_service(oauth)
         .add_service(oss)
         .add_service(wx)

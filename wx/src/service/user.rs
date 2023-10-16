@@ -3,7 +3,7 @@ use config::ADDR_CLIENT;
 use empty_utils::{
     diesel::db,
     errors::{Error, ErrorConvert},
-    tonic::Resp,
+    tonic::{Resp, ToResp},
 };
 use tonic::{Request, Response};
 use uuid::Uuid;
@@ -40,7 +40,7 @@ impl pb::wx::user::user_service_server::UserService for Service {
         log::debug!("get conn");
         let wx_users = model::query_list(&mut conn)?;
         log::debug!("get blogs");
-        Ok(Response::new(pb::wx::user::ListResponse { wx_users }))
+        pb::wx::user::ListResponse { wx_users }.to_resp()
     }
 
     async fn get(
@@ -51,9 +51,10 @@ impl pb::wx::user::user_service_server::UserService for Service {
         let id = request.into_inner().id;
         let id = Uuid::parse_str(&id).ok_or_invalid()?;
         let wx_user = model::query_by_id(&mut conn, id)?;
-        Ok(Response::new(pb::wx::user::GetResponse {
+        pb::wx::user::GetResponse {
             wx_user: Some(wx_user),
-        }))
+        }
+        .to_resp()
     }
     async fn get_by_user_id(
         &self,
@@ -63,9 +64,10 @@ impl pb::wx::user::user_service_server::UserService for Service {
         let user_id = request.into_inner().user_id;
         let user_id = Uuid::parse_str(&user_id).ok_or_invalid()?;
         let wx_user = model::query_by_user_id(&mut conn, user_id)?;
-        Ok(Response::new(pb::wx::user::GetByUserIdResponse {
+        pb::wx::user::GetByUserIdResponse {
             wx_user: Some(wx_user),
-        }))
+        }
+        .to_resp()
     }
 
     async fn create(
@@ -75,9 +77,10 @@ impl pb::wx::user::user_service_server::UserService for Service {
         let mut conn = self.db.get_conn()?;
         let wx_user = request.into_inner().wx_user.ok_or_invalid()?;
         let wx_user = model::insert(&mut conn, wx_user)?;
-        Ok(Response::new(pb::wx::user::CreateResponse {
+        pb::wx::user::CreateResponse {
             wx_user: Some(wx_user),
-        }))
+        }
+        .to_resp()
     }
 
     async fn update(
@@ -89,9 +92,10 @@ impl pb::wx::user::user_service_server::UserService for Service {
         let id = Uuid::parse_str(&id).ok_or_invalid()?;
         let wx_user = wx_user.ok_or_invalid()?;
         let wx_user = model::update_by_id(&mut conn, id, wx_user)?;
-        Ok(Response::new(pb::wx::user::UpdateResponse {
+        pb::wx::user::UpdateResponse {
             wx_user: Some(wx_user),
-        }))
+        }
+        .to_resp()
     }
 
     async fn delete(
@@ -102,7 +106,7 @@ impl pb::wx::user::user_service_server::UserService for Service {
         let id = request.into_inner().id;
         let id = Uuid::parse_str(&id).ok_or_invalid()?;
         model::delete_by_id(&mut conn, id)?;
-        Ok(Response::new(pb::wx::user::DeleteResponse {}))
+        pb::wx::user::DeleteResponse {}.to_resp()
     }
     async fn login(
         &self,
@@ -159,7 +163,7 @@ impl pb::wx::user::user_service_server::UserService for Service {
                 (res.token, res.user)
             }
         };
-        Ok(Response::new(pb::wx::user::LoginResponse { token, user }))
+        pb::wx::user::LoginResponse { token, user }.to_resp()
     }
     async fn info(
         &self,

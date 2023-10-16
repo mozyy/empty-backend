@@ -158,8 +158,7 @@ pub fn update_by_id(
         items,
         remarks,
     } = lottery;
-    let lottery = diesel::update(schema::lottery::lotterys::table)
-        .filter(schema::lottery::lotterys::dsl::id.eq(id))
+    let lottery = diesel::update(schema::lottery::lotterys::table.find(id))
         .set(lottery)
         .get_result::<pb::lottery::lottery::LotteryInfo>(conn)?;
     let lottery = insert_items_remarks(conn, lottery, items, remarks)?;
