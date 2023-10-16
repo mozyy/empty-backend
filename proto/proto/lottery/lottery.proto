@@ -116,7 +116,7 @@ message Lottery {
   repeated Remark remarks = 3;
 }
 message LotteryQuery {
-  optional int32 id = 1; // id
+  repeated int32 ids = 1; // id
   optional string user_id = 2; // id
 }
 

@@ -14,14 +14,6 @@ impl Service {
     }
 }
 
-impl Default for Service {
-    fn default() -> Self {
-        Self {
-            db: db::DbPool::new("lottery_v2"),
-        }
-    }
-}
-
 #[tonic::async_trait]
 impl pb::lottery::lottery::lottery_service_server::LotteryService for Service {
     async fn list(

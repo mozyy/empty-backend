@@ -1,11 +1,6 @@
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let build_config = tonic_build::configure()
     // lottery
-    // .type_attribute(
-    //     "lottery.Item",
-    //     "#[derive(::diesel::FromSqlRow, ::diesel::AsExpression)]
-    //     #[diesel(sql_type = ::lottery::schema::sql_types::Item)]",
-    // )
     .type_attribute(
         "lottery.lottery.Item",
         "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable, ::diesel::prelude::Associations)]
@@ -79,6 +74,36 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     )
     .field_attribute(
         "lottery.record.NewRecordInfo.user_id",
+        "#[diesel(serialize_as = ::empty_utils::tonic::uuid::Uuid)]",
+    )
+    // template
+    .type_attribute(
+        "lottery.template.Template",
+        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Associations, ::diesel::prelude::Selectable)]
+        #[diesel(table_name=crate::schema::lottery::templates, belongs_to(crate::pb::lottery::lottery::LotteryInfo, foreign_key = lottery_id))]",
+    )
+    .type_attribute(
+        "lottery.template.NewTemplate",
+        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
+        #[diesel(table_name=crate::schema::lottery::templates)]",
+    )
+    // favorite
+    .type_attribute(
+        "lottery.favorite.Favorite",
+        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Associations, ::diesel::prelude::Selectable)]
+        #[diesel(table_name=crate::schema::lottery::favorites, belongs_to(crate::pb::auth::auth::User), belongs_to(crate::pb::lottery::lottery::LotteryInfo, foreign_key = lottery_id))]",
+    )
+    .type_attribute(
+        "lottery.favorite.NewFavorite",
+        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset, ::diesel::prelude::Associations)]
+        #[diesel(table_name=crate::schema::lottery::favorites, belongs_to(crate::pb::auth::auth::User))]",
+    )
+    .field_attribute(
+        "lottery.favorite.Favorite.user_id",
+        "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
+    )
+    .field_attribute(
+        "lottery.favorite.NewFavorite.user_id",
         "#[diesel(serialize_as = ::empty_utils::tonic::uuid::Uuid)]",
     )
 
@@ -231,6 +256,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             &[
                 "./proto/lottery/lottery.proto",
                 "./proto/lottery/record.proto",
+                "./proto/lottery/template.proto",
+                "./proto/lottery/favorite.proto",
                 "./proto/auth/auth.proto",
                 "./proto/auth/auth.proto",
                 "./proto/wx/wx.proto",

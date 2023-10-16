@@ -1,6 +1,16 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
+    favorites (id) {
+        id -> Int4,
+        user_id -> Uuid,
+        lottery_id -> Int4,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     items (id) {
         id -> Int4,
         lottery_id -> Int4,
@@ -57,11 +67,30 @@ diesel::table! {
     }
 }
 
+diesel::table! {
+    templates (id) {
+        id -> Int4,
+        lottery_id -> Int4,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::joinable!(favorites -> lotterys (lottery_id));
 diesel::joinable!(items -> lotterys (lottery_id));
 diesel::joinable!(record_remarks -> records (record_id));
 diesel::joinable!(record_remarks -> remarks (remark_id));
 diesel::joinable!(records -> items (item_id));
 diesel::joinable!(records -> lotterys (lottery_id));
 diesel::joinable!(remarks -> lotterys (lottery_id));
+diesel::joinable!(templates -> lotterys (lottery_id));
 
-diesel::allow_tables_to_appear_in_same_query!(items, lotterys, record_remarks, records, remarks,);
+diesel::allow_tables_to_appear_in_same_query!(
+    favorites,
+    items,
+    lotterys,
+    record_remarks,
+    records,
+    remarks,
+    templates,
+);

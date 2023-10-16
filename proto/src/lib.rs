@@ -18,6 +18,12 @@ pub mod pb {
         pub mod record {
             tonic::include_proto!("lottery.record");
         }
+        pub mod template {
+            tonic::include_proto!("lottery.template");
+        }
+        pub mod favorite {
+            tonic::include_proto!("lottery.favorite");
+        }
     }
     pub mod wx {
         pub mod wx {

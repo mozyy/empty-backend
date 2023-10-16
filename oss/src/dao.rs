@@ -22,6 +22,7 @@ pub fn query_by_id(conn: &mut PgConnection, id: i32) -> Result<pb::oss::oss::Oss
     let oss = schema::oss::oss::table
         .find(id)
         .first::<pb::oss::oss::Oss>(conn)?;
+    log::info!("oss: {:?}", oss);
     Ok(oss)
 }
 

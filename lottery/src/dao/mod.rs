@@ -1,2 +1,4 @@
-pub(crate) mod lottery;
-pub(crate) mod record;
+pub mod favorite;
+pub mod lottery;
+pub mod record;
+pub mod template;

@@ -13,6 +13,8 @@ use tower_http::{
     trace::TraceLayer,
 };
 
+use crate::errors::Result;
+
 pub type Resp<T> = core::result::Result<tonic::Response<T>, tonic::Status>;
 
 pub struct Response<T>(pub T);
@@ -26,6 +28,16 @@ impl<T> Response<T> {
 impl<T> From<Response<T>> for Resp<T> {
     fn from(value: Response<T>) -> Self {
         Ok(tonic::Response::new(value.0))
+    }
+}
+
+pub trait ToResp<T> {
+    fn to_resp(self) -> Resp<T>;
+}
+impl<T> ToResp<T> for Result<T> {
+    fn to_resp(self) -> Resp<T> {
+        let resp = self?;
+        Ok(tonic::Response::new(resp))
     }
 }
 // impl<T> std::ops::Try for Response<T> {
