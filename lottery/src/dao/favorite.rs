@@ -17,6 +17,7 @@ pub fn query_list(
     let user_id = request.user_id.parse::<Uuid>().ok_or_invalid()?;
     let (favorites, paginated) = schema::lottery::favorites::table
         .filter(schema::lottery::favorites::user_id.eq(user_id))
+        .order(schema::lottery::favorites::id.desc())
         .paginate(request.paginate)
         .load_and_paginated::<pb::lottery::favorite::Favorite>(conn)?;
     let fovorite_ids = favorites.iter().map(|f| f.lottery_id).collect::<Vec<_>>();
@@ -29,7 +30,7 @@ pub fn query_list(
     let favorites = favorites
         .into_iter()
         .map(|f| {
-            let lottery = lotterys.get(&f.id.clone()).cloned();
+            let lottery = lotterys.get(&f.lottery_id.clone()).cloned();
             pb::lottery::favorite::FavoriteWithLottery {
                 favorite: Some(f),
                 lottery,
@@ -51,6 +52,16 @@ pub fn query_by_id(
         favorite: Some(favorite),
         lottery: Some(lottery),
     })
+}
+
+pub fn query_by_lottery_id(
+    conn: &mut PgConnection,
+    lottery_id: i32,
+) -> Result<pb::lottery::favorite::Favorite> {
+    let favorite = schema::lottery::favorites::table
+        .filter(schema::lottery::favorites::lottery_id.eq(lottery_id))
+        .first::<pb::lottery::favorite::Favorite>(conn)?;
+    Ok(favorite)
 }
 
 pub fn insert(

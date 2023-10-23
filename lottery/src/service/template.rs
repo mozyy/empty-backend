@@ -45,6 +45,18 @@ impl pb::lottery::template::template_service_server::TemplateService for Service
         }
         .to_resp()
     }
+    async fn get_by_lottery_id(
+        &self,
+        request: Request<pb::lottery::template::GetByLotteryIdRequest>,
+    ) -> Resp<pb::lottery::template::GetByLotteryIdResponse> {
+        let lottery_id = request.into_inner().lottery_id;
+        let mut conn = self.db.get_conn()?;
+        let template = dao::template::query_by_lottery_id(&mut conn, lottery_id).ok();
+        pb::lottery::template::GetByLotteryIdResponse {
+            template,
+        }
+        .to_resp()
+    }
     async fn create(
         &self,
         request: Request<pb::lottery::template::CreateRequest>,

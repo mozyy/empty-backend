@@ -45,6 +45,11 @@ service TemplateService {
       get: "/lottery.template.TemplateService/templates/{id}"
     };
   }
+  rpc GetByLotteryId(GetByLotteryIdRequest) returns (GetByLotteryIdResponse) {
+    option (google.api.http) = {
+      get: "/lottery.favorite.TemplateService/templates/lotterys/{lottery_id}"
+    };
+  }
   rpc Create(CreateRequest) returns (CreateResponse) {
     option (google.api.http) = {
       post: "/lottery.template.TemplateService/templates",
@@ -106,6 +111,13 @@ message GetRequest {
 }
 message GetResponse {
   TemplateWithLottery template = 1;
+}
+
+message GetByLotteryIdRequest {
+  int32 lottery_id = 1;
+}
+message GetByLotteryIdResponse {
+  Template template = 1;
 }
 
 message CreateRequest {

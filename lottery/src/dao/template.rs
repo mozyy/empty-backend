@@ -16,7 +16,7 @@ pub fn query_list(
     Option<pb::utils::paginate::Paginated>,
 )> {
     let (templates, paginated) = schema::lottery::templates::table
-        .into_boxed()
+        .order(schema::lottery::templates::id.desc())
         .paginate(request.paginate)
         .load_and_paginated::<pb::lottery::template::Template>(conn)?;
     let fovorite_ids = templates.iter().map(|f| f.lottery_id).collect::<Vec<_>>();
@@ -29,7 +29,7 @@ pub fn query_list(
     let templates = templates
         .into_iter()
         .map(|f| {
-            let lottery = lotterys.get(&f.id.clone()).cloned();
+            let lottery = lotterys.get(&f.lottery_id.clone()).cloned();
             pb::lottery::template::TemplateWithLottery {
                 template: Some(f),
                 lottery,
@@ -51,6 +51,16 @@ pub fn query_by_id(
         template: Some(template),
         lottery: Some(lottery),
     })
+}
+
+pub fn query_by_lottery_id(
+    conn: &mut PgConnection,
+    lottery_id: i32,
+) -> Result<pb::lottery::template::Template> {
+    let template = schema::lottery::templates::table
+        .filter(schema::lottery::templates::lottery_id.eq(lottery_id))
+        .first::<pb::lottery::template::Template>(conn)?;
+    Ok(template)
 }
 
 pub fn insert(

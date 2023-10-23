@@ -56,6 +56,7 @@ pub fn query_list(
     }
 
     let (records, paginated) = filter
+        .order(schema::lottery::records::id.desc())
         .paginate(request.paginate)
         .load_and_paginated::<pb::lottery::record::RecordInfo>(conn)?;
     let records = query_records(conn, records)?;
@@ -79,7 +80,9 @@ pub fn query_list_by_record(
         }
     }
 
-    let records = filter.get_results::<pb::lottery::record::RecordInfo>(conn)?;
+    let records = filter
+    .order(schema::lottery::records::id.desc())
+    .get_results::<pb::lottery::record::RecordInfo>(conn)?;
     let records = query_records(conn, records)?;
     Ok(records)
 }

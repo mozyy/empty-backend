@@ -1,4 +1,5 @@
 use chrono::Utc;
+use diesel::dsl::now;
 use diesel::prelude::*;
 use empty_utils::errors::{ErrorConvert, Result};
 use proto::pb;
@@ -35,4 +36,10 @@ pub fn insert(
         .values(resource)
         .get_result(conn)?;
     Ok(resource)
+}
+
+pub fn delete_invalid(conn: &mut PgConnection) -> Result<()> {
+    diesel::delete(schema::auth::resources::table.filter(schema::auth::resources::until.le(now)))
+        .execute(conn)?;
+    Ok(())
 }

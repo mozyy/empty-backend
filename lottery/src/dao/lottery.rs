@@ -50,6 +50,7 @@ pub fn query_list(
     }
 
     let (lotterys, paginated) = filter
+        .order(schema::lottery::lotterys::id.desc())
         .paginate(request.paginate)
         .load_and_paginated::<pb::lottery::lottery::LotteryInfo>(conn)?;
     let lotterys = query_lottery(conn, lotterys)?;

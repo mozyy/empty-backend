@@ -45,6 +45,11 @@ service FavoriteService {
       get: "/lottery.favorite.FavoriteService/favorites/{id}"
     };
   }
+  rpc GetByLotteryId(GetByLotteryIdRequest) returns (GetByLotteryIdResponse) {
+    option (google.api.http) = {
+      get: "/lottery.favorite.FavoriteService/favorites/lotterys/{lottery_id}"
+    };
+  }
   rpc Create(CreateRequest) returns (CreateResponse) {
     option (google.api.http) = {
       post: "/lottery.favorite.FavoriteService/favorites",
@@ -94,6 +99,13 @@ message GetRequest {
 }
 message GetResponse {
   FavoriteWithLottery favorite = 1;
+}
+
+message GetByLotteryIdRequest {
+  int32 lottery_id = 1;
+}
+message GetByLotteryIdResponse {
+  Favorite favorite = 1;
 }
 
 message CreateRequest {

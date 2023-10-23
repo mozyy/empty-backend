@@ -33,6 +33,7 @@ impl Service {
             configs: Arc::new(Mutex::new(vec![])),
         };
         value.refresh_configs().await?;
+        value.pure_resources()?;
         value.refresh_resources().await?;
         Ok(value)
     }
@@ -49,10 +50,16 @@ impl Service {
         *value = configs;
         Ok(())
     }
+    pub fn pure_resources(&self) -> Result {
+        let mut conn = self.db.get_conn()?;
+        dao::resource::delete_invalid(&mut conn)?;
+        Ok(())
+    }
     pub async fn refresh_resources(&self) -> Result {
         let mut conn = self.db.get_conn()?;
-        let resources = dao::resource::query_all(&mut conn)?.try_into()?;
-        log::info!("resources: {:?}", &resources);
+        let resources: model::resource::Resource =
+            dao::resource::query_all(&mut conn)?.try_into()?;
+        log::info!("resources length: {:?}", &resources.len());
         let mut value = self.resources.lock().await;
         *value = resources;
         Ok(())

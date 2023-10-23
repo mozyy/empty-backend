@@ -155,7 +155,7 @@ impl pb::wx::user::user_service_server::UserService for Service {
                     openid: resp.openid,
                     unionid: resp.unionid,
                     session_key: resp.session_key,
-                    name: String::from("user name"),
+                    name: String::from(""),
                     avatar: None,
                     mobile: None,
                 };
