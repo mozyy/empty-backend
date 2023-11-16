@@ -181,6 +181,26 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         #[diesel(sql_type=crate::schema::auth::sql_types::Pattern)]",
     )
 
+    // websocket
+    .type_attribute(
+        "websocket.client.User",
+        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable, ::diesel::prelude::Associations)]
+        #[diesel(table_name=crate::schema::websocket::users, belongs_to(crate::pb::auth::auth::User))]",
+    )
+    .type_attribute(
+        "websocket.client.NewUser",
+        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset, ::diesel::prelude::Associations)]
+        #[diesel(table_name=crate::schema::websocket::users, belongs_to(crate::pb::auth::auth::User))]",
+    )
+    .field_attribute(
+        "websocket.client.User.user_id",
+        "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
+    )
+    .field_attribute(
+        "websocket.client.NewUser.user_id",
+        "#[diesel(serialize_as = ::empty_utils::tonic::uuid::Uuid)]",
+    )
+
     // wx
     .type_attribute(
         "wx.wx.SnsJscode2sessionRequest",
@@ -260,6 +280,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 "./proto/lottery/favorite.proto",
                 "./proto/auth/auth.proto",
                 "./proto/auth/auth.proto",
+                "./proto/websocket/client.proto",
                 "./proto/wx/wx.proto",
                 "./proto/wx/user.proto",
                 "./proto/blog/blog.proto",

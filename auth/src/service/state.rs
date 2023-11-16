@@ -69,7 +69,10 @@ impl Service {
     }
     pub async fn get_client(&self) -> Result<pb::auth::auth::Client> {
         let mut conn = self.db.get_conn()?;
-        let client = dao::client::query_by_id(&mut conn, String::from("f2e69885-951a-4538-b0c8-67385f0c1420"))?;
+        let client = dao::client::query_by_id(
+            &mut conn,
+            String::from("f2e69885-951a-4538-b0c8-67385f0c1420"),
+        )?;
         Ok(client)
     }
     pub async fn get_resource_by_access_token(

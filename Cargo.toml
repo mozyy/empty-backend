@@ -18,6 +18,7 @@ members = [
     "wx",
     "app",
     "oss",
+    "websocket",
 ]
 
 [workspace.dependencies]
@@ -84,6 +85,7 @@ walkdir = "2.4"
 cargo_toml = "0.17"
 toml = "0.8"
 tokio-stream = "0.1"
+tokio-tungstenite = "*"
 
 empty-registry = { path="empty-registry" }
 empty-utils = {path = "empty-utils"}
@@ -96,6 +98,7 @@ config = { path="config" }
 wx = { path="wx" }
 oss = { path="oss" }
 auth = { path="auth" }
+websocket = { path="websocket" }
 
 # micro
 syn = "2.0"

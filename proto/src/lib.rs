@@ -25,6 +25,11 @@ pub mod pb {
             tonic::include_proto!("lottery.favorite");
         }
     }
+    pub mod websocket {
+        pub mod client {
+            tonic::include_proto!("websocket.client");
+        }
+    }
     pub mod wx {
         pub mod wx {
             tonic::include_proto!("wx.wx");

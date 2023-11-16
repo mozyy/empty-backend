@@ -81,8 +81,8 @@ pub fn query_list_by_record(
     }
 
     let records = filter
-    .order(schema::lottery::records::id.desc())
-    .get_results::<pb::lottery::record::RecordInfo>(conn)?;
+        .order(schema::lottery::records::id.desc())
+        .get_results::<pb::lottery::record::RecordInfo>(conn)?;
     let records = query_records(conn, records)?;
     Ok(records)
 }

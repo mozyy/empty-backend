@@ -52,10 +52,7 @@ impl pb::lottery::favorite::favorite_service_server::FavoriteService for Service
         let lottery_id = request.into_inner().lottery_id;
         let mut conn = self.db.get_conn()?;
         let favorite = dao::favorite::query_by_lottery_id(&mut conn, lottery_id).ok();
-        pb::lottery::favorite::GetByLotteryIdResponse {
-            favorite,
-        }
-        .to_resp()
+        pb::lottery::favorite::GetByLotteryIdResponse { favorite }.to_resp()
     }
     async fn create(
         &self,

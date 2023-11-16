@@ -1,0 +1,107 @@
+syntax = "proto3";
+
+package websocket.client;
+
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+import "auth/auth.proto";
+
+option go_package = "websocket.client";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  schemes: HTTPS;
+  host: "api.zuoyinyun.com";
+};
+
+service ClientService {
+  rpc ListUser(ListUserRequest) returns (ListUserResponse) {
+    option (google.api.http) = {
+      get: "/websocket.client.ClientService/users"
+    };
+  }
+  rpc GetUser(GetUserRequest) returns (GetUserResponse) {
+    option (google.api.http) = {
+      get: "/websocket.client.ClientService/users/{id}"
+    };
+  }
+  rpc GetUserByUserId(GetUserByUserIdRequest) returns (GetUserByUserIdResponse) {
+    option (google.api.http) = {
+      get: "/websocket.client.ClientService/users/userId/{user_id}"
+    };
+  }
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
+    option (google.api.http) = {
+      post: "/websocket.client.ClientService/users",
+      body: "*"
+    };
+  }
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {
+    option (google.api.http) = {
+      put: "/websocket.client.ClientService/users/{id}",
+      body: "*"
+    };
+  }
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {
+    option (google.api.http) = {
+      delete: "/websocket.client.ClientService/users/{id}",
+    };
+  }
+}
+
+
+// user client item
+message User {
+  int32 id = 1;
+  string addr = 2; // websocket client addr
+  string user_id = 3; // websocket bind user
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+}
+
+message NewUser {
+  string addr = 1;
+  string user_id = 2;
+}
+
+message ListUserRequest {}
+message ListUserResponse {
+  repeated User users = 1;
+}
+
+message GetUserRequest {
+  int32 id = 1;
+}
+message GetUserResponse {
+  User user = 1;
+}
+message GetUserByUserIdRequest {
+  string user_id = 1;
+}
+message GetUserByUserIdResponse {
+  User user = 1;
+}
+
+message CreateUserRequest {
+  NewUser user = 1;
+}
+message CreateUserResponse {
+  User user = 1;
+}
+
+message UpdateUserRequest {
+  int32 id = 1;
+  NewUser user = 2;
+}
+message UpdateUserResponse {
+  User user = 1;
+}
+
+message DeleteUserRequest {
+  int32 id = 1;
+}
+message DeleteUserResponse {
+}
+
