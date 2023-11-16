@@ -70,18 +70,18 @@ oxide-auth-axum = "0.3"
 axum-macros = "0.3"
 url = "2.4"
 
-prost-wkt = "0.4"
-prost-wkt-types = "0.4"
+prost-wkt = "0.5"
+prost-wkt-types = "0.5"
 
 # rustful
 axum = { version = "0.6", features = ["http2"] }
 actix-web = "4.4"
-utoipa = {version = "3.5", features = ["axum_extras", "yaml"] }
-utoipa-swagger-ui ={version =  "3.1", features = ["axum"] }
+utoipa = {version = "4.0", features = ["axum_extras", "yaml"] }
+utoipa-swagger-ui ={version =  "4.0", features = ["axum"] }
 
 clap = { version = "4.4" }
 walkdir = "2.4"
-cargo_toml = "0.16"
+cargo_toml = "0.17"
 toml = "0.8"
 tokio-stream = "0.1"
 

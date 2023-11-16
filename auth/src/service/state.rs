@@ -8,7 +8,7 @@ use futures_util::future::BoxFuture;
 use http::StatusCode;
 use hyper::{Request, Response};
 use proto::pb;
-use std::sync::Arc;
+use std::{sync::Arc, time::Instant};
 use tokio::sync::Mutex;
 use tonic::body::BoxBody;
 use tonic::codegen::empty_body;
@@ -35,6 +35,9 @@ impl Service {
         value.refresh_configs().await?;
         value.pure_resources()?;
         value.refresh_resources().await?;
+        let now = Instant::now();
+        let _client = value.get_client().await?;
+        log::info!("get client time: {:?}", now.elapsed());
         Ok(value)
     }
     pub async fn refresh_configs(&self) -> Result {
@@ -63,6 +66,11 @@ impl Service {
         let mut value = self.resources.lock().await;
         *value = resources;
         Ok(())
+    }
+    pub async fn get_client(&self) -> Result<pb::auth::auth::Client> {
+        let mut conn = self.db.get_conn()?;
+        let client = dao::client::query_by_id(&mut conn, String::from("f2e69885-951a-4538-b0c8-67385f0c1420"))?;
+        Ok(client)
     }
     pub async fn get_resource_by_access_token(
         &self,

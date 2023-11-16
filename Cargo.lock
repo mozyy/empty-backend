@@ -415,8 +415,8 @@ dependencies = [
  "http",
  "hyper",
  "log",
- "prost 0.12.1",
- "prost-types 0.12.1",
+ "prost",
+ "prost-types",
  "proto",
  "rand",
  "regex",
@@ -571,8 +571,8 @@ dependencies = [
  "dotenvy",
  "empty-utils",
  "log",
- "prost 0.12.1",
- "prost-types 0.12.1",
+ "prost",
+ "prost-types",
  "prost-wkt-types",
  "proto",
  "serde",
@@ -649,9 +649,9 @@ dependencies = [
 
 [[package]]
 name = "cargo_toml"
-version = "0.16.3"
+version = "0.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e3f9629bc6c4388ea699781dc988c2b99766d7679b151c81990b4fa1208fafd3"
+checksum = "6ca592ad99e6a0fd4b95153406138b997cc26ccd3cd0aecdfd4fbdbf1519bd77"
 dependencies = [
  "serde",
  "toml 0.8.1",
@@ -974,8 +974,8 @@ dependencies = [
  "hyper",
  "lazy_static",
  "log",
- "prost 0.12.1",
- "prost-types 0.12.1",
+ "prost",
+ "prost-types",
  "tokio",
  "tokio-stream",
  "tonic",
@@ -995,7 +995,7 @@ dependencies = [
  "empty-utils",
  "hyper",
  "log",
- "prost 0.12.1",
+ "prost",
  "rand",
  "tempfile",
  "tokio",
@@ -1016,8 +1016,8 @@ dependencies = [
  "empty-registry",
  "empty-utils",
  "log",
- "prost 0.12.1",
- "prost-types 0.12.1",
+ "prost",
+ "prost-types",
  "serde",
  "tokio",
  "tonic",
@@ -1040,8 +1040,8 @@ dependencies = [
  "log",
  "oxide-auth",
  "oxide-auth-axum",
- "prost 0.12.1",
- "prost-types 0.12.1",
+ "prost",
+ "prost-types",
  "serde",
  "thiserror",
  "toml 0.8.1",
@@ -1069,8 +1069,8 @@ dependencies = [
  "log",
  "oxide-auth",
  "oxide-auth-axum",
- "prost 0.12.1",
- "prost-types 0.12.1",
+ "prost",
+ "prost-types",
  "serde",
  "serde_json",
  "thiserror",
@@ -1886,8 +1886,8 @@ dependencies = [
  "oxide-auth",
  "oxide-auth-async",
  "oxide-auth-axum",
- "prost 0.12.1",
- "prost-types 0.12.1",
+ "prost",
+ "prost-types",
  "proto",
  "rand",
  "regex",
@@ -2128,8 +2128,8 @@ dependencies = [
  "oxide-auth",
  "oxide-auth-async",
  "oxide-auth-axum",
- "prost 0.12.1",
- "prost-types 0.12.1",
+ "prost",
+ "prost-types",
  "proto",
  "rand",
  "regex",
@@ -2306,16 +2306,6 @@ dependencies = [
 
 [[package]]
 name = "prettyplease"
-version = "0.1.25"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6c8646e95016a7a6c4adea95bafa8a16baab64b583356217f2c85db4a39d9a86"
-dependencies = [
- "proc-macro2 1.0.67",
- "syn 1.0.109",
-]
-
-[[package]]
-name = "prettyplease"
 version = "0.2.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ae005bd773ab59b4725093fd7df83fd7892f7d8eafb48dbd7de6e024e4215f9d"
@@ -2374,44 +2364,12 @@ dependencies = [
 
 [[package]]
 name = "prost"
-version = "0.11.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0b82eaa1d779e9a4bc1c3217db8ffbeabaae1dca241bf70183242128d48681cd"
-dependencies = [
- "bytes 1.5.0",
- "prost-derive 0.11.9",
-]
-
-[[package]]
-name = "prost"
 version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f4fdd22f3b9c31b53c060df4a0613a1c7f062d4115a2b984dd15b1858f7e340d"
 dependencies = [
  "bytes 1.5.0",
- "prost-derive 0.12.1",
-]
-
-[[package]]
-name = "prost-build"
-version = "0.11.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "119533552c9a7ffacc21e099c24a0ac8bb19c2a2a3f363de84cd9b844feab270"
-dependencies = [
- "bytes 1.5.0",
- "heck",
- "itertools 0.10.5",
- "lazy_static",
- "log",
- "multimap",
- "petgraph",
- "prettyplease 0.1.25",
- "prost 0.11.9",
- "prost-types 0.11.9",
- "regex",
- "syn 1.0.109",
- "tempfile",
- "which",
+ "prost-derive",
 ]
 
 [[package]]
@@ -2427,26 +2385,13 @@ dependencies = [
  "multimap",
  "once_cell",
  "petgraph",
- "prettyplease 0.2.15",
- "prost 0.12.1",
- "prost-types 0.12.1",
+ "prettyplease",
+ "prost",
+ "prost-types",
  "regex",
  "syn 2.0.37",
  "tempfile",
  "which",
-]
-
-[[package]]
-name = "prost-derive"
-version = "0.11.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e5d2d8d10f3c6ded6da8b05b5fb3b8a5082514344d56c9f871412d29b4e075b4"
-dependencies = [
- "anyhow",
- "itertools 0.10.5",
- "proc-macro2 1.0.67",
- "quote 1.0.33",
- "syn 1.0.109",
 ]
 
 [[package]]
@@ -2464,31 +2409,22 @@ dependencies = [
 
 [[package]]
 name = "prost-types"
-version = "0.11.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "213622a1460818959ac1181aaeb2dc9c7f63df720db7d788b3e24eacd1983e13"
-dependencies = [
- "prost 0.11.9",
-]
-
-[[package]]
-name = "prost-types"
 version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e081b29f63d83a4bc75cfc9f3fe424f9156cf92d8a4f0c9407cce9a1b67327cf"
 dependencies = [
- "prost 0.12.1",
+ "prost",
 ]
 
 [[package]]
 name = "prost-wkt"
-version = "0.4.2"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "562788060bcf2bfabe055194bd991ed2442457661744c88e0a0828ff9a08c08b"
+checksum = "4d8ef9c3f0f1dab910d2b7e2c24a8e4322e122eba6d7a1921eeebcebbc046c40"
 dependencies = [
  "chrono",
  "inventory",
- "prost 0.11.9",
+ "prost",
  "serde",
  "serde_derive",
  "serde_json",
@@ -2497,27 +2433,27 @@ dependencies = [
 
 [[package]]
 name = "prost-wkt-build"
-version = "0.4.2"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c4dca8bcead3b728a6a7da017cc95e7f4cb2320ec4f6896bc593a1c4700f7328"
+checksum = "5b31cae9a54ca84fee1504740a82eebf2479532905e106f63ca0c3bc8d780321"
 dependencies = [
  "heck",
- "prost 0.11.9",
- "prost-build 0.11.9",
- "prost-types 0.11.9",
+ "prost",
+ "prost-build",
+ "prost-types",
  "quote 1.0.33",
 ]
 
 [[package]]
 name = "prost-wkt-types"
-version = "0.4.2"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2377c5680f2342871823045052e791b4487f7c90aae17e0feaee24cf59578a34"
+checksum = "435be4a8704091b4c5fb1d79799de7f2dbff53af05edf29385237f8cf7ab37ee"
 dependencies = [
  "chrono",
- "prost 0.11.9",
- "prost-build 0.11.9",
- "prost-types 0.11.9",
+ "prost",
+ "prost-build",
+ "prost-types",
  "prost-wkt",
  "prost-wkt-build",
  "regex",
@@ -2536,8 +2472,8 @@ dependencies = [
  "empty-utils",
  "log",
  "oxide-auth",
- "prost 0.12.1",
- "prost-types 0.12.1",
+ "prost",
+ "prost-types",
  "prost-wkt",
  "prost-wkt-types",
  "rand",
@@ -2758,9 +2694,9 @@ dependencies = [
 
 [[package]]
 name = "rust-embed"
-version = "6.8.1"
+version = "8.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a36224c3276f8c4ebc8c20f158eca7ca4359c8db89991c4925132aaaf6702661"
+checksum = "b1e7d90385b59f0a6bf3d3b757f3ca4ece2048265d70db20a2016043d4509a40"
 dependencies = [
  "rust-embed-impl",
  "rust-embed-utils",
@@ -2769,9 +2705,9 @@ dependencies = [
 
 [[package]]
 name = "rust-embed-impl"
-version = "6.8.1"
+version = "8.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "49b94b81e5b2c284684141a2fb9e2a31be90638caf040bf9afbc5a0416afe1ac"
+checksum = "3c3d8c6fd84090ae348e63a84336b112b5c3918b3bf0493a581f7bd8ee623c29"
 dependencies = [
  "proc-macro2 1.0.67",
  "quote 1.0.33",
@@ -2783,9 +2719,9 @@ dependencies = [
 
 [[package]]
 name = "rust-embed-utils"
-version = "7.8.1"
+version = "8.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9d38ff6bf570dc3bb7100fce9f7b60c33fa71d80e88da3f2580df4ff2bdded74"
+checksum = "873feff8cb7bf86fdf0a71bb21c95159f4e4a37dd7a4bd1855a940909b583ada"
 dependencies = [
  "sha2",
  "walkdir",
@@ -3424,7 +3360,7 @@ dependencies = [
  "hyper-timeout",
  "percent-encoding 2.3.0",
  "pin-project",
- "prost 0.12.1",
+ "prost",
  "tokio",
  "tokio-stream",
  "tower",
@@ -3439,9 +3375,9 @@ version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c9d37bb15da06ae9bb945963066baca6561b505af93a52e949a85d28558459a2"
 dependencies = [
- "prettyplease 0.2.15",
+ "prettyplease",
  "proc-macro2 1.0.67",
- "prost-build 0.12.1",
+ "prost-build",
  "quote 1.0.33",
  "syn 2.0.37",
 ]
@@ -3453,7 +3389,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "85e0181bc19dca6407fcd0323b97e9f0867ce3b020be84661a5ade2821360387"
 dependencies = [
  "async-stream",
- "prost 0.12.1",
+ "prost",
  "tokio",
  "tokio-stream",
  "tonic",
@@ -3688,9 +3624,9 @@ checksum = "711b9620af191e0cdc7468a8d14e709c3dcdb115b36f838e601583af800a370a"
 
 [[package]]
 name = "utoipa"
-version = "3.5.0"
+version = "4.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d82b1bc5417102a73e8464c686eef947bdfb99fcdfc0a4f228e81afa9526470a"
+checksum = "6b208a50ff438dcdc887ea3f2db59530bd2f4bc3d2c70630e4d7ee7a281a1d1b"
 dependencies = [
  "indexmap 2.0.0",
  "serde",
@@ -3701,9 +3637,9 @@ dependencies = [
 
 [[package]]
 name = "utoipa-gen"
-version = "3.5.0"
+version = "4.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "05d96dcd6fc96f3df9b3280ef480770af1b7c5d14bc55192baa9b067976d920c"
+checksum = "0bd516d8879043e081537690bc96c8f17b5a4602c336aecb8f1de89d9d9c7e72"
 dependencies = [
  "proc-macro-error",
  "proc-macro2 1.0.67",
@@ -3715,9 +3651,9 @@ dependencies = [
 
 [[package]]
 name = "utoipa-swagger-ui"
-version = "3.1.5"
+version = "4.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "84614caa239fb25b2bb373a52859ffd94605ceb256eeb1d63436325cf81e3653"
+checksum = "154517adf0d0b6e22e8e1f385628f14fcaa3db43531dc74303d3edef89d6dfe5"
 dependencies = [
  "axum",
  "mime_guess",
@@ -4036,8 +3972,8 @@ dependencies = [
  "oxide-auth",
  "oxide-auth-async",
  "oxide-auth-axum",
- "prost 0.12.1",
- "prost-types 0.12.1",
+ "prost",
+ "prost-types",
  "proto",
  "regex",
  "reqwest",
