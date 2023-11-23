@@ -19,6 +19,7 @@ members = [
     "app",
     "oss",
     "websocket",
+    "user",
 ]
 
 [workspace.dependencies]

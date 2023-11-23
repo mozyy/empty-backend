@@ -3654,6 +3654,45 @@ dependencies = [
 ]
 
 [[package]]
+name = "user"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "axum",
+ "axum-macros",
+ "chrono",
+ "config",
+ "diesel",
+ "dotenvy",
+ "empty-utils",
+ "futures-util",
+ "http",
+ "hyper",
+ "log",
+ "oxide-auth",
+ "oxide-auth-async",
+ "oxide-auth-axum",
+ "prost",
+ "prost-types",
+ "proto",
+ "regex",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "serde_qs",
+ "thiserror",
+ "tokio",
+ "tonic",
+ "tower-http",
+ "tracing",
+ "tracing-subscriber",
+ "url",
+ "utoipa",
+ "utoipa-swagger-ui",
+ "uuid 1.4.1",
+]
+
+[[package]]
 name = "utf-8"
 version = "0.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"

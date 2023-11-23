@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+package user.user;
+
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "utils/paginate.proto";
+
+import "user/auth.proto";
+
+option go_package = "user.user";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  schemes: HTTPS;
+  host: "api.zuoyinyun.com";
+};
+
+service UserService {
+  rpc LoginMobile(LoginMobileRequest) returns (LoginResponse) {
+    option (google.api.http) = {
+      post: "/user.user.UserService/loginMobile"
+    };
+  }
+  rpc RegisterMobile(RegisterMobileRequest) returns (LoginResponse) {
+    option (google.api.http) = {
+      post: "/user.user.UserService/registerMobile"
+    };
+  }
+
+  rpc LoginWeixin(LoginWeixinRequest) returns (LoginResponse) {
+    option (google.api.http) = {
+      post: "/user.user.UserService/loginWeixin"
+    };
+  }
+}
+
+// 用户
+message User {
+  string id = 1; // user_id
+  int32 info_id = 2;
+  optional int32 mobile_id = 3;
+  optional int32 weixin_id = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+// 用户信息
+message Info {
+  int32 id = 1;
+  string name = 2;
+  optional int32 avatar = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+}
+
+// 手机用户
+message Mobile {
+  int32 id = 1;
+  string mobile = 2;
+  string password = 3;
+  string salt = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+// 微信用户
+message Weixin {
+  int32 id = 1;
+  string openid = 2; // 微信 openid
+  optional string unionid = 3; // 微信 unionid TODO: 加入开放平台则有值
+  string session_key = 4; // session_key
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+message LoginMobileRequest {
+  string mobile = 1;
+  string password = 2;
+}
+message LoginResponse {
+  User user = 1;
+  auth.Token token = 2;
+}
+
+message RegisterMobileRequest {
+  string mobile = 1;
+  string password = 2;
+}
+
+message LoginWeixinRequest {
+  string code = 1;
+}

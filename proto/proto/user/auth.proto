@@ -1,0 +1,207 @@
+syntax = "proto3";
+
+package user.auth;
+
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "utils/paginate.proto";
+
+option go_package = "user.auth";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  schemes: HTTPS;
+  host: "api.zuoyinyun.com";
+};
+
+service AuthService {
+  rpc Authorize(AuthorizeRequest) returns (AuthorizeResponse) {
+    option (google.api.http) = {
+      get: "/user.auth.AuthService/authorize"
+    };
+  }
+  rpc GetToken(TokenRequest) returns (Token) {
+    option (google.api.http) = {
+      post: "/user.auth.AuthService/token",
+      body: "*"
+    };
+  }
+  rpc Refresh(RefreshRequest) returns (Token) {
+    option (google.api.http) = {
+      post: "/user.auth.AuthService/refresh",
+      body: "*"
+    };
+  }
+
+  rpc ClientList(ClientListRequest) returns (ClientListResponse) {}
+  rpc ClientCreate(ClientCreateRequest) returns (ClientCreateResponse) {}
+
+  rpc ConfigList(ConfigListRequest) returns (ConfigListResponse) {}
+  rpc ConfigCreate(ConfigCreateRequest) returns (ConfigCreateResponse) {}
+}
+
+message AuthorizationCode {
+  int32 id = 1;
+  string code = 2;
+  string user_id = 3;
+  string client_id = 4;
+  string scope = 5;
+  string redirect_uri = 6;
+  google.protobuf.Timestamp until = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+message JWTPayload {
+  string iss = 1; // (issuer)：签发人 JWT 发出者的有效 URI 值固定为"zuoyinyun.com"
+  string aud = 2; // (audience)：受众 'frontend' client_name
+  string sub = 3;// (subject)：主题 用户的唯一标识。 user_id
+  int32 exp = 4; // (expiration time)：过期时间 时间戳
+  int32 nbf = 5; // (Not Before)：生效时间 时间戳
+  int32 iat = 6;// (Issued At)：签发时间 时间戳
+}
+
+message RefreshResource {
+  int32 id = 1;
+  string user_id = 2;
+  string client_id = 3;
+  string refresh_token = 4;
+  string scope = 5;
+  string token_type = 6;
+  google.protobuf.Timestamp until = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+message NewRefreshResource {
+  string user_id = 1;
+  string client_id = 2;
+  string access_token = 3;
+  string refresh_token = 4;
+  string scope = 5;
+  string token_type = 6;
+  google.protobuf.Timestamp until = 7;
+}
+
+message Token {
+  string access_token = 1; // 表示访问令牌，必选项。 JWTPayload
+  string token_type = 2; // 表示令牌类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型。
+  string expires_in = 3; // 表示过期时间，单位为秒。如果省略该参数，必须其他方式设置过期时间。
+  string refresh_token = 4; // 表示更新令牌，用来获取下一次的访问令牌，可选项。
+  string scope = 5; // 表示权限范围，如果与客户端申请的范围一致，此项可省略。
+}
+
+// GET /authorize?response_type=code&client_id=s6BhdRkqt3&state=xyz&redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
+message AuthorizeRequest {
+  string response_type = 1; // 表示授权类型，必选项，此处的值固定为"code"
+  string client_id = 2; // 表示客户端的ID，必选项
+  optional string redirect_uri = 3; // 表示重定向URI，可选项
+  optional string scope = 4; // 表示申请的权限范围，可选项
+  optional string state = 5; // 表示客户端的当前状态，可以指定任意值，认证服务器会原封不动地返回这个值。
+}
+
+//302 https://client.example.com/cb?code=SplxlOBeZQQYbYS6WxSbIA&state=xyz
+message AuthorizeResponse {
+  string code = 1; // 表示授权码，必选项。该码的有效期应该很短，通常设为10分钟，客户端只能使用该码一次，否则会被授权服务器拒绝。该码与客户端ID和重定向URI，是一一对应关系。
+  string redirect_uri = 2;
+  optional string state = 3; // 如果客户端的请求中包含这个参数，认证服务器的回应也必须一模一样包含这个参数。
+}
+
+// POST /token
+// Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW client_screct
+// Body: grant_type=authorization_code&code=SplxlOBeZQQYbYS6WxSbIA&redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
+message TokenRequest {
+  string grant_type = 1; // 表示使用的授权模式，必选项，此处的值固定为"authorization_code"。
+  string code = 2; //表示上一步获得的授权码，必选项。
+  string redirect_uri = 3; //表示重定向URI，必选项，且必须与A步骤中的该参数值保持一致。
+  string client_id = 4; //表示客户端ID，必选项。
+}
+
+// POST /refresh
+// Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW client_screct
+// Body: grant_type=refreshtoken&refresh_token=tGzv3JOkF0XG5Qx2TlKWIA
+message RefreshRequest {
+  string grant_type = 1; // 表示使用的授权模式，此处的值固定为"refreshtoken"，必选项。
+  string refresh_token = 2; // 示早前收到的更新令牌，必选项。
+}
+
+message ResourceRequest {
+  string access_token = 1;
+  string uri = 2;
+}
+message ResourceResponse {
+  string owner_id = 1;
+  string client_id = 2;
+  string scope = 3;
+  google.protobuf.Timestamp until = 4;
+}
+
+// client
+message Client {
+  string id = 1;
+  string name = 2;
+  string redirect_uri = 3;
+  string default_scope = 4;
+  int32 default_expires_in = 5;
+  optional string passdata = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+message NewClient {
+  string name = 1;
+  string redirect_uri = 2;
+  string default_scope = 3;
+  int32 default_expires_in = 4;
+  optional string passdata = 5;
+  // oneof client_type {
+  //   bool public = 3;
+  //   string passdata = 4;
+  // }
+}
+
+message Pattern {
+  oneof pattern {
+    string equal = 1;
+    string prefix = 2;
+    string regex = 3;
+  }
+}
+
+// url scope config
+message Config {
+  int32 id = 1;
+  Pattern pattern = 2;
+  optional string scope = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+}
+message NewConfig {
+  Pattern pattern = 1;
+  optional string scope = 2;
+}
+
+message ClientListRequest {
+  utils.paginate.Paginate paginate = 1;
+}
+message ClientListResponse {
+  repeated Client clients = 1;
+  utils.paginate.Paginated paginated = 2;
+}
+message ClientCreateRequest {
+  NewClient client = 1;
+}
+message ClientCreateResponse {
+  Client client = 1;
+}
+message ConfigListRequest {
+}
+message ConfigListResponse {
+  repeated Config configs = 1;
+}
+message ConfigCreateRequest {
+  NewConfig config = 1;
+}
+message ConfigCreateResponse {
+  Config config = 1;
+}
