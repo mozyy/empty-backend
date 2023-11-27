@@ -39,8 +39,11 @@ service AuthService {
 
   rpc ConfigList(ConfigListRequest) returns (ConfigListResponse) {}
   rpc ConfigCreate(ConfigCreateRequest) returns (ConfigCreateResponse) {}
+
+  rpc JWT(JWTPayload) returns (JWTPayload) {}
 }
 
+// AuthorizationCode
 message AuthorizationCode {
   int32 id = 1;
   string code = 2;
@@ -53,13 +56,23 @@ message AuthorizationCode {
   google.protobuf.Timestamp updated_at = 9;
 }
 
+message NewAuthorizationCode {
+  string code = 1;
+  string user_id = 2;
+  string client_id = 3;
+  string scope = 4;
+  string redirect_uri = 5;
+  google.protobuf.Timestamp until = 6;
+}
+
 message JWTPayload {
   string iss = 1; // (issuer)：签发人 JWT 发出者的有效 URI 值固定为"zuoyinyun.com"
   string aud = 2; // (audience)：受众 'frontend' client_name
   string sub = 3;// (subject)：主题 用户的唯一标识。 user_id
-  int32 exp = 4; // (expiration time)：过期时间 时间戳
-  int32 nbf = 5; // (Not Before)：生效时间 时间戳
-  int32 iat = 6;// (Issued At)：签发时间 时间戳
+  string sco = 4;// (scope)：scope。 scope
+  int32 exp = 5; // (expiration time)：过期时间 时间戳
+  int32 nbf = 6; // (Not Before)：生效时间 时间戳
+  int32 iat = 7;// (Issued At)：签发时间 时间戳
 }
 
 message RefreshResource {
@@ -77,17 +90,16 @@ message RefreshResource {
 message NewRefreshResource {
   string user_id = 1;
   string client_id = 2;
-  string access_token = 3;
-  string refresh_token = 4;
-  string scope = 5;
-  string token_type = 6;
-  google.protobuf.Timestamp until = 7;
+  string refresh_token = 3;
+  string scope = 4;
+  string token_type = 5;
+  google.protobuf.Timestamp until = 6;
 }
 
 message Token {
   string access_token = 1; // 表示访问令牌，必选项。 JWTPayload
   string token_type = 2; // 表示令牌类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型。
-  string expires_in = 3; // 表示过期时间，单位为秒。如果省略该参数，必须其他方式设置过期时间。
+  int32 expires_in = 3; // 表示过期时间，单位为秒。如果省略该参数，必须其他方式设置过期时间。
   string refresh_token = 4; // 表示更新令牌，用来获取下一次的访问令牌，可选项。
   string scope = 5; // 表示权限范围，如果与客户端申请的范围一致，此项可省略。
 }
@@ -99,6 +111,7 @@ message AuthorizeRequest {
   optional string redirect_uri = 3; // 表示重定向URI，可选项
   optional string scope = 4; // 表示申请的权限范围，可选项
   optional string state = 5; // 表示客户端的当前状态，可以指定任意值，认证服务器会原封不动地返回这个值。
+  AuthorizationCode state2 = 6; // 表示客户端的当前状态，可以指定任意值，认证服务器会原封不动地返回这个值。
 }
 
 //302 https://client.example.com/cb?code=SplxlOBeZQQYbYS6WxSbIA&state=xyz

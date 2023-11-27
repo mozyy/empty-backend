@@ -8,11 +8,11 @@ pub struct Service {
 }
 
 impl Default for Service {
-  fn default() -> Self {
-      Self {
-          db: db::DbPool::new("websocket_v2"),
-      }
-  }
+    fn default() -> Self {
+        Self {
+            db: db::DbPool::new("websocket_v2"),
+        }
+    }
 }
 
 #[async_trait::async_trait]

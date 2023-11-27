@@ -3,47 +3,37 @@ use empty_utils::errors::{Error, Result};
 use proto::{pb, schema};
 use uuid::Uuid;
 
-pub fn query_list(conn: &mut PgConnection) -> Result<Vec<pb::wx::user::User>> {
-    let users = schema::wx::users::table.load::<pb::wx::user::User>(conn)?;
+pub fn query_list(conn: &mut PgConnection) -> Result<Vec<pb::user::user::User>> {
+    let users = schema::user::users::table.load::<pb::user::user::User>(conn)?;
     Ok(users)
 }
-pub fn query_by_id(conn: &mut PgConnection, id: Uuid) -> Result<pb::wx::user::User> {
-    let user = schema::wx::users::table
+pub fn query_by_id(conn: &mut PgConnection, id: Uuid) -> Result<pb::user::user::User> {
+    let user = schema::user::users::table
         .find(id)
-        .first::<pb::wx::user::User>(conn)?;
+        .first::<pb::user::user::User>(conn)?;
     Ok(user)
 }
-pub fn query_by_user_id(conn: &mut PgConnection, user_id: Uuid) -> Result<pb::wx::user::User> {
-    let user = schema::wx::users::table
-        .filter(schema::wx::users::user_id.eq(user_id))
-        .first::<pb::wx::user::User>(conn)?;
-    Ok(user)
-}
-pub fn query_by_openid(conn: &mut PgConnection, openid: String) -> Result<pb::wx::user::User> {
-    let user = schema::wx::users::table
-        .filter(schema::wx::users::openid.eq(openid))
-        .first::<pb::wx::user::User>(conn)?;
-    Ok(user)
-}
-pub fn insert(conn: &mut PgConnection, user: pb::wx::user::NewUser) -> Result<pb::wx::user::User> {
-    let user = diesel::insert_into(schema::wx::users::table)
+pub fn insert(
+    conn: &mut PgConnection,
+    user: pb::user::user::NewUser,
+) -> Result<pb::user::user::User> {
+    let user = diesel::insert_into(schema::user::users::table)
         .values(user)
-        .get_result::<pb::wx::user::User>(conn)?;
+        .get_result::<pb::user::user::User>(conn)?;
     Ok(user)
 }
-// TODO: patch
 pub fn update_by_id(
     conn: &mut PgConnection,
     id: Uuid,
-    user: pb::wx::user::NewUser,
-) -> Result<pb::wx::user::User> {
-    let user = diesel::update(schema::wx::users::table.find(id))
+    user: pb::user::user::NewUser,
+) -> Result<pb::user::user::User> {
+    let user = diesel::update(schema::user::users::table.find(id))
         .set(user)
-        .get_result::<pb::wx::user::User>(conn)?;
+        .get_result::<pb::user::user::User>(conn)?;
     Ok(user)
 }
 pub fn delete_by_id(conn: &mut PgConnection, id: Uuid) -> Result {
-    let value = diesel::delete(schema::wx::users::table.find(id)).execute(conn)?;
+    let value = diesel::delete(schema::user::users::table.find(id)).execute(conn)?;
     if value == 0 {
         return Err(Error::String(String::from("delete error")));
     }

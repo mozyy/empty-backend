@@ -261,6 +261,149 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         #[diesel(table_name=crate::schema::oss::oss)]",
     )
 
+    // user
+    .type_attribute(
+        "user.auth.AuthorizationCode",
+        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable, ::diesel::prelude::Associations)]
+        #[diesel(table_name=crate::schema::user::authorization_codes, belongs_to(crate::pb::user::user::User), belongs_to(crate::pb::user::auth::Client))]",
+    )
+    .field_attribute(
+        "user.auth.AuthorizationCode.user_id",
+        "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
+    )
+    .field_attribute(
+        "user.auth.AuthorizationCode.client_id",
+        "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
+    )
+    .field_attribute(
+        "user.auth.AuthorizationCode.until",
+        "#[diesel(deserialize_as = ::empty_utils::diesel::timestamp::Timestamp)]",
+    )
+    .type_attribute(
+        "user.auth.NewAuthorizationCode",
+        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset, ::diesel::prelude::Associations)]
+        #[diesel(table_name=crate::schema::user::authorization_codes, belongs_to(crate::pb::user::user::User), belongs_to(crate::pb::user::auth::Client))]",
+    )
+    .field_attribute(
+        "user.auth.NewAuthorizationCode.user_id",
+        "#[diesel(serialize_as = ::empty_utils::tonic::uuid::Uuid)]",
+    )
+    .field_attribute(
+        "user.auth.NewAuthorizationCode.client_id",
+        "#[diesel(serialize_as = ::empty_utils::tonic::uuid::Uuid)]",
+    )
+    .field_attribute(
+        "user.auth.NewAuthorizationCode.until",
+        "#[diesel(serialize_as = ::empty_utils::diesel::timestamp::Timestamp)]",
+    )
+    .type_attribute(
+        "user.auth.RefreshResource",
+        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable, ::diesel::prelude::Associations)]
+        #[diesel(table_name=crate::schema::user::refresh_resources, belongs_to(crate::pb::user::user::User), belongs_to(crate::pb::user::auth::Client))]",
+    )
+    .field_attribute(
+        "user.auth.RefreshResource.user_id",
+        "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
+    )
+    .field_attribute(
+        "user.auth.RefreshResource.client_id",
+        "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
+    )
+    .field_attribute(
+        "user.auth.RefreshResource.until",
+        "#[diesel(deserialize_as = ::empty_utils::diesel::timestamp::Timestamp)]",
+    )
+    .type_attribute(
+        "user.auth.NewRefreshResource",
+        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset, ::diesel::prelude::Associations)]
+        #[diesel(table_name=crate::schema::user::refresh_resources, belongs_to(crate::pb::user::user::User), belongs_to(crate::pb::user::auth::Client))]",
+    )
+    .field_attribute(
+        "user.auth.NewRefreshResource.user_id",
+        "#[diesel(serialize_as = ::empty_utils::tonic::uuid::Uuid)]",
+    )
+    .field_attribute(
+        "user.auth.NewRefreshResource.client_id",
+        "#[diesel(serialize_as = ::empty_utils::tonic::uuid::Uuid)]",
+    )
+    .field_attribute(
+        "user.auth.NewRefreshResource.until",
+        "#[diesel(serialize_as = ::empty_utils::diesel::timestamp::Timestamp)]",
+    )
+    .type_attribute(
+        "user.auth.Client",
+        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable)]
+        #[diesel(table_name=crate::schema::user::clients)]",
+    )
+    .field_attribute(
+        "user.auth.Client.id",
+        "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
+    )
+    .type_attribute(
+        "user.auth.NewClient",
+        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
+        #[diesel(table_name=crate::schema::user::clients)]",
+    )
+    .type_attribute(
+        "user.auth.Config",
+        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable)]
+        #[diesel(table_name=crate::schema::user::configs)]",
+    )
+    .type_attribute(
+        "user.auth.NewConfig",
+        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
+        #[diesel(table_name=crate::schema::user::configs)]",
+    )
+    .type_attribute(
+        "user.auth.Pattern",
+        "#[derive(::diesel::FromSqlRow, ::diesel::AsExpression)]
+        #[diesel(sql_type=crate::schema::user::sql_types::Pattern)]",
+    )
+    .type_attribute(
+        "user.user.Info",
+        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable)]
+    #[diesel(table_name=crate::schema::user::infos)]",
+    )
+    .type_attribute(
+        "user.user.NewInfo",
+        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
+    #[diesel(table_name=crate::schema::user::infos)]",
+    )
+    .type_attribute(
+        "user.user.Mobile",
+        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable)]
+    #[diesel(table_name=crate::schema::user::mobiles)]",
+    )
+    .type_attribute(
+        "user.user.NewMobile",
+        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
+    #[diesel(table_name=crate::schema::user::mobiles)]",
+    )
+    .type_attribute(
+        "user.user.Weixin",
+        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable)]
+    #[diesel(table_name=crate::schema::user::weixins)]",
+    )
+    .type_attribute(
+        "user.user.NewWeixin",
+        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
+    #[diesel(table_name=crate::schema::user::weixins)]",
+    )
+    .type_attribute(
+        "user.user.User",
+        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Associations)]
+    #[diesel(table_name=crate::schema::user::users, belongs_to(crate::pb::user::user::Info), belongs_to(crate::pb::user::user::Mobile), belongs_to(crate::pb::user::user::Weixin))]",
+    )
+    .field_attribute(
+        "user.user.User.id",
+        "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
+    )
+    .type_attribute(
+        "user.user.NewUser",
+        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset, ::diesel::prelude::Associations)]
+    #[diesel(table_name=crate::schema::user::users, belongs_to(crate::pb::user::user::Info), belongs_to(crate::pb::user::user::Mobile), belongs_to(crate::pb::user::user::Weixin))]",
+    )
+
     // common
     .field_attribute(
         "created_at",
@@ -280,6 +423,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 "./proto/lottery/favorite.proto",
                 "./proto/auth/auth.proto",
                 "./proto/auth/auth.proto",
+                "./proto/user/user.proto",
+                "./proto/user/auth.proto",
                 "./proto/websocket/client.proto",
                 "./proto/wx/wx.proto",
                 "./proto/wx/user.proto",

@@ -1,7 +1,7 @@
 use std::net::SocketAddr;
 
 use empty_utils::diesel::db;
-use empty_utils::errors::{Result, ErrorConvert};
+use empty_utils::errors::{ErrorConvert, Result};
 use empty_utils::tonic::Resp;
 use proto::pb;
 use tokio::net::TcpStream;
@@ -12,21 +12,22 @@ pub struct Service {
 }
 
 impl Default for Service {
-  fn default() -> Self {
-      Self {
-          db: db::DbPool::new("websocket_v2"),
-      }
-  }
+    fn default() -> Self {
+        Self {
+            db: db::DbPool::new("websocket_v2"),
+        }
+    }
 }
 
 impl Service {
-  async fn handle_connection(&self, raw_stream: TcpStream, addr: SocketAddr) -> Result {
-    log::debug!("Incoming TCP connection from: {}", addr);
-    let ws_stream = tokio_tungstenite::accept_async(raw_stream)
-      .await.ok_or_invalid()?;
-    log::debug!("WebSocket connection established: {}", addr);
-    todo!()
-  }
+    async fn handle_connection(&self, raw_stream: TcpStream, addr: SocketAddr) -> Result {
+        log::debug!("Incoming TCP connection from: {}", addr);
+        let ws_stream = tokio_tungstenite::accept_async(raw_stream)
+            .await
+            .ok_or_invalid()?;
+        log::debug!("WebSocket connection established: {}", addr);
+        todo!()
+    }
 }
 
 // async fn handle_connection(peer_map: PeerMap, raw_stream: TcpStream, addr: SocketAddr) {

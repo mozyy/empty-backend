@@ -7,13 +7,13 @@ use diesel::{
 
 use crate::{pb, schema};
 
-impl ToSql<schema::oauth::sql_types::OauthPattern, Pg> for pb::oauth::oauth::Pattern {
+impl ToSql<schema::user::sql_types::Pattern, Pg> for pb::user::auth::Pattern {
     fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, Pg>) -> serialize::Result {
         let tuple = match self.to_owned().pattern {
             Some(pattern) => match pattern {
-                pb::oauth::oauth::pattern::Pattern::Equal(value) => (1, value),
-                pb::oauth::oauth::pattern::Pattern::Prefix(value) => (2, value),
-                pb::oauth::oauth::pattern::Pattern::Regex(value) => (3, value),
+                pb::user::auth::pattern::Pattern::Equal(value) => (1, value),
+                pb::user::auth::pattern::Pattern::Prefix(value) => (2, value),
+                pb::user::auth::pattern::Pattern::Regex(value) => (3, value),
             },
             None => return Err("no pattern".into()),
         };
@@ -21,13 +21,13 @@ impl ToSql<schema::oauth::sql_types::OauthPattern, Pg> for pb::oauth::oauth::Pat
     }
 }
 
-impl FromSql<schema::oauth::sql_types::OauthPattern, Pg> for pb::oauth::oauth::Pattern {
+impl FromSql<schema::user::sql_types::Pattern, Pg> for pb::user::auth::Pattern {
     fn from_sql(bytes: PgValue<'_>) -> deserialize::Result<Self> {
         let (type_, value) = FromSql::<Record<(Integer, Text)>, Pg>::from_sql(bytes)?;
         let pattern = match type_ {
-            1 => Some(pb::oauth::oauth::pattern::Pattern::Equal(value)),
-            2 => Some(pb::oauth::oauth::pattern::Pattern::Prefix(value)),
-            3 => Some(pb::oauth::oauth::pattern::Pattern::Regex(value)),
+            1 => Some(pb::user::auth::pattern::Pattern::Equal(value)),
+            2 => Some(pb::user::auth::pattern::Pattern::Prefix(value)),
+            3 => Some(pb::user::auth::pattern::Pattern::Regex(value)),
             _ => {
                 log::warn!("database no pattern");
                 None

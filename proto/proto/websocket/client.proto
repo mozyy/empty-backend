@@ -7,7 +7,7 @@ import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
-import "auth/auth.proto";
+import "user/user.proto";
 
 option go_package = "websocket.client";
 

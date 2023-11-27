@@ -1,7 +1,8 @@
 
 before_script:
   - docker info
-build:
+backend:
   stage: build
+  when: manual
   script:
     - docker build -t mozyy/empty-compose-backend .

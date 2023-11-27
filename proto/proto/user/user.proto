@@ -18,20 +18,23 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
 };
 
 service UserService {
-  rpc LoginMobile(LoginMobileRequest) returns (LoginResponse) {
+  rpc LoginMobile(LoginMobileRequest) returns (auth.Token) {
     option (google.api.http) = {
-      post: "/user.user.UserService/loginMobile"
+      post: "/user.user.UserService/loginMobile",
+      body: "*"
     };
   }
-  rpc RegisterMobile(RegisterMobileRequest) returns (LoginResponse) {
+  rpc RegisterMobile(RegisterMobileRequest) returns (auth.Token) {
     option (google.api.http) = {
-      post: "/user.user.UserService/registerMobile"
+      post: "/user.user.UserService/registerMobile",
+      body: "*"
     };
   }
 
-  rpc LoginWeixin(LoginWeixinRequest) returns (LoginResponse) {
+  rpc LoginWeixin(LoginWeixinRequest) returns (auth.Token) {
     option (google.api.http) = {
-      post: "/user.user.UserService/loginWeixin"
+      post: "/user.user.UserService/loginWeixin",
+      body: "*"
     };
   }
 }
@@ -46,6 +49,12 @@ message User {
   google.protobuf.Timestamp updated_at = 6;
 }
 
+message NewUser {
+  int32 info_id = 1;
+  optional int32 mobile_id = 2;
+  optional int32 weixin_id = 3;
+}
+
 // 用户信息
 message Info {
   int32 id = 1;
@@ -53,6 +62,11 @@ message Info {
   optional int32 avatar = 3;
   google.protobuf.Timestamp created_at = 4;
   google.protobuf.Timestamp updated_at = 5;
+}
+
+message NewInfo {
+  string name = 1;
+  optional int32 avatar = 2;
 }
 
 // 手机用户
@@ -65,6 +79,12 @@ message Mobile {
   google.protobuf.Timestamp updated_at = 6;
 }
 
+message NewMobile {
+  string mobile = 1;
+  string password = 2;
+  string salt = 3;
+}
+
 // 微信用户
 message Weixin {
   int32 id = 1;
@@ -75,13 +95,15 @@ message Weixin {
   google.protobuf.Timestamp updated_at = 6;
 }
 
+message NewWeixin {
+  string openid = 1; // 微信 openid
+  optional string unionid = 2; // 微信 unionid TODO: 加入开放平台则有值
+  string session_key = 3; // session_key
+}
+
 message LoginMobileRequest {
   string mobile = 1;
   string password = 2;
-}
-message LoginResponse {
-  User user = 1;
-  auth.Token token = 2;
 }
 
 message RegisterMobileRequest {
