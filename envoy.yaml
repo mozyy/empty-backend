@@ -23,10 +23,7 @@ static_resources:
                 envoy.filters.http.cors:
                   "@type": type.googleapis.com/envoy.extensions.filters.http.cors.v3.CorsPolicy
                   allow_origin_string_match:
-                    - prefix: "*"
-                  allow_methods: GET, PUT, DELETE, POST, OPTIONS
-                  allow_headers: authorization
-                  max_age: "1728000"
+                  - exact: http://localhost:3000
               routes:
               # NOTE: by default, matching happens based on the gRPC route, and not on the incoming request path.
               # Reference: https://envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/grpc_json_transcoder_filter#route-configs-for-transcoded-requests
@@ -34,14 +31,6 @@ static_resources:
                 route:
                   cluster: grpc
                   timeout: 60s
-                typed_per_filter_config:
-                  envoy.filters.http.cors:
-                    "@type": type.googleapis.com/envoy.extensions.filters.http.cors.v3.CorsPolicy
-                    allow_origin_string_match:
-                    - prefix: "*"
-                    allow_methods: GET, PUT, DELETE, POST, OPTIONS
-                    allow_headers: authorization
-                    max_age: "1728000"
           http_filters:
           - name: envoy.filters.http.grpc_json_transcoder
             typed_config:
@@ -57,6 +46,8 @@ static_resources:
                 - "wx.wx.WxService"
                 - "wx.user.UserService"
                 - "oss.oss.OssService"
+                - "user.user.UserService"
+                - "user.auth.AuthService"
               print_options:
                 add_whitespace: true
                 always_print_primitive_fields: true
@@ -89,5 +80,5 @@ static_resources:
                 # WARNING: "docker.for.mac.localhost" has been deprecated from Docker v18.03.0.
                 # If you're running an older version of Docker, please use "docker.for.mac.localhost" instead.
                 # Reference: https://docs.docker.com/docker-for-mac/release-notes/#docker-community-edition-18030-ce-mac59-2018-03-26
-                address: 172.17.0.5
+                address: 172.17.0.3
                 port_value: 50051

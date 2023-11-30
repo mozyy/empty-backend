@@ -61,7 +61,6 @@ diesel::table! {
         id -> Int4,
         mobile -> Text,
         password -> Text,
-        salt -> Text,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }

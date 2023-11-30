@@ -35,6 +35,9 @@ impl Error {
     {
         Self::Other(anyhow::Error::from(e))
     }
+    pub fn is_not_found(&self) -> bool {
+        matches!(self, Error::DieselError(diesel::result::Error::NotFound))
+    }
 }
 pub trait ErrorConvert<T> {
     fn ok_or_invalid(self) -> Result<T>;

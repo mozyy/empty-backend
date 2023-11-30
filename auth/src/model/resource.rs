@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
-use chrono::Utc;
-use empty_utils::errors::{Error, ErrorConvert, Result};
+use empty_utils::errors::{Error, Result};
 use proto::pb;
 
 type ResourceMap = HashMap<String, pb::auth::auth::Resource>;

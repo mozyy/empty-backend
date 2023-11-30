@@ -6,7 +6,6 @@ use empty_utils::{
     tonic::{Resp, ToResp},
 };
 use rand::Rng;
-use tonic::Response;
 
 use crate::dao;
 use proto::pb;

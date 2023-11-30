@@ -5,7 +5,7 @@ use empty_utils::{
     errors::Error,
     tonic::{Resp, ToResp},
 };
-use tonic::{Request, Response};
+use tonic::Request;
 
 use proto::pb;
 

@@ -74,15 +74,13 @@ message Mobile {
   int32 id = 1;
   string mobile = 2;
   string password = 3;
-  string salt = 4;
-  google.protobuf.Timestamp created_at = 5;
-  google.protobuf.Timestamp updated_at = 6;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
 }
 
 message NewMobile {
   string mobile = 1;
   string password = 2;
-  string salt = 3;
 }
 
 // 微信用户
@@ -102,15 +100,18 @@ message NewWeixin {
 }
 
 message LoginMobileRequest {
-  string mobile = 1;
-  string password = 2;
+  string client_id = 1;
+  string mobile = 2;
+  string password = 3;
 }
 
 message RegisterMobileRequest {
-  string mobile = 1;
-  string password = 2;
+  string client_id = 1;
+  string mobile = 2;
+  string password = 3;
 }
 
 message LoginWeixinRequest {
-  string code = 1;
+  string client_id = 1;
+  string code = 2;
 }

@@ -1,6 +1,5 @@
 [workspace]
 members = [
-    "empty-backend",
     "empty-backend-openapi",
     "empty-utils",
     "empty-macro",
@@ -13,7 +12,7 @@ members = [
     "file",
     "lottery",
     # "oauth",
-    "auth",
+    # "auth",
     "config",
     "wx",
     "app",
@@ -28,9 +27,9 @@ members = [
 tokio = { version = "1.32", features = ["macros", "rt-multi-thread"] }
 thiserror = "1.0"
 anyhow = "1.0"
-lazy_static ="1.4"
+lazy_static = "1.4"
 log = "0.4"
-tracing="0.1"
+tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 env_logger = "0.10"
 serde = { version = "1.0", features = ["derive"] }
@@ -45,14 +44,21 @@ http = "0.2"
 regex = "1.9"
 futures-util = "0.3"
 base64 = "0.21"
+base64-url = "2.0.1"
+password-auth = "1.0"
+hmac = "0.12"
+sha2 = "0.10"
+jwt = "0.16"
+# bytes="1.5"
+# http-body-util="0.1" 
 
 
 # database
 diesel = { version = "2.1", features = ["postgres", "r2d2", "chrono", "uuid"] }
 chrono = { version = "0.4", features = ["serde"] }
-uuid= { version = "1.4", features = ["serde", "v4"] }
+uuid = { version = "1.4", features = ["serde", "v4"] }
 dotenvy = "0.15"
-diesel_cli_ext="0.3"
+diesel_cli_ext = "0.3"
 
 # grpc
 tonic = "0.10"
@@ -69,7 +75,7 @@ tower = "0.4"
 oxide-auth = "0.5"
 oxide-auth-async = "0.1"
 oxide-auth-axum = "0.3"
-axum-macros = "0.3"
+axum-macros = "0.4"
 url = "2.4"
 
 prost-wkt = "0.5"
@@ -78,8 +84,8 @@ prost-wkt-types = "0.5"
 # rustful
 axum = { version = "0.6", features = ["http2"] }
 actix-web = "4.4"
-utoipa = {version = "4.0", features = ["axum_extras", "yaml"] }
-utoipa-swagger-ui ={version =  "4.0", features = ["axum"] }
+utoipa = { version = "4.0", features = ["axum_extras", "yaml"] }
+utoipa-swagger-ui = { version = "4.0", features = ["axum"] }
 
 clap = { version = "4.4" }
 walkdir = "2.4"
@@ -88,24 +94,25 @@ toml = "0.8"
 tokio-stream = "0.1"
 tokio-tungstenite = "*"
 
-empty-registry = { path="empty-registry" }
-empty-utils = {path = "empty-utils"}
-empty-macro = { path="empty-macro" }
-lottery = { path="lottery" }
-proto = { path="proto" }
-blog = { path="blog" }
+empty-registry = { path = "empty-registry" }
+empty-utils = { path = "empty-utils" }
+empty-macro = { path = "empty-macro" }
+lottery = { path = "lottery" }
+proto = { path = "proto" }
+blog = { path = "blog" }
 # oauth = { path="oauth" }
-config = { path="config" }
-wx = { path="wx" }
-oss = { path="oss" }
-auth = { path="auth" }
-websocket = { path="websocket" }
+config = { path = "config" }
+wx = { path = "wx" }
+oss = { path = "oss" }
+user = { path = "user" }
+# auth = { path="auth" }
+websocket = { path = "websocket" }
 
 # micro
 syn = "2.0"
 quote = "1.0"
-proc-macro2="1.0"
+proc-macro2 = "1.0"
 convert_case = "0.6"
 
 #tests
-tempfile ="3.8"
+tempfile = "3.8"

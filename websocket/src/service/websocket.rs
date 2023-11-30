@@ -2,10 +2,8 @@ use std::net::SocketAddr;
 
 use empty_utils::diesel::db;
 use empty_utils::errors::{ErrorConvert, Result};
-use empty_utils::tonic::Resp;
-use proto::pb;
+
 use tokio::net::TcpStream;
-use tonic::Request;
 
 pub struct Service {
     db: db::DbPool,
@@ -22,7 +20,7 @@ impl Default for Service {
 impl Service {
     async fn handle_connection(&self, raw_stream: TcpStream, addr: SocketAddr) -> Result {
         log::debug!("Incoming TCP connection from: {}", addr);
-        let ws_stream = tokio_tungstenite::accept_async(raw_stream)
+        let _ws_stream = tokio_tungstenite::accept_async(raw_stream)
             .await
             .ok_or_invalid()?;
         log::debug!("WebSocket connection established: {}", addr);

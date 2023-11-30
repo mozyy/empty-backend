@@ -14,7 +14,6 @@ CREATE TABLE IF NOT EXISTS mobiles (
   id serial PRIMARY KEY,
   mobile text NOT NULL,
   password text NOT NULL,
-  salt text NOT NULL,
   created_at timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
   updated_at timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL
 );

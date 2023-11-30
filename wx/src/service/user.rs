@@ -5,7 +5,7 @@ use empty_utils::{
     errors::{Error, ErrorConvert},
     tonic::{Resp, ToResp},
 };
-use tonic::{Request, Response};
+use tonic::Request;
 use uuid::Uuid;
 
 use crate::{dao::user as model, CLIENT_ID};

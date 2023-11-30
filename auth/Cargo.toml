@@ -13,6 +13,8 @@ chrono = {workspace = true, features = ["serde"] }
 uuid= { workspace = true, features = ["serde"] }
 regex =  { workspace = true }
 rand =  { workspace = true }
+# bytes =  { workspace = true }
+# http-body-util =  { workspace = true }
 
 tower-http = { workspace = true }
 futures-util={workspace = true}

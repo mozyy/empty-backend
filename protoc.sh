@@ -19,4 +19,6 @@ protoc \
   ./proto/proto/health/nurse.proto \
   ./proto/proto/health/patient.proto \
   ./proto/proto/oss/oss.proto \
+  ./proto/proto/user/user.proto \
+  ./proto/proto/user/auth.proto \
   ./proto/proto/blog/blog.proto

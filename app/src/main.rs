@@ -1,17 +1,12 @@
-use config::{ADDR, ADDR_CLIENT};
+use config::ADDR;
 use empty_utils::{
-    diesel::db,
     errors::{Error, Result},
     tonic::server,
 };
-use futures_util::future::BoxFuture;
-use http::StatusCode;
-use hyper::{Body, Request, Response};
-use proto::pb::{self};
-use std::future::Future;
+
 use tokio::signal;
-use tonic::{body::BoxBody, codegen::empty_body};
-use tower_http::auth::{AsyncAuthorizeRequest, AsyncRequireAuthorizationLayer};
+
+use tower_http::auth::AsyncRequireAuthorizationLayer;
 
 #[tokio::main]
 async fn main() -> Result {
@@ -20,15 +15,14 @@ async fn main() -> Result {
     let addr = ADDR.parse().map_err(Error::other)?;
 
     log::info!("start ...");
-    let (auth, auth_state) = auth::get_service().await?;
+    let (check, user, user_auth) = user::get_service().await?;
     let blog = blog::get_service();
     let (lottery, lottery_record, lottery_favorite, lottery_template) = lottery::get_service();
     let oss = oss::get_service();
-    let (wx, wx_user) = wx::get_service();
+    let wx = wx::get_service();
     server()
-        .layer(AsyncRequireAuthorizationLayer::new(auth_state))
+        .layer(AsyncRequireAuthorizationLayer::new(check))
         // .layer(AuthLayer {})
-        .add_service(auth)
         .add_service(blog)
         .add_service(lottery)
         .add_service(lottery_record)
@@ -37,7 +31,8 @@ async fn main() -> Result {
         // .add_service(oauth)
         .add_service(oss)
         .add_service(wx)
-        .add_service(wx_user)
+        .add_service(user)
+        .add_service(user_auth)
         .serve_with_shutdown(addr, shutdown_signal())
         .await?;
 

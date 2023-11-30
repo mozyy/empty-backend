@@ -40,20 +40,20 @@ pub mod wx {
     pub mod wx {
         tonic::include_proto!("wx.wx");
     }
-    pub mod user {
-        tonic::include_proto!("wx.user");
-    }
+    // pub mod user {
+    //     tonic::include_proto!("wx.user");
+    // }
 }
 // pub mod oauth {
 //     pub mod oauth {
 //         tonic::include_proto!("oauth.oauth");
 //     }
 // }
-pub mod auth {
-    pub mod auth {
-        tonic::include_proto!("auth.auth");
-    }
-}
+// pub mod auth {
+//     pub mod auth {
+//         tonic::include_proto!("auth.auth");
+//     }
+// }
 pub mod utils {
     pub mod paginate {
         tonic::include_proto!("utils.paginate");

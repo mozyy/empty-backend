@@ -13,6 +13,18 @@ pub fn query_by_id(conn: &mut PgConnection, id: Uuid) -> Result<pb::user::user::
         .first::<pb::user::user::User>(conn)?;
     Ok(user)
 }
+pub fn query_by_mobile_id(conn: &mut PgConnection, mobile_id: i32) -> Result<pb::user::user::User> {
+    let user = schema::user::users::table
+        .filter(schema::user::users::mobile_id.eq(mobile_id))
+        .first::<pb::user::user::User>(conn)?;
+    Ok(user)
+}
+pub fn query_by_weixin_id(conn: &mut PgConnection, weixin_id: i32) -> Result<pb::user::user::User> {
+    let user = schema::user::users::table
+        .filter(schema::user::users::weixin_id.eq(weixin_id))
+        .first::<pb::user::user::User>(conn)?;
+    Ok(user)
+}
 pub fn insert(
     conn: &mut PgConnection,
     user: pb::user::user::NewUser,

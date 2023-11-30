@@ -1,5 +1,5 @@
 use empty_utils::{
-    errors::{Error, ErrorConvert},
+    errors::Error,
     tonic::{Resp, ToResp},
 };
 
@@ -12,13 +12,13 @@ use super::Service;
 impl pb::auth::auth::auth_service_server::AuthService for Service {
     async fn authorize(
         &self,
-        request: tonic::Request<pb::auth::auth::AuthorizeRequest>,
+        _request: tonic::Request<pb::auth::auth::AuthorizeRequest>,
     ) -> Resp<pb::auth::auth::AuthorizeResponse> {
         todo!()
     }
     async fn token(
         &self,
-        request: tonic::Request<pb::auth::auth::TokenRequest>,
+        _request: tonic::Request<pb::auth::auth::TokenRequest>,
     ) -> Resp<pb::auth::auth::TokenResponse> {
         todo!()
     }
@@ -83,25 +83,25 @@ impl pb::auth::auth::auth_service_server::AuthService for Service {
     }
     async fn client_list(
         &self,
-        request: tonic::Request<pb::auth::auth::ClientListRequest>,
+        _request: tonic::Request<pb::auth::auth::ClientListRequest>,
     ) -> Resp<pb::auth::auth::ClientListResponse> {
         todo!()
     }
     async fn client_create(
         &self,
-        request: tonic::Request<pb::auth::auth::ClientCreateRequest>,
+        _request: tonic::Request<pb::auth::auth::ClientCreateRequest>,
     ) -> Resp<pb::auth::auth::ClientCreateResponse> {
         todo!()
     }
     async fn config_list(
         &self,
-        request: tonic::Request<pb::auth::auth::ConfigListRequest>,
+        _request: tonic::Request<pb::auth::auth::ConfigListRequest>,
     ) -> Resp<pb::auth::auth::ConfigListResponse> {
         todo!()
     }
     async fn config_create(
         &self,
-        request: tonic::Request<pb::auth::auth::ConfigCreateRequest>,
+        _request: tonic::Request<pb::auth::auth::ConfigCreateRequest>,
     ) -> Resp<pb::auth::auth::ConfigCreateResponse> {
         todo!()
     }

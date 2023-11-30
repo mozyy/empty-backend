@@ -19,37 +19,37 @@ impl Default for Service {
 impl pb::websocket::client::client_service_server::ClientService for Service {
     async fn list_user(
         &self,
-        request: Request<pb::websocket::client::ListUserRequest>,
+        _request: Request<pb::websocket::client::ListUserRequest>,
     ) -> Resp<pb::websocket::client::ListUserResponse> {
         todo!()
     }
     async fn get_user(
         &self,
-        request: Request<pb::websocket::client::GetUserRequest>,
+        _request: Request<pb::websocket::client::GetUserRequest>,
     ) -> Resp<pb::websocket::client::GetUserResponse> {
         todo!()
     }
     async fn get_user_by_user_id(
         &self,
-        request: Request<pb::websocket::client::GetUserByUserIdRequest>,
+        _request: Request<pb::websocket::client::GetUserByUserIdRequest>,
     ) -> Resp<pb::websocket::client::GetUserByUserIdResponse> {
         todo!()
     }
     async fn create_user(
         &self,
-        request: Request<pb::websocket::client::CreateUserRequest>,
+        _request: Request<pb::websocket::client::CreateUserRequest>,
     ) -> Resp<pb::websocket::client::CreateUserResponse> {
         todo!()
     }
     async fn update_user(
         &self,
-        request: Request<pb::websocket::client::UpdateUserRequest>,
+        _request: Request<pb::websocket::client::UpdateUserRequest>,
     ) -> Resp<pb::websocket::client::UpdateUserResponse> {
         todo!()
     }
     async fn delete_user(
         &self,
-        request: Request<pb::websocket::client::DeleteUserRequest>,
+        _request: Request<pb::websocket::client::DeleteUserRequest>,
     ) -> Resp<pb::websocket::client::DeleteUserResponse> {
         todo!()
     }

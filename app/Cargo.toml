@@ -6,22 +6,29 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tokio = {workspace = true, features = ["macros", "rt-multi-thread"]}
-log = {workspace = true}
-axum = {workspace = true}
-tonic = {workspace = true}
-tower-http = { workspace = true, features = ["cors", "trace", "compression-br", "compression-gzip","set-header", "auth"] }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+log = { workspace = true }
+axum = { workspace = true }
+tonic = { workspace = true }
+tower-http = { workspace = true, features = [
+  "cors",
+  "trace",
+  "compression-br",
+  "compression-gzip",
+  "set-header",
+  "auth",
+] }
 
-futures-util={workspace = true}
-hyper = {workspace = true}
-http =  { workspace = true }
+futures-util = { workspace = true }
+hyper = { workspace = true }
+http = { workspace = true }
 
-blog = {workspace = true}
-lottery = {workspace = true}
-auth = {workspace = true}
-config = {workspace = true}
-proto = {workspace = true}
-wx = {workspace = true}
-oss = {workspace = true}
-empty-utils = {workspace = true}
-
+blog = { workspace = true }
+lottery = { workspace = true }
+# auth = {workspace = true}
+config = { workspace = true }
+proto = { workspace = true }
+wx = { workspace = true }
+user = { workspace = true }
+oss = { workspace = true }
+empty-utils = { workspace = true }

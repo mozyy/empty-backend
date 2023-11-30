@@ -4,8 +4,6 @@ use diesel::prelude::*;
 use empty_utils::errors::{Error, ErrorConvert, Result};
 use proto::pb;
 
-use uuid::Uuid;
-
 use proto::{schema, utils::diesel::Paginate};
 
 pub fn query_list(

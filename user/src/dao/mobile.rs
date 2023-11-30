@@ -13,23 +13,29 @@ pub fn query_by_id(conn: &mut PgConnection, id: i32) -> Result<pb::user::user::M
         .first::<pb::user::user::Mobile>(conn)?;
     Ok(user)
 }
+pub fn query_by_mobile(conn: &mut PgConnection, mobile: String) -> Result<pb::user::user::Mobile> {
+    let user = schema::user::mobiles::table
+        .filter(schema::user::mobiles::mobile.eq(mobile))
+        .first::<pb::user::user::Mobile>(conn)?;
+    Ok(user)
+}
 pub fn insert(
     conn: &mut PgConnection,
-    user: pb::user::user::NewMobile,
+    mobild: pb::user::user::NewMobile,
 ) -> Result<pb::user::user::Mobile> {
     let user = diesel::insert_into(schema::user::mobiles::table)
-        .values(user)
+        .values(mobild)
         .get_result::<pb::user::user::Mobile>(conn)?;
     Ok(user)
 }
-// TODO: patch
+
 pub fn update_by_id(
     conn: &mut PgConnection,
     id: i32,
-    user: pb::user::user::NewMobile,
+    mobile: pb::user::user::NewMobile,
 ) -> Result<pb::user::user::Mobile> {
     let user = diesel::update(schema::user::mobiles::table.find(id))
-        .set(user)
+        .set(mobile)
         .get_result::<pb::user::user::Mobile>(conn)?;
     Ok(user)
 }

@@ -3,7 +3,7 @@ use empty_utils::{
     errors::ErrorConvert,
     tonic::{Resp, ToResp},
 };
-use tonic::{Request, Response};
+use tonic::Request;
 
 use crate::dao;
 use proto::pb;

@@ -37,7 +37,7 @@ protoc \
 docker run --name envoy -it --rm \
   -v "vsc-remote-containers-empty:/workspaces:ro" \
   -p 51051:51051 \
-  envoyproxy/envoy:v1.25-latest -c /workspaces/empty-backend/envoy.yaml
+  envoyproxy/envoy:v1.28-latest -c /workspaces/empty-backend/envoy.yaml
 
 
 curl -L -o /usr/local/bin/protoc-gen-openapiv2 https://github.com/grpc-ecosystem/grpc-gateway/releases/download/v2.18.1/protoc-gen-openapiv2-v2.18.1-linux-x86_64

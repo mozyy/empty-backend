@@ -70,9 +70,10 @@ message JWTPayload {
   string aud = 2; // (audience)：受众 'frontend' client_name
   string sub = 3;// (subject)：主题 用户的唯一标识。 user_id
   string sco = 4;// (scope)：scope。 scope
-  int32 exp = 5; // (expiration time)：过期时间 时间戳
-  int32 nbf = 6; // (Not Before)：生效时间 时间戳
-  int32 iat = 7;// (Issued At)：签发时间 时间戳
+  int64 exp = 5; // (expiration time)：过期时间 时间戳
+  int64 nbf = 6; // (Not Before)：生效时间 时间戳
+  int64 iat = 7;// (Issued At)：签发时间 时间戳
+  string jti  = 8; // (JWT ID)：随机编号
 }
 
 message RefreshResource {

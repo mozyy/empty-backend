@@ -13,23 +13,29 @@ pub fn query_by_id(conn: &mut PgConnection, id: i32) -> Result<pb::user::user::W
         .first::<pb::user::user::Weixin>(conn)?;
     Ok(user)
 }
+pub fn query_by_open_id(conn: &mut PgConnection, openid: String) -> Result<pb::user::user::Weixin> {
+    let user = schema::user::weixins::table
+        .filter(schema::user::weixins::openid.eq(openid))
+        .first::<pb::user::user::Weixin>(conn)?;
+    Ok(user)
+}
 
 pub fn insert(
     conn: &mut PgConnection,
-    user: pb::user::user::NewWeixin,
+    weixin: pb::user::user::NewWeixin,
 ) -> Result<pb::user::user::Weixin> {
     let user = diesel::insert_into(schema::user::weixins::table)
-        .values(user)
+        .values(weixin)
         .get_result::<pb::user::user::Weixin>(conn)?;
     Ok(user)
 }
 pub fn update_by_id(
     conn: &mut PgConnection,
     id: i32,
-    user: pb::user::user::NewWeixin,
+    weixin: pb::user::user::NewWeixin,
 ) -> Result<pb::user::user::Weixin> {
     let user = diesel::update(schema::user::weixins::table.find(id))
-        .set(user)
+        .set(weixin)
         .get_result::<pb::user::user::Weixin>(conn)?;
     Ok(user)
 }

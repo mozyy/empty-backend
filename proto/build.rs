@@ -24,7 +24,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     .type_attribute(
         "lottery.lottery.LotteryInfo",
         "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable, ::diesel::prelude::Associations)]
-        #[diesel(table_name=crate::schema::lottery::lotterys, belongs_to(crate::pb::auth::auth::User))]",
+        #[diesel(table_name=crate::schema::lottery::lotterys, belongs_to(crate::pb::user::user::User))]",
     )
     .field_attribute(
         "lottery.lottery.LotteryInfo.user_id",
@@ -33,7 +33,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     .type_attribute(
         "lottery.lottery.NewLotteryInfo",
         "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset, ::diesel::prelude::Associations)]
-        #[diesel(table_name=crate::schema::lottery::lotterys, belongs_to(crate::pb::auth::auth::User))]",
+        #[diesel(table_name=crate::schema::lottery::lotterys, belongs_to(crate::pb::user::user::User))]",
     )
     .field_attribute(
         "lottery.lottery.NewLotteryInfo.user_id",
@@ -51,12 +51,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     .type_attribute(
         "lottery.record.RecordInfo",
         "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable, ::diesel::prelude::Associations)]
-        #[diesel(table_name=crate::schema::lottery::records, belongs_to(crate::pb::auth::auth::User), belongs_to(crate::pb::lottery::lottery::Item), belongs_to(crate::pb::lottery::lottery::LotteryInfo, foreign_key = lottery_id))]",
+        #[diesel(table_name=crate::schema::lottery::records, belongs_to(crate::pb::user::user::User), belongs_to(crate::pb::lottery::lottery::Item), belongs_to(crate::pb::lottery::lottery::LotteryInfo, foreign_key = lottery_id))]",
     )
     .type_attribute(
         "lottery.record.NewRecordInfo",
         "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset, ::diesel::prelude::Associations)]
-        #[diesel(table_name=crate::schema::lottery::records, belongs_to(crate::pb::auth::auth::User))]",
+        #[diesel(table_name=crate::schema::lottery::records, belongs_to(crate::pb::user::user::User))]",
     )
     .type_attribute(
         "lottery.record.RecordRemark",
@@ -91,12 +91,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     .type_attribute(
         "lottery.favorite.Favorite",
         "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Associations, ::diesel::prelude::Selectable)]
-        #[diesel(table_name=crate::schema::lottery::favorites, belongs_to(crate::pb::auth::auth::User), belongs_to(crate::pb::lottery::lottery::LotteryInfo, foreign_key = lottery_id))]",
+        #[diesel(table_name=crate::schema::lottery::favorites, belongs_to(crate::pb::user::user::User), belongs_to(crate::pb::lottery::lottery::LotteryInfo, foreign_key = lottery_id))]",
     )
     .type_attribute(
         "lottery.favorite.NewFavorite",
         "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset, ::diesel::prelude::Associations)]
-        #[diesel(table_name=crate::schema::lottery::favorites, belongs_to(crate::pb::auth::auth::User))]",
+        #[diesel(table_name=crate::schema::lottery::favorites, belongs_to(crate::pb::user::user::User))]",
     )
     .field_attribute(
         "lottery.favorite.Favorite.user_id",
@@ -185,12 +185,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     .type_attribute(
         "websocket.client.User",
         "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable, ::diesel::prelude::Associations)]
-        #[diesel(table_name=crate::schema::websocket::users, belongs_to(crate::pb::auth::auth::User))]",
+        #[diesel(table_name=crate::schema::websocket::users, belongs_to(crate::pb::user::user::User))]",
     )
     .type_attribute(
         "websocket.client.NewUser",
         "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset, ::diesel::prelude::Associations)]
-        #[diesel(table_name=crate::schema::websocket::users, belongs_to(crate::pb::auth::auth::User))]",
+        #[diesel(table_name=crate::schema::websocket::users, belongs_to(crate::pb::user::user::User))]",
     )
     .field_attribute(
         "websocket.client.User.user_id",
@@ -217,12 +217,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     .type_attribute(
         "wx.user.User",
         "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable, ::diesel::prelude::Associations)]
-        #[diesel(table_name=crate::schema::wx::users, belongs_to(crate::pb::auth::auth::User))]",
+        #[diesel(table_name=crate::schema::wx::users, belongs_to(crate::pb::user::user::User))]",
     )
     .type_attribute(
         "wx.user.NewUser",
         "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset, ::diesel::prelude::Associations)]
-        #[diesel(table_name=crate::schema::wx::users, belongs_to(crate::pb::auth::auth::User))]",
+        #[diesel(table_name=crate::schema::wx::users, belongs_to(crate::pb::user::user::User))]",
     )
     .field_attribute(
         "wx.user.User.id",
@@ -331,6 +331,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "#[diesel(serialize_as = ::empty_utils::diesel::timestamp::Timestamp)]",
     )
     .type_attribute(
+        "user.auth.JWTPayload",
+        "#[derive(::serde::Serialize,::serde::Deserialize)]",
+    )
+    .type_attribute(
         "user.auth.Client",
         "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable)]
         #[diesel(table_name=crate::schema::user::clients)]",
@@ -421,13 +425,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 "./proto/lottery/record.proto",
                 "./proto/lottery/template.proto",
                 "./proto/lottery/favorite.proto",
-                "./proto/auth/auth.proto",
-                "./proto/auth/auth.proto",
+                // "./proto/auth/auth.proto",
                 "./proto/user/user.proto",
                 "./proto/user/auth.proto",
                 "./proto/websocket/client.proto",
                 "./proto/wx/wx.proto",
-                "./proto/wx/user.proto",
+                // "./proto/wx/user.proto",
                 "./proto/blog/blog.proto",
                 "./proto/oss/oss.proto",
             ],

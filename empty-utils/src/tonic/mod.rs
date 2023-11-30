@@ -8,10 +8,6 @@ use tower::{
     timeout::TimeoutLayer,
     ServiceBuilder,
 };
-use tower_http::{
-    classify::{GrpcErrorsAsFailures, SharedClassifier},
-    trace::TraceLayer,
-};
 
 use crate::errors::Result;
 
@@ -66,12 +62,7 @@ where
 //     }
 // }
 
-pub fn server() -> Server<
-    Stack<
-        Stack<TraceLayer<SharedClassifier<GrpcErrorsAsFailures>>, Stack<TimeoutLayer, Identity>>,
-        Identity,
-    >,
-> {
+pub fn server() -> Server<Stack<Stack<TimeoutLayer, Identity>, Identity>> {
     // Build our middleware stack
     let layer = ServiceBuilder::new()
         // Set a timeout
@@ -81,11 +72,13 @@ pub fn server() -> Server<
         // Mark the `Authorization` header as sensitive so it doesn't show in logs
         // .layer(SetSensitiveHeadersLayer::new(once(header::AUTHORIZATION)))
         // Log all requests and responses
-        .layer(
-            tower_http::trace::TraceLayer::new_for_grpc(), // .on_request(DefaultMakeSpan::new().include_headers(true)),
-        )
+        // .layer(
+        //     tower_http::trace::TraceLayer::new_for_grpc(), // .on_request(DefaultMakeSpan::new().include_headers(true)),
+        // )
         .into_inner();
 
-    let server = Server::builder().layer(layer);
+    let server: Server<Stack<Stack<TimeoutLayer, Identity>, Identity>> = Server::builder()
+        .layer(layer)
+        .trace_fn(|_| tracing::info_span!("empty_backend_server"));
     server
 }
