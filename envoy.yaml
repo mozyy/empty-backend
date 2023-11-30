@@ -19,18 +19,20 @@ static_resources:
             virtual_hosts:
             - name: local_service
               domains: ["*"]
+              routes:
+                # NOTE: by default, matching happens based on the gRPC route, and not on the incoming request path.
+                # Reference: https://envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/grpc_json_transcoder_filter#route-configs-for-transcoded-requests
+                - match: {prefix: "/", grpc: {}}
+                  route:
+                    cluster: grpc
+                    timeout: 60s
               typed_per_filter_config:
                 envoy.filters.http.cors:
                   "@type": type.googleapis.com/envoy.extensions.filters.http.cors.v3.CorsPolicy
                   allow_origin_string_match:
-                  - exact: http://localhost:3000
-              routes:
-              # NOTE: by default, matching happens based on the gRPC route, and not on the incoming request path.
-              # Reference: https://envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/grpc_json_transcoder_filter#route-configs-for-transcoded-requests
-              - match: {prefix: "/", grpc: {}}
-                route:
-                  cluster: grpc
-                  timeout: 60s
+                  - safe_regex:
+                      regex: \*
+                  allow_methods: "POST"
           http_filters:
           - name: envoy.filters.http.grpc_json_transcoder
             typed_config:
@@ -42,9 +44,7 @@ static_resources:
                 - "lottery.record.RecordService"
                 - "lottery.favorite.FavoriteService"
                 - "lottery.template.TemplateService"
-                - "auth.auth.AuthService"
                 - "wx.wx.WxService"
-                - "wx.user.UserService"
                 - "oss.oss.OssService"
                 - "user.user.UserService"
                 - "user.auth.AuthService"

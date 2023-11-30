@@ -103,7 +103,7 @@ INSERT INTO public.clients (id, name, redirect_uri, default_scope, default_expir
 
 INSERT INTO public.configs (id, pattern, scope) VALUES (1, '(3,.*)', 'logined');
 INSERT INTO public.configs (id, pattern, scope) VALUES (2, '(3,"^/lottery.LotteryService/Lotterys/\\d$")', NULL);
-INSERT INTO public.configs (id, pattern, scope) VALUES (3, '(1,/user.UserService/Login)', NULL);
+INSERT INTO public.configs (id, pattern, scope) VALUES (3, '(3,"/user.user.UserService/login.*")', NULL);
 INSERT INTO public.configs (id, pattern, scope) VALUES (4, '(3,.*)', NULL);
 INSERT INTO public.configs (id, pattern, scope) VALUES (5, '(3,.*)', NULL);
 

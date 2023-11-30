@@ -112,10 +112,17 @@ impl pb::user::user::user_service_server::UserService for Service {
         let resp = resp.into_inner();
         log::info!("wx sns_jscode2session success: {:?}", resp);
 
+        let new_weixin = pb::user::user::NewWeixin {
+            openid: resp.openid.clone(),
+            unionid: resp.unionid,
+            session_key: resp.session_key,
+        };
+
         let mut conn = self.db.get_conn()?;
 
         let user = match dao::weixin::query_by_open_id(&mut conn, resp.openid) {
             Ok(weixin) => {
+                dao::weixin::update_by_id(&mut conn, weixin.id, new_weixin)?;
                 let user = dao::user::query_by_weixin_id(&mut conn, weixin.id)?;
                 user
             }
@@ -126,12 +133,8 @@ impl pb::user::user::user_service_server::UserService for Service {
                     avatar: None,
                 };
                 let info = dao::info::insert(&mut conn, info)?;
-                let weixin = pb::user::user::NewWeixin {
-                    openid: todo!(),
-                    unionid: todo!(),
-                    session_key: todo!(),
-                };
-                let weixin = dao::weixin::insert(&mut conn, weixin)?;
+                
+                let weixin = dao::weixin::insert(&mut conn, new_weixin)?;
                 let user = pb::user::user::NewUser {
                     info_id: info.id,
                     mobile_id: None,
@@ -153,5 +156,33 @@ impl pb::user::user::user_service_server::UserService for Service {
             gen_resource_token(user.id, id, name, default_expires_in, default_scope)?;
         dao::refresh_resource::insert(&mut conn, resource)?;
         token.to_resp()
+    }
+
+    async fn get(
+        &self,
+        request: Request<pb::user::user::GetRequest>,
+    ) -> Resp<pb::user::user::GetResponse> {
+        let id = request.into_inner().id.parse().ok_or_invalid()?;
+        let mut conn = self.db.get_conn()?;
+        let user = dao::user::query_by_id(&mut conn, id)?;
+        pb::user::user::GetResponse{user:Some(user)}.to_resp()
+    }
+    async fn get_info(
+        &self,
+        request: Request<pb::user::user::GetInfoRequest>,
+    ) -> Resp<pb::user::user::GetInfoResponse> {
+        let id = request.into_inner().id;
+        let mut conn = self.db.get_conn()?;
+        let info = dao::info::query_by_id(&mut conn, id)?;
+        pb::user::user::GetInfoResponse{info:Some(info)}.to_resp()
+    }
+    async fn update_info(
+        &self,
+        request: Request<pb::user::user::UpdateInfoRequest>,
+    ) -> Resp<pb::user::user::UpdateInfoResponse> {
+        let request = request.into_inner();
+        let mut conn = self.db.get_conn()?;
+        let info = dao::info::update_by_id(&mut conn, request.id, request.info.ok_or_loss()?)?;
+        pb::user::user::UpdateInfoResponse{info:Some(info)}.to_resp()
     }
 }

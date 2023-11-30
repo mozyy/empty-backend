@@ -37,6 +37,24 @@ service UserService {
       body: "*"
     };
   }
+
+  rpc Get(GetRequest) returns (GetResponse) {
+    option (google.api.http) = {
+      get: "/wx.user.UserService/users/{id}"
+    };
+  }
+
+  rpc GetInfo(GetInfoRequest) returns (GetInfoResponse) {
+    option (google.api.http) = {
+      get: "/wx.user.UserService/info/{id}"
+    };
+  }
+  rpc UpdateInfo(UpdateInfoRequest) returns (UpdateInfoResponse) {
+    option (google.api.http) = {
+      put: "/wx.user.UserService/info/{id}",
+      body: "*"
+    };
+  }
 }
 
 // 用户
@@ -114,4 +132,26 @@ message RegisterMobileRequest {
 message LoginWeixinRequest {
   string client_id = 1;
   string code = 2;
+}
+
+message GetRequest {
+  string id = 1;
+}
+message GetResponse {
+  User user = 1;
+}
+
+message GetInfoRequest {
+  int32 id = 1;
+}
+message GetInfoResponse {
+  Info info = 1;
+}
+
+message UpdateInfoRequest {
+  int32 id = 1;
+  NewInfo info = 2;
+}
+message UpdateInfoResponse {
+  Info info = 1;
 }

@@ -79,6 +79,6 @@ pub fn server() -> Server<Stack<Stack<TimeoutLayer, Identity>, Identity>> {
 
     let server: Server<Stack<Stack<TimeoutLayer, Identity>, Identity>> = Server::builder()
         .layer(layer)
-        .trace_fn(|_| tracing::info_span!("empty_backend_server"));
+        .trace_fn(|_| tracing::info_span!("empty"));
     server
 }

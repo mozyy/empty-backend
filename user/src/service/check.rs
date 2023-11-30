@@ -116,7 +116,7 @@ where
                 request.extensions_mut().insert(sub);
                 return Ok(request);
             }
-            if scope_uri.is_empty() {
+            if !scope_uri.is_empty() {
                 Err(get_unauthorized_response())?
             }
             Ok(request)

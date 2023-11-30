@@ -11,9 +11,7 @@ protoc \
   ./proto/proto/lottery/record.proto \
   ./proto/proto/lottery/template.proto \
   ./proto/proto/lottery/favorite.proto \
-  ./proto/proto/auth/auth.proto \
   ./proto/proto/wx/wx.proto \
-  ./proto/proto/wx/user.proto \
   ./proto/proto/health/department.proto \
   ./proto/proto/health/hospital.proto \
   ./proto/proto/health/nurse.proto \

@@ -24,9 +24,9 @@ pub fn gen_resource_token(
     OsRng.fill_bytes(&mut refresh_token);
     let refresh_token = general_purpose::STANDARD.encode(refresh_token);
     let now = Utc::now();
-    let until = now + Duration::seconds(client_expires_in as i64);
+    let expires_in = now.timestamp() + client_expires_in as i64;
     let until = Some(prost_types::Timestamp {
-        seconds: until.timestamp(),
+        seconds: expires_in,
         nanos: 0,
     });
     let token_type = String::from("Bearer");
@@ -61,7 +61,7 @@ pub fn gen_resource_token(
     let token = pb::user::auth::Token {
         access_token,
         token_type,
-        expires_in: client_expires_in,
+        expires_in,
         refresh_token,
         scope,
     };
