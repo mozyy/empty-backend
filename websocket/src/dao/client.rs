@@ -32,7 +32,6 @@ pub fn insert(
         .get_result::<pb::websocket::client::User>(conn)?;
     Ok(user)
 }
-// TODO: patch
 pub fn update_by_id(
     conn: &mut PgConnection,
     id: i32,

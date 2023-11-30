@@ -142,7 +142,6 @@ pub fn insert(
     let lottery = insert_items_remarks(conn, lottery, items, remarks)?;
     Ok(lottery)
 }
-// TODO: patch
 pub fn update_by_id(
     conn: &mut PgConnection,
     id: i32,

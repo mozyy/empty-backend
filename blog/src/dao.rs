@@ -29,7 +29,6 @@ pub async fn insert(
         .get_result(conn)?;
     Ok(blog)
 }
-// TODO: patch
 pub async fn update_by_id(
     conn: &mut PgConnection,
     id: i32,

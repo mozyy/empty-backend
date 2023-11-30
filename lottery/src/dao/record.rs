@@ -136,7 +136,6 @@ pub fn insert(
     let record = insert_record_remarks(conn, record, record_remarks)?;
     Ok(record)
 }
-// TODO: patch
 pub fn update_by_id(
     conn: &mut PgConnection,
     id: i32,

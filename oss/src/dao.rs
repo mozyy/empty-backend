@@ -32,7 +32,6 @@ pub fn insert(conn: &mut PgConnection, oss: pb::oss::oss::NewOss) -> Result<pb::
         .get_result::<pb::oss::oss::Oss>(conn)?;
     Ok(oss)
 }
-// TODO: patch
 pub fn update_by_id(
     conn: &mut PgConnection,
     id: i32,

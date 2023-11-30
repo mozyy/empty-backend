@@ -107,80 +107,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "#[diesel(serialize_as = ::empty_utils::tonic::uuid::Uuid)]",
     )
 
-    // auth
-    .type_attribute(
-        "auth.auth.Resource",
-        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable)]
-        #[diesel(table_name=crate::schema::auth::resources)]",
-    )
-    .field_attribute(
-        "auth.auth.Resource.user_id",
-        "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
-    )
-    .field_attribute(
-        "auth.auth.Resource.client_id",
-        "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
-    )
-    .field_attribute(
-        "auth.auth.Resource.until",
-        "#[diesel(deserialize_as = ::empty_utils::diesel::timestamp::Timestamp)]",
-    )
-    .type_attribute(
-        "auth.auth.NewResource",
-        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
-        #[diesel(table_name=crate::schema::auth::resources)]",
-    )
-    .field_attribute(
-        "auth.auth.NewResource.user_id",
-        "#[diesel(serialize_as = ::empty_utils::tonic::uuid::Uuid)]",
-    )
-    .field_attribute(
-        "auth.auth.NewResource.client_id",
-        "#[diesel(serialize_as = ::empty_utils::tonic::uuid::Uuid)]",
-    )
-    .field_attribute(
-        "auth.auth.NewResource.until",
-        "#[diesel(serialize_as = ::empty_utils::diesel::timestamp::Timestamp)]",
-    )
-    .type_attribute(
-        "auth.auth.User",
-        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable)]
-    #[diesel(table_name=crate::schema::auth::users)]",
-    )
-    .field_attribute(
-        "auth.auth.User.id",
-        "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
-    )
-    .type_attribute(
-        "auth.auth.Client",
-        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable)]
-        #[diesel(table_name=crate::schema::auth::clients)]",
-    )
-    .field_attribute(
-        "auth.auth.Client.id",
-        "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
-    )
-    .type_attribute(
-        "auth.auth.NewClient",
-        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
-        #[diesel(table_name=crate::schema::auth::clients)]",
-    )
-    .type_attribute(
-        "auth.auth.Config",
-        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable)]
-        #[diesel(table_name=crate::schema::auth::configs)]",
-    )
-    .type_attribute(
-        "auth.auth.NewConfig",
-        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset)]
-        #[diesel(table_name=crate::schema::auth::configs)]",
-    )
-    .type_attribute(
-        "auth.auth.Pattern",
-        "#[derive(::diesel::FromSqlRow, ::diesel::AsExpression)]
-        #[diesel(sql_type=crate::schema::auth::sql_types::Pattern)]",
-    )
-
     // websocket
     .type_attribute(
         "websocket.client.User",
@@ -213,28 +139,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     .type_attribute(
         "wx.wx.Error",
         "#[derive(::serde::Deserialize)]",
-    )
-    .type_attribute(
-        "wx.user.User",
-        "#[derive(::diesel::prelude::Queryable, ::diesel::prelude::Identifiable, ::diesel::prelude::Selectable, ::diesel::prelude::Associations)]
-        #[diesel(table_name=crate::schema::wx::users, belongs_to(crate::pb::user::user::User))]",
-    )
-    .type_attribute(
-        "wx.user.NewUser",
-        "#[derive(::diesel::prelude::Insertable, ::diesel::prelude::AsChangeset, ::diesel::prelude::Associations)]
-        #[diesel(table_name=crate::schema::wx::users, belongs_to(crate::pb::user::user::User))]",
-    )
-    .field_attribute(
-        "wx.user.User.id",
-        "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
-    )
-    .field_attribute(
-        "wx.user.User.user_id",
-        "#[diesel(deserialize_as = ::empty_utils::tonic::uuid::Uuid)]",
-    )
-    .field_attribute(
-        "wx.user.NewUser.user_id",
-        "#[diesel(serialize_as = ::empty_utils::tonic::uuid::Uuid)]",
     )
 
     // blog
